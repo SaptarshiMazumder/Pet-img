@@ -35,9 +35,9 @@ WORKDIR /comfyui
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ------------------------------------------------------------
-# RunPod SDK
+# RunPod SDK + R2 upload
 # ------------------------------------------------------------
-RUN pip install --no-cache-dir runpod==1.7.3
+RUN pip install --no-cache-dir runpod==1.7.3 boto3==1.34.69
 
 # ------------------------------------------------------------
 # Create model directory stubs (real content lives on the

@@ -25,7 +25,7 @@
   "24": {
     "class_type": "ModelSamplingAuraFlow",
     "inputs": {
-      "model": ["30", 0],
+      "model": ["44", 0],
       "shift": 3.0
     }
   },
@@ -45,8 +45,8 @@
   "28": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "text": "w3t1nk A closeup shot of a stoic orange tabby cat with rich ginger fur marked by darker orange stripes, a pale muzzle, soft cream fur around the chest, long white whiskers, and alert triangular ears. Its steady amber eyes hold a calm, self-possessed expression. The cat is dressed in elegant shogun clothing with richly layered historical robes, wide sleeves, fine patterned fabrics, formal draping, and a distinguished shogun hat that gives it the noble presence of a high-ranking ruler. It is reclining lazily indoors against a side pillow in a relaxed but dignified pose, one paw lifting a small sake cup as if quietly drinking in contemplation. Beside it rests a traditional sake bottle and a low lacquered tray. The scene takes place in a refined traditional Japanese room with tatami flooring, sliding shoji screens, wooden beams, and subtle decorative objects that evoke an old noble residence or castle chamber. A Japanese painting decorates the interior, adding elegance and period atmosphere to the room. Soft light filters through the space, casting gentle highlights across the cat's robes, the sake cup, and the room around it. The mood feels intimate, noble, relaxed, and atmospheric. This is an artistic ink wash style painting, sumi-e aesthetic, delicate brushstrokes, high detail, intricate textures, expressive composition. No text, no watermark, no logos, no blur, no anatomical errors, no extra limbs",
-      "clip": ["30", 1]
+      "text": "w3t1nk A stoic Shiba Inu with warm golden-orange fur, cream-white markings on the muzzle, chest, and inner legs, a curled tail, alert triangular ears, and dark almond-shaped eyes, depicted as a noble shogun-like scholar. It wears small round reading glasses, a traditional scholar hat, and an elegant kimono with layered draping and refined patterns. The Shiba Inu lies stretched out comfortably on a futon in a dignified indoor pose, holding a scroll in one paw as if deeply absorbed in reading. In front of it rests a sake bottle and a small sake cup on a low lacquered tray. The surroundings form a refined traditional Japanese room with tatami mats, shoji screens, exposed wooden beams, hanging scroll paintings, decorative wall art, ceramics, and subtle noble ornaments that enrich the interior with historical elegance. Gentle indoor light illuminates the room, highlighting the scroll, the sake set, and the folds of the kimono. The mood is scholarly, noble, calm, and atmospheric. Artistic ink wash painting, sumi-e aesthetic, delicate brushwork, subtle ink gradients, soft layered washes, elegant composition, high detail, intricate textures. No harness, no collar, no text, no watermark, no logos, no blur, no anatomical errors, no extra limbs",
+      "clip": ["44", 1]
     }
   },
   "29": {
@@ -62,8 +62,8 @@
       "model": ["21", 0],
       "clip": ["22", 0],
       "lora_name": "wetInkZTurbo.safetensors",
-      "strength_model": 0.5,
-      "strength_clip": 0.5
+      "strength_model": 0.3,
+      "strength_clip": 0.3
     }
   },
   "31": {
@@ -73,7 +73,7 @@
       "positive": ["28", 0],
       "negative": ["29", 0],
       "latent_image": ["23", 0],
-      "seed": 729053145416782,
+      "seed": 775992634558440,
       "control_after_generate": "randomize",
       "steps": 15,
       "cfg": 1.0,
@@ -118,6 +118,16 @@
     "inputs": {
       "images": ["39", 0],
       "filename_prefix": "ComfyUI"
+    }
+  },
+  "44": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "model": ["30", 0],
+      "clip": ["30", 1],
+      "lora_name": "ukiyoeZTurbo.safetensors",
+      "strength_model": 0.5,
+      "strength_clip": 0.5
     }
   }
 }

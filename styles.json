@@ -1,0 +1,12 @@
+{
+  "inkwash": {
+    "name": "Ink Wash (Sumi-e)",
+    "trigger_word": "w3t1nk",
+    "suffix": "This is an artistic ink wash style painting, sumi-e aesthetic, delicate brushstrokes, subtle ink gradients, soft layered washes, refined composition, high detail, intricate textures, expressive composition. No text, no watermark, no logos, no blur, no anatomical errors, no extra limbs"
+  },
+  "ukiyoe": {
+    "name": "Ukiyo-e (Japanese Woodblock)",
+    "trigger_word": "Ukiyo-e",
+    "suffix": "Ukiyo-e style, Japanese woodblock print aesthetic, flat bold outlines, traditional Edo-period color palette, woodblock carving texture, stylized natural forms, decorative patterned fabrics, flowing linear detail, Japanese woodcut print, Hiroshige and Hokusai influenced, hand-printed feel. No text, no watermark, no logos, no blur, no anatomical errors, no extra limbs"
+  }
+}

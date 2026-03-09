@@ -1,7 +1,7 @@
 # ZTurboLoraPet — RunPod Serverless Worker
 
 ComfyUI serverless API wrapping the **ZTurboLoraPet** workflow.
-Stack: `z_image_turbo_bf16` UNET · Qwen3-4B CLIP (lumina2) · FLUX VAE · sketchZTurbo LoRA.
+Stack: `z_image_turbo_bf16` UNET · Qwen3-4B CLIP (lumina2) · FLUX VAE · two chained LoRAs.
 
 ---
 
@@ -42,34 +42,41 @@ mkdir -p /runpod-volume/output
 #### UNET — Z-Image Turbo (bf16)
 
 ```bash
-# Replace <REPO> with the actual HuggingFace repo for this model.
-# e.g. https://huggingface.co/<author>/z-image-turbo/resolve/main/z_image_turbo_bf16.safetensors
 wget "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors" \
-  -O /workspace/models/diffusion_models/z_image_turbo_bf16.safetensors
+  -O /runpod-volume/models/unet/z_image_turbo_bf16.safetensors
 ```
 
 #### VAE — FLUX ae.safetensors
 
 ```bash
 wget "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors" \
-  -O /workspace/models/vae/ae.safetensors
+  -O /runpod-volume/models/vae/ae.safetensors
 ```
 
 #### CLIP — Qwen3 4B (lumina2 format)
 
 ```bash
-# Replace <REPO> with the actual HuggingFace repo that hosts qwen_3_4b.safetensors.
-# Likely a converted/merged CLIP export from the Lumina2 / Z-Image project.
 wget "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors" \
-  -O /workspace/models/text_encoders/qwen_3_4b.safetensors
+  -O /runpod-volume/models/clip/qwen_3_4b.safetensors
 ```
 
-#### LoRA — sketchZTurbo
+#### LoRA 1 — wetInkZTurbo (style, strength 0.3)
+
+Applied first in the chain. Provides the wet ink / sumi-e base style. Trigger token: `w3t1nk`.
 
 ```bash
-# Replace <REPO> with the actual HuggingFace repo or CivitAI download URL.
-wget -c -O /runpod-volume/models/loras/sketchZTurbo.safetensors \
-    "https://huggingface.co/<AUTHOR>/<REPO>/resolve/main/sketchZTurbo.safetensors"
+wget -c -O /runpod-volume/models/loras/wetInkZTurbo.safetensors \
+    "https://huggingface.co/<AUTHOR>/<REPO>/resolve/main/wetInkZTurbo.safetensors"
+```
+
+#### LoRA 2 — ukiyoeZTurbo (style, strength 0.5)
+
+Applied second, on top of LoRA 1. Adds ukiyo-e woodblock print aesthetics.
+Its CLIP output feeds the positive encoder; wetInkZTurbo CLIP feeds the negative encoder.
+
+```bash
+wget -c -O /runpod-volume/models/loras/ukiyoeZTurbo.safetensors \
+    "https://huggingface.co/<AUTHOR>/<REPO>/resolve/main/ukiyoeZTurbo.safetensors"
 ```
 
 ### 1c — Verify
@@ -88,19 +95,31 @@ ls -lh /runpod-volume/models/loras/
 ```bash
 cd runpod/
 
-docker build -t your-dockerhub-user/zturbolorapet:latest .
-docker push your-dockerhub-user/zturbolorapet:latest
+docker build -t raj1145/pet-generator-worker:latest .
+docker push raj1145/pet-generator-worker:latest
 ```
+
+Or trigger the GitHub Action: **Actions → Build Pet Generator Worker → Run workflow**.
 
 ---
 
 ## 3 — Deploy on RunPod Serverless
 
 1. **New Endpoint** → select *Serverless*
-2. Container image: `your-dockerhub-user/zturbolorapet:latest`
+2. Container image: `raj1145/pet-generator-worker:<tag>`
 3. Container disk: **20 GB** (ComfyUI + Python — models live on the volume)
 4. Attach the Network Volume you prepared in step 1
-5. Environment variable: `VOLUME_PATH=/runpod-volume` (already set in Dockerfile, but confirm here)
+5. Set the following environment variables:
+
+| Variable | Description |
+|---|---|
+| `VOLUME_PATH` | `/runpod-volume` |
+| `R2_ACCOUNT_ID` | Cloudflare account ID |
+| `R2_ACCESS_KEY_ID` | R2 API token key ID |
+| `R2_SECRET_ACCESS_KEY` | R2 API token secret |
+| `R2_BUCKET_NAME` | R2 bucket name |
+| `R2_PUBLIC_BASE_URL` | *(optional)* custom public domain, e.g. `https://images.yourdomain.com` |
+
 6. Set GPU type, min/max workers, idle timeout as desired
 
 ---
@@ -121,28 +140,31 @@ All fields are **optional**. Omitting a field keeps the workflow default.
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `prompt` | string | *(long Shiba Inu prompt)* | Positive text prompt. Include the `w3t1nk` token to activate the LoRA. |
+| `prompt` | string | *(Shiba Inu scholar prompt)* | Positive prompt. Must include `w3t1nk` to activate the wet ink LoRA. |
 | `negative_prompt` | string | `""` | Negative text prompt |
 | `width` | int | `1024` | Output width in pixels |
 | `height` | int | `1024` | Output height in pixels |
-| `steps` | int | `15` | KSampler denoising steps |
+| `steps` | int | `15` | Pass 1 denoising steps |
 | `cfg` | float | `1.0` | Classifier-free guidance scale |
 | `seed` | int | random | RNG seed (`-1` = random) |
-| `lora_name` | string | `sketchZTurbo.safetensors` | LoRA filename (must exist in `models/loras/`) |
-| `lora_strength` | float | `0.5` | LoRA strength applied to both model and CLIP |
 | `batch_size` | int | `1` | Number of images per request |
+| `lora_name` | string | `wetInkZTurbo.safetensors` | LoRA 1 filename (wet ink style) |
+| `lora_strength` | float | `0.3` | LoRA 1 strength (model + clip) |
+| `lora2_name` | string | `ukiyoeZTurbo.safetensors` | LoRA 2 filename (ukiyo-e style) |
+| `lora2_strength` | float | `0.5` | LoRA 2 strength (model + clip) |
+| `upscale_factor` | float | `1.25` | Latent upscale multiplier |
+| `upscale_steps` | int | `8` | Pass 2 refine steps |
+| `upscale_denoise` | float | `0.7` | Pass 2 denoise strength |
+| `upscale_sampler` | string | `dpmpp_sde` | Pass 2 sampler |
+| `upscale_scheduler` | string | `beta` | Pass 2 scheduler |
 
 ### Example request
 
 ```json
 {
   "input": {
-    "prompt": "w3t1nk A golden retriever wearing a knight's armor, dramatic lighting, ink wash style",
+    "prompt": "w3t1nk A golden retriever wearing a shogun helmet, moonlit garden, cherry blossoms",
     "negative_prompt": "blurry, watermark, text",
-    "width": 1024,
-    "height": 1024,
-    "steps": 15,
-    "cfg": 1.0,
     "seed": 42
   }
 }
@@ -158,38 +180,25 @@ All fields are **optional**. Omitting a field keeps the workflow default.
     "images": [
       {
         "index": 0,
-        "data": "<base64-encoded PNG>",
-        "format": "png"
+        "url": "https://your-bucket.r2.cloudflarestorage.com/pet-generator/<prompt_id>/42_0.png",
+        "key": "pet-generator/<prompt_id>/42_0.png"
       }
     ],
     "prompt_id": "...",
-    "seed": 42
+    "seed": 42,
+    "upscale_denoise": 0.7,
+    "upscale_sampler": "dpmpp_sde",
+    "upscale_scheduler": "beta"
   }
 }
-```
-
-Decode the image in Python:
-
-```python
-import base64, json, requests
-
-resp = requests.post(
-    "https://api.runpod.ai/v2/<ENDPOINT_ID>/runsync",
-    headers={"Authorization": "Bearer <KEY>", "Content-Type": "application/json"},
-    json={"input": {"prompt": "w3t1nk a fluffy corgi astronaut", "seed": 1234}},
-)
-result = resp.json()
-for img in result["output"]["images"]:
-    with open(f"out_{img['index']}.png", "wb") as f:
-        f.write(base64.b64decode(img["data"]))
 ```
 
 ---
 
 ## 5 — Notes
 
-- **`w3t1nk` trigger token** — the `sketchZTurbo` LoRA is activated by including `w3t1nk` in the prompt. Keep it at the start.
-- **LoRA wiring** — in this workflow the LoRA model output feeds `ModelSamplingAuraFlow` (shift=3), which currently has no downstream connection. The LoRA CLIP output feeds the *negative* encoder. This matches the original workflow exactly and is intentional.
-- **`res_multistep` sampler** — built into ComfyUI core as of v0.2+; no custom nodes required.
-- **Custom nodes** — none required. All nodes use `comfy-core`.
+- **`w3t1nk` trigger token** — required in the prompt to activate `wetInkZTurbo`. Keep it at the start.
+- **LoRA chain** — `wetInkZTurbo (0.3)` → `ukiyoeZTurbo (0.5)` → `ModelSamplingAuraFlow (shift=3)` → both KSamplers. `ukiyoeZTurbo` CLIP feeds the positive encoder; `wetInkZTurbo` CLIP feeds the negative encoder.
+- **`res_multistep` sampler** — built into ComfyUI core; no custom nodes required.
+- **Custom nodes** — none. All nodes use `comfy-core`.
 - The `output/` folder on the volume accumulates generated images; clean it periodically if disk space is a concern.
