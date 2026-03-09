@@ -171,7 +171,7 @@ def build_workflow(job_input: dict) -> dict:
       steps             int   Denoising steps (default: 15)
       cfg               float CFG scale (default: 1.0)
       seed              int   RNG seed; -1 or omitted → random
-      lora_name         str   LoRA filename in models/loras/ (default: ukiyoeZTurbo.safetensors)
+      lora_name         str   LoRA filename in models/loras/ (default: wetInkZTurbo.safetensors)
       lora_strength     float LoRA model + clip strength (default: 0.5)
       batch_size        int   Number of images (default: 1)
 
