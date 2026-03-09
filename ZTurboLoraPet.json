@@ -1,0 +1,943 @@
+{
+  "id": "e5b3e8b1-2445-4674-b09d-8def8a46f960",
+  "revision": 0,
+  "last_node_id": 43,
+  "last_link_id": 225,
+  "nodes": [
+    {
+      "id": 23,
+      "type": "EmptySD3LatentImage",
+      "pos": [
+        610.8731852725382,
+        1040.8499839455744
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            35
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "EmptySD3LatentImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 21,
+      "type": "UNETLoader",
+      "pos": [
+        573.8731852725374,
+        595.8499839455716
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            30
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "UNETLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": [
+        "z_image_turbo_bf16.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 22,
+      "type": "CLIPLoader",
+      "pos": [
+        570.8731852725373,
+        737.8499839455714
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            31
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "CLIPLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": [
+        "qwen_3_4b.safetensors",
+        "lumina2",
+        "default"
+      ]
+    },
+    {
+      "id": 37,
+      "type": "LatentUpscaleBy",
+      "pos": [
+        2224.299234442663,
+        427.17614697798706
+      ],
+      "size": [
+        291.38894119972247,
+        122.52641490473707
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 211
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            203
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75",
+        "Node name for S&R": "LatentUpscaleBy",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.2.1"
+        }
+      },
+      "widgets_values": [
+        "bislerp",
+        1.25
+      ]
+    },
+    {
+      "id": 29,
+      "type": "CLIPTextEncode",
+      "pos": [
+        981.7731852725381,
+        904.6499839455726
+      ],
+      "size": [
+        400,
+        200
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 200
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            34,
+            209
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "CLIPTextEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 27,
+      "type": "VAEDecode",
+      "pos": [
+        1634.1467552725383,
+        1060.9226239455727
+      ],
+      "size": [
+        140,
+        46
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 26
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 27
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            47
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "VAEDecode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 39,
+      "type": "VAEDecode",
+      "pos": [
+        3160.9097122410353,
+        272.95062359051553
+      ],
+      "size": [
+        140,
+        46
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 204
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 213
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            205,
+            212
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75",
+        "Node name for S&R": "VAEDecode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.2.1"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 25,
+      "type": "VAELoader",
+      "pos": [
+        577.8731852725374,
+        915.8499839455724
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            27,
+            213
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "VAELoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": [
+        "ae.safetensors"
+      ]
+    },
+    {
+      "id": 41,
+      "type": "SaveImage",
+      "pos": [
+        3652.062161359484,
+        680.5090315719923
+      ],
+      "size": [
+        270,
+        270.0000000000001
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 212
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4"
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 40,
+      "type": "PreviewImage",
+      "pos": [
+        2969.3501190756356,
+        782.6164835323659
+      ],
+      "size": [
+        586.8894707937156,
+        840.6446445753165
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 205
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.2.1"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 28,
+      "type": "CLIPTextEncode",
+      "pos": [
+        906.8731852725383,
+        621.8499839455716
+      ],
+      "size": [
+        400,
+        200
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 220
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            33,
+            208
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "CLIPTextEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": [
+        "A graceful orange tabby cat with rich ginger fur, darker orange stripes, a pale muzzle, soft cream fur around the chest, alert triangular ears, long white whiskers, and calm amber eyes is seated serenely in a moonlit garden scene, rendered in traditional ukiyo-e style. The cat is posed in a quiet, elegant seated position, with its body relaxed and slightly turned, head gently lowered in a contemplative expression. It wears flowing traditional Japanese robes similar to a noble kimono, with layered fabric, wide sleeves, delicate floral patterns, and soft draping in red, cream, and muted floral tones, styled with the refined elegance of a ukiyo-e print. The robes wrap around the cat’s body gracefully, giving it a refined, poetic, almost royal presence.\n\nThe setting is a dreamy nighttime Japanese garden beneath a large glowing full moon, depicted in ukiyo-e style with graceful composition and decorative balance. Dark tree trunks rise on both sides of the composition, their branches filled with delicate pale pink cherry blossoms. Soft petals drift through the air, illuminated by cool moonlight. The cat sits among twisting branches and blossoms, surrounded by a tranquil, intimate atmosphere. The deep blue night sky contrasts beautifully with the warm orange fur and the vivid red robes. The overall scene feels serene, melancholic, and elegant, with the cat blending naturally into the moonlit floral environment.\n\nThe image should have the qualities of a traditional ukiyo-e print: strong clean outlines, elegant flat color areas, balanced negative space, stylized natural elements, graceful decorative flow, and a classic Japanese woodblock print aesthetic."
+      ]
+    },
+    {
+      "id": 32,
+      "type": "PreviewImage",
+      "pos": [
+        2354.9607905506505,
+        791.5783345894297
+      ],
+      "size": [
+        516.1576943540886,
+        741.1512152173168
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 47
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 38,
+      "type": "KSampler",
+      "pos": [
+        2589.67849719166,
+        283.6006139527874
+      ],
+      "size": [
+        377.1203204631988,
+        443.36358683492995
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 207
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 208
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 209
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 203
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            204
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75",
+        "Node name for S&R": "KSampler",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.2.1"
+        }
+      },
+      "widgets_values": [
+        60,
+        "fixed",
+        8,
+        1,
+        "dpmpp_sde",
+        "beta",
+        0.7
+      ]
+    },
+    {
+      "id": 30,
+      "type": "LoraLoader",
+      "pos": [
+        671.9631852725388,
+        329.4899839455723
+      ],
+      "size": [
+        290.4380859375,
+        126
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 30
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 31
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            225
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            200,
+            220
+          ]
+        }
+      ],
+      "title": "Load Character",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "LoraLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": [
+        "ukiyoeZTurbo.safetensors",
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": 31,
+      "type": "KSampler",
+      "pos": [
+        1533.2077562300321,
+        628.3769134446167
+      ],
+      "size": [
+        270,
+        262
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 221
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 33
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 34
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 35
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            26,
+            211
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "KSampler",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": [
+        431668246859261,
+        "randomize",
+        15,
+        1,
+        "res_multistep",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 24,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [
+        1208.3055956340559,
+        394.4201602550328
+      ],
+      "size": [
+        274.1772481694161,
+        58
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 225
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            207,
+            221
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "ModelSamplingAuraFlow",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      },
+      "widgets_values": [
+        3
+      ]
+    }
+  ],
+  "links": [
+    [
+      26,
+      31,
+      0,
+      27,
+      0,
+      "LATENT"
+    ],
+    [
+      27,
+      25,
+      0,
+      27,
+      1,
+      "VAE"
+    ],
+    [
+      30,
+      21,
+      0,
+      30,
+      0,
+      "MODEL"
+    ],
+    [
+      31,
+      22,
+      0,
+      30,
+      1,
+      "CLIP"
+    ],
+    [
+      33,
+      28,
+      0,
+      31,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      34,
+      29,
+      0,
+      31,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      35,
+      23,
+      0,
+      31,
+      3,
+      "LATENT"
+    ],
+    [
+      47,
+      27,
+      0,
+      32,
+      0,
+      "IMAGE"
+    ],
+    [
+      200,
+      30,
+      1,
+      29,
+      0,
+      "CLIP"
+    ],
+    [
+      203,
+      37,
+      0,
+      38,
+      3,
+      "LATENT"
+    ],
+    [
+      204,
+      38,
+      0,
+      39,
+      0,
+      "LATENT"
+    ],
+    [
+      205,
+      39,
+      0,
+      40,
+      0,
+      "IMAGE"
+    ],
+    [
+      207,
+      24,
+      0,
+      38,
+      0,
+      "MODEL"
+    ],
+    [
+      208,
+      28,
+      0,
+      38,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      209,
+      29,
+      0,
+      38,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      211,
+      31,
+      0,
+      37,
+      0,
+      "LATENT"
+    ],
+    [
+      212,
+      39,
+      0,
+      41,
+      0,
+      "IMAGE"
+    ],
+    [
+      213,
+      25,
+      0,
+      39,
+      1,
+      "VAE"
+    ],
+    [
+      220,
+      30,
+      1,
+      28,
+      0,
+      "CLIP"
+    ],
+    [
+      221,
+      24,
+      0,
+      31,
+      0,
+      "MODEL"
+    ],
+    [
+      225,
+      30,
+      0,
+      24,
+      0,
+      "MODEL"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Group 1 - Text 2 Image",
+      "bounding": [
+        -2335.7441584646685,
+        -1185.987489592449,
+        2851.800644602038,
+        1260.9050078453465
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "Lora+ZImage",
+      "bounding": [
+        560.8731852725373,
+        275.24998394557497,
+        1606,
+        881.6
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "workflowRendererVersion": "LG",
+    "ds": {
+      "scale": 0.43056764313427986,
+      "offset": [
+        -313.7773821153646,
+        263.1704439614675
+      ]
+    },
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "frontendVersion": "1.39.19"
+  },
+  "version": 0.4
+}

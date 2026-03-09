@@ -1,0 +1,129 @@
+{
+  "21": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "z_image_turbo_bf16.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "22": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    }
+  },
+  "23": {
+    "class_type": "EmptySD3LatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    }
+  },
+  "24": {
+    "class_type": "ModelSamplingAuraFlow",
+    "inputs": {
+      "model": ["30", 0],
+      "shift": 3.0
+    }
+  },
+  "25": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    }
+  },
+  "27": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["31", 0],
+      "vae": ["25", 0]
+    }
+  },
+  "28": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "A graceful orange tabby cat with rich ginger fur, darker orange stripes, a pale muzzle, soft cream fur around the chest, alert triangular ears, long white whiskers, and calm amber eyes is seated serenely in a moonlit garden scene, rendered in traditional ukiyo-e style. The cat is posed in a quiet, elegant seated position, with its body relaxed and slightly turned, head gently lowered in a contemplative expression. It wears flowing traditional Japanese robes similar to a noble kimono, with layered fabric, wide sleeves, delicate floral patterns, and soft draping in red, cream, and muted floral tones, styled with the refined elegance of a ukiyo-e print. The robes wrap around the cat's body gracefully, giving it a refined, poetic, almost royal presence.\n\nThe setting is a dreamy nighttime Japanese garden beneath a large glowing full moon, depicted in ukiyo-e style with graceful composition and decorative balance. Dark tree trunks rise on both sides of the composition, their branches filled with delicate pale pink cherry blossoms. Soft petals drift through the air, illuminated by cool moonlight. The cat sits among twisting branches and blossoms, surrounded by a tranquil, intimate atmosphere. The deep blue night sky contrasts beautifully with the warm orange fur and the vivid red robes. The overall scene feels serene, melancholic, and elegant, with the cat blending naturally into the moonlit floral environment.\n\nThe image should have the qualities of a traditional ukiyo-e print: strong clean outlines, elegant flat color areas, balanced negative space, stylized natural elements, graceful decorative flow, and a classic Japanese woodblock print aesthetic.",
+      "clip": ["30", 1]
+    }
+  },
+  "29": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "",
+      "clip": ["30", 1]
+    }
+  },
+  "30": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "model": ["21", 0],
+      "clip": ["22", 0],
+      "lora_name": "ukiyoeZTurbo.safetensors",
+      "strength_model": 0.5,
+      "strength_clip": 0.5
+    }
+  },
+  "31": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["24", 0],
+      "positive": ["28", 0],
+      "negative": ["29", 0],
+      "latent_image": ["23", 0],
+      "seed": 431668246859261,
+      "control_after_generate": "randomize",
+      "steps": 15,
+      "cfg": 1.0,
+      "sampler_name": "res_multistep",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "32": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": ["27", 0]
+    }
+  },
+  "37": {
+    "class_type": "LatentUpscaleBy",
+    "inputs": {
+      "samples": ["31", 0],
+      "upscale_method": "bislerp",
+      "scale_by": 1.25
+    }
+  },
+  "38": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["24", 0],
+      "positive": ["28", 0],
+      "negative": ["29", 0],
+      "latent_image": ["37", 0],
+      "seed": 60,
+      "control_after_generate": "fixed",
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "dpmpp_sde",
+      "scheduler": "beta",
+      "denoise": 0.7
+    }
+  },
+  "39": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["38", 0],
+      "vae": ["25", 0]
+    }
+  },
+  "41": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": ["39", 0],
+      "filename_prefix": "output"
+    }
+  }
+}

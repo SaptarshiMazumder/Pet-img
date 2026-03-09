@@ -1,0 +1,39 @@
+
+https://civitai.com/models/377617/wizardry-limited-palette?modelVersionId=480377 -illustration
+
+wget "https://civitai.com/api/download/models/2700349?type=Model&format=SafeTensor&token=32935a7da15c304c648fd5d1633002fd" \
+  -O /workspace/runpod-slim/ComfyUI/models/loras/Fantasy.safetensors
+
+wget "https://civitai.com/api/download/models/1021178?type=Model&format=SafeTensor&token=32935a7da15c304c648fd5d1633002fd" \
+  -O /workspace/runpod-slim/ComfyUI/models/loras/Watercolor.safetensors
+
+wget "https://civitai.com/api/download/models/1204461?type=Model&format=SafeTensor&token=32935a7da15c304c648fd5d1633002fd" \
+  -O /workspace/runpod-slim/ComfyUI/models/loras/Gothic.safetensors
+
+wget "https://civitai.com/api/download/models/2026481?type=Model&format=SafeTensor&token=32935a7da15c304c648fd5d1633002fd" \
+  -O /workspace/runpod-slim/ComfyUI/models/loras/ghibli2.safetensors --- Not so good
+
+
+wget "https://civitai.com/api/download/models/1774394?type=Model&format=SafeTensor&token=32935a7da15c304c648fd5d1633002fd" \
+  -O /workspace/runpod-slim/ComfyUI/models/loras/ghibli.safetensors   --Studio Ghibli Dark Fairytale
+https://civitai.com/models/1349631/dark-ghibli-fairytales?modelVersionId=1774394
+
+
+https://civitai.com/models/29555/shinyunbok-lora  -ukiyoe
+
+https://civitai.com/models/118754/renaissance-xl-by-edg   -renaissance painitng
+https://civitai.com/api/download/models/714075?type=Model&format=SafeTensor -renaissance realistic
+https://civitai.com/models/1507441/renaissancedavinci  - renaissancedavinci
+https://civitai.com/models/269749/paintings-by-titian-venetian-renaissance  - renaissance another type
+
+
+https://civitai.com/models/1209935/painting-enhancer- painitng( web like)
+https://civitai.com/models/744625/reinkpainting -reink
+
+
+FLUX1
+https://civitai.com/models/1064155/oil-painting-stylejuaner-retro-impressionist-oil-painting-style-flux -renaissance
+https://civitai.com/models/770143/eastern-painting-style-flux  - eastern painting
+https://civitai.com/models/1121875/japanese-ink-wash-and-watercolor-fusion-for-fantasy-art - beautiful ink wash
+https://civitai.com/models/1054574/ukiyo-e-japanese-woodblock-style-tsukioka-yoshitoshi  -ukiyoe
+https://civitai.com/models/1918044/eukiyo-e-stylejapanese-landscape-creation -colorful ukiyoe

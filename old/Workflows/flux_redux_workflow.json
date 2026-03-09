@@ -1,0 +1,817 @@
+{
+  "id": "ea54ba9d-5ec5-4b74-b930-81189a1b2dd6",
+  "revision": 0,
+  "last_node_id": 16,
+  "last_link_id": 18,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "UNETLoader",
+      "pos": [
+        30,
+        30
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "flux1-dev-fp8.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "DualCLIPLoader",
+      "pos": [
+        30,
+        180
+      ],
+      "size": [
+        315,
+        130
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 0,
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "DualCLIPLoader"
+      },
+      "widgets_values": [
+        "clip_l.safetensors",
+        "t5xxl_fp8_e4m3fn.safetensors",
+        "flux",
+        "default"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "VAELoader",
+      "pos": [
+        30,
+        380
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 0,
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "ae.safetensors"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "EmptySD3LatentImage",
+      "pos": [
+        30,
+        500
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "EmptySD3LatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 9,
+      "type": "CLIPVisionLoader",
+      "pos": [
+        420,
+        660
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "slot_index": 0,
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "CLIPVisionLoader"
+      },
+      "widgets_values": [
+        "sigclip_vision_patch14_384.safetensors"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "CLIPVisionEncode",
+      "pos": [
+        420,
+        780
+      ],
+      "size": [
+        315,
+        78
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "link": 7
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CLIP_VISION_OUTPUT",
+          "type": "CLIP_VISION_OUTPUT",
+          "slot_index": 0,
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "CLIPVisionEncode"
+      },
+      "widgets_values": [
+        "center"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "FluxGuidance",
+      "pos": [
+        1260,
+        780
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "FluxGuidance"
+      },
+      "widgets_values": [
+        7
+      ]
+    },
+    {
+      "id": 15,
+      "type": "VAEDecode",
+      "pos": [
+        1640,
+        400
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 15
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 2,
+      "type": "LoraLoader",
+      "pos": [
+        420,
+        30
+      ],
+      "size": [
+        380,
+        126
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            3
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 1,
+          "links": [
+            4,
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "LoraLoader"
+      },
+      "widgets_values": [
+        "inkPaintFlux.safetensors",
+        1,
+        1
+      ]
+    },
+    {
+      "id": 16,
+      "type": "SaveImage",
+      "pos": [
+        1910,
+        400
+      ],
+      "size": [
+        591.0330578512398,
+        550.9917355371899
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 17
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "FluxRedux_Animal"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "LoadImage",
+      "pos": [
+        30,
+        660
+      ],
+      "size": [
+        315,
+        314
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            8
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "slot_index": 1,
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "BlackShiba.png",
+        "image"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "StyleModelLoader",
+      "pos": [
+        862.9570075510501,
+        648.2010052276501
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STYLE_MODEL",
+          "type": "STYLE_MODEL",
+          "slot_index": 0,
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "StyleModelLoader"
+      },
+      "widgets_values": [
+        "flux1-redux-dev.safetensors"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "KSampler",
+      "pos": [
+        1421.5151284392746,
+        404.3262980831952
+      ],
+      "size": [
+        315,
+        262
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 3
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 18
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 13
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        1095552689544427,
+        "randomize",
+        30,
+        1,
+        "euler",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 12,
+      "type": "StyleModelApply",
+      "pos": [
+        885.2439976766,
+        810.1529866404499
+      ],
+      "size": [
+        315,
+        122
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 6
+        },
+        {
+          "name": "style_model",
+          "type": "STYLE_MODEL",
+          "link": 9
+        },
+        {
+          "name": "clip_vision_output",
+          "type": "CLIP_VISION_OUTPUT",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "StyleModelApply"
+      },
+      "widgets_values": [
+        0.05,
+        "multiply"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "CLIPTextEncode",
+      "pos": [
+        880,
+        280
+      ],
+      "size": [
+        425,
+        100
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "quadruped, on all fours, sword on back, sword sheathed on back, no sword in hand, animal anatomy only, extra limbs, blurry, deformed paws, bad weapon placement, floating sword, duplicate sword, low detail"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "CLIPTextEncode",
+      "pos": [
+        866.1615326042372,
+        -31.052062040129663
+      ],
+      "size": [
+        635.0626287480568,
+        222.46088755096065
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            6,
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.4",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "A fierce anthropomorphic black Shiba Inu samurai, rendered in elegant ink wash painting and watercolor style, standing upright on two legs on a narrow wooden bridge in a misty autumn forest. The character has the unmistakable appearance of a black Shiba Inu: glossy black fur, cream-colored markings on the muzzle, chest, and cheeks, tan accents above the eyes and on the legs, erect triangular ears, almond-shaped dark eyes, a fox-like face, and a thick curled tail. Its expression is stern and menacing, with narrowed eyes and a proud warrior stance.\n\nThe Shiba has a clean humanoid body structure with exactly two arms and two legs, no extra limbs, no additional paws, and no quadruped anatomy. It wears ornate red-and-black samurai armor with lacquered chest plates, armored shoulder guards, forearm guards, waist armor, and layered cloth details, all painted with expressive brush strokes and watercolor gradients. The Shiba is holding a katana firmly with both hands in front of its body, clearly gripping the sword like a warrior. The blade is fully visible and extended horizontally. The pose is balanced, upright, and battle-ready.\n\nThe background shows a soft misty forest with pale sky, drifting leaves, subtle ink splashes, and hints of autumn foliage in red and orange. The overall mood is calm yet foreboding, with bold brushwork, delicate ink bleeding, watercolor textures, and clean composition."
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      3,
+      0,
+      2,
+      1,
+      "CLIP"
+    ],
+    [
+      3,
+      2,
+      0,
+      14,
+      0,
+      "MODEL"
+    ],
+    [
+      4,
+      2,
+      1,
+      4,
+      0,
+      "CLIP"
+    ],
+    [
+      5,
+      2,
+      1,
+      5,
+      0,
+      "CLIP"
+    ],
+    [
+      6,
+      4,
+      0,
+      12,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      7,
+      9,
+      0,
+      10,
+      0,
+      "CLIP_VISION"
+    ],
+    [
+      8,
+      8,
+      0,
+      10,
+      1,
+      "IMAGE"
+    ],
+    [
+      9,
+      11,
+      0,
+      12,
+      1,
+      "STYLE_MODEL"
+    ],
+    [
+      10,
+      10,
+      0,
+      12,
+      2,
+      "CLIP_VISION_OUTPUT"
+    ],
+    [
+      11,
+      12,
+      0,
+      13,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      13,
+      5,
+      0,
+      14,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      14,
+      7,
+      0,
+      14,
+      3,
+      "LATENT"
+    ],
+    [
+      15,
+      14,
+      0,
+      15,
+      0,
+      "LATENT"
+    ],
+    [
+      16,
+      6,
+      0,
+      15,
+      1,
+      "VAE"
+    ],
+    [
+      17,
+      15,
+      0,
+      16,
+      0,
+      "IMAGE"
+    ],
+    [
+      18,
+      4,
+      0,
+      14,
+      1,
+      "CONDITIONING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.1167815779424808,
+      "offset": [
+        -354.0039939454682,
+        212.88679602117884
+      ]
+    },
+    "workflowRendererVersion": "LG",
+    "frontendVersion": "1.39.19"
+  },
+  "version": 0.4
+}

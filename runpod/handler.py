@@ -1,0 +1,286 @@
+"""
+RunPod Serverless Handler for ZTurboLoraPet ComfyUI workflow.
+
+Starts ComfyUI as a subprocess, then accepts RunPod jobs and routes them
+through ComfyUI's HTTP API, returning base64-encoded PNG images.
+"""
+
+import base64
+import copy
+import json
+import os
+import random
+import subprocess
+import sys
+import time
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+import runpod
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+COMFYUI_DIR = Path("/comfyui")
+WORKFLOW_PATH = Path(__file__).parent / "workflow_api.json"
+COMFYUI_HOST = "127.0.0.1"
+COMFYUI_PORT = 8188
+COMFYUI_URL = f"http://{COMFYUI_HOST}:{COMFYUI_PORT}"
+
+# Network volume mount expected at /runpod-volume
+# Symlinks are created at container start so ComfyUI can find the models.
+VOLUME_ROOT = Path(os.environ.get("VOLUME_PATH", "/runpod-volume"))
+
+# ---------------------------------------------------------------------------
+# Model symlinks
+# ---------------------------------------------------------------------------
+MODEL_SYMLINKS = {
+    COMFYUI_DIR / "models" / "unet": VOLUME_ROOT / "models" / "unet",
+    COMFYUI_DIR / "models" / "vae": VOLUME_ROOT / "models" / "vae",
+    COMFYUI_DIR / "models" / "clip": VOLUME_ROOT / "models" / "clip",
+    COMFYUI_DIR / "models" / "loras": VOLUME_ROOT / "models" / "loras",
+    COMFYUI_DIR / "output": VOLUME_ROOT / "output",
+}
+
+
+def create_symlinks():
+    for link, target in MODEL_SYMLINKS.items():
+        target.mkdir(parents=True, exist_ok=True)
+        if link.exists() or link.is_symlink():
+            if not link.is_symlink():
+                # Real directory — remove and re-link
+                import shutil
+                shutil.rmtree(link)
+            else:
+                link.unlink()
+        link.symlink_to(target)
+        print(f"[symlink] {link} -> {target}")
+
+
+# ---------------------------------------------------------------------------
+# ComfyUI lifecycle
+# ---------------------------------------------------------------------------
+_comfyui_proc: subprocess.Popen | None = None
+
+
+def start_comfyui():
+    global _comfyui_proc
+    print("[comfyui] starting server …")
+    _comfyui_proc = subprocess.Popen(
+        [
+            sys.executable,
+            "main.py",
+            "--listen",
+            COMFYUI_HOST,
+            "--port",
+            str(COMFYUI_PORT),
+            "--disable-auto-launch",
+            "--disable-metadata",
+        ],
+        cwd=str(COMFYUI_DIR),
+    )
+    wait_for_comfyui()
+
+
+def wait_for_comfyui(timeout: int = 120):
+    start = time.time()
+    while time.time() - start < timeout:
+        try:
+            urllib.request.urlopen(f"{COMFYUI_URL}/system_stats", timeout=2)
+            print("[comfyui] server is ready")
+            return
+        except Exception:
+            time.sleep(1)
+    raise RuntimeError("ComfyUI did not start within the timeout period")
+
+
+# ---------------------------------------------------------------------------
+# ComfyUI API helpers
+# ---------------------------------------------------------------------------
+def _http_json(method: str, path: str, payload: dict | None = None) -> dict:
+    url = f"{COMFYUI_URL}{path}"
+    data = json.dumps(payload).encode() if payload else None
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method=method,
+    )
+    with urllib.request.urlopen(req) as resp:
+        return json.loads(resp.read())
+
+
+def queue_prompt(workflow: dict) -> str:
+    """Submit a prompt and return the prompt_id."""
+    payload = {"prompt": workflow, "client_id": "runpod-worker"}
+    resp = _http_json("POST", "/prompt", payload)
+    return resp["prompt_id"]
+
+
+def poll_until_done(prompt_id: str, poll_interval: float = 0.5) -> None:
+    """Block until the prompt is no longer in the queue or running."""
+    while True:
+        queue = _http_json("GET", "/queue")
+        running_ids = [item[1] for item in queue.get("queue_running", [])]
+        pending_ids = [item[1] for item in queue.get("queue_pending", [])]
+        if prompt_id not in running_ids and prompt_id not in pending_ids:
+            return
+        time.sleep(poll_interval)
+
+
+def get_images(prompt_id: str) -> list[bytes]:
+    """Return raw PNG bytes for every image produced by the prompt."""
+    history = _http_json("GET", f"/history/{prompt_id}")
+    prompt_history = history.get(prompt_id, {})
+    outputs = prompt_history.get("outputs", {})
+
+    images: list[bytes] = []
+    for node_output in outputs.values():
+        for img_info in node_output.get("images", []):
+            params = urllib.parse.urlencode(
+                {
+                    "filename": img_info["filename"],
+                    "subfolder": img_info.get("subfolder", ""),
+                    "type": img_info.get("type", "output"),
+                }
+            )
+            url = f"{COMFYUI_URL}/view?{params}"
+            with urllib.request.urlopen(url) as resp:
+                images.append(resp.read())
+    return images
+
+
+# ---------------------------------------------------------------------------
+# Workflow builder
+# ---------------------------------------------------------------------------
+def load_workflow() -> dict:
+    with open(WORKFLOW_PATH) as f:
+        return json.load(f)
+
+
+def build_workflow(job_input: dict) -> dict:
+    """
+    Apply API inputs onto the base workflow.
+
+    Pass 1 — generation (KSampler node 31):
+      prompt            str   Positive text prompt
+      negative_prompt   str   Negative text prompt (default: "")
+      width             int   Image width  (default: 1024)
+      height            int   Image height (default: 1024)
+      steps             int   Denoising steps (default: 15)
+      cfg               float CFG scale (default: 1.0)
+      seed              int   RNG seed; -1 or omitted → random
+      lora_name         str   LoRA filename in models/loras/ (default: ukiyoeZTurbo.safetensors)
+      lora_strength     float LoRA model + clip strength (default: 0.5)
+      batch_size        int   Number of images (default: 1)
+
+    Pass 2 — latent upscale refinement (KSampler node 38):
+      upscale_factor    float LatentUpscaleBy scale (default: 1.25)
+      upscale_steps     int   Refine steps (default: 8)
+      upscale_denoise   float Refine denoise strength (default: 0.7)
+      upscale_sampler   str   Sampler name (default: dpmpp_sde)
+      upscale_scheduler str   Scheduler name (default: beta)
+    """
+    wf = load_workflow()
+
+    # Positive prompt — node 28
+    if "prompt" in job_input:
+        wf["28"]["inputs"]["text"] = str(job_input["prompt"])
+
+    # Negative prompt — node 29
+    if "negative_prompt" in job_input:
+        wf["29"]["inputs"]["text"] = str(job_input["negative_prompt"])
+
+    # Latent image size / batch — node 23
+    if "width" in job_input:
+        wf["23"]["inputs"]["width"] = int(job_input["width"])
+    if "height" in job_input:
+        wf["23"]["inputs"]["height"] = int(job_input["height"])
+    if "batch_size" in job_input:
+        wf["23"]["inputs"]["batch_size"] = int(job_input["batch_size"])
+
+    # Pass 1 KSampler — node 31
+    if "steps" in job_input:
+        wf["31"]["inputs"]["steps"] = int(job_input["steps"])
+    if "cfg" in job_input:
+        wf["31"]["inputs"]["cfg"] = float(job_input["cfg"])
+
+    seed = job_input.get("seed", -1)
+    if seed is None or int(seed) < 0:
+        seed = random.randint(0, 2**32 - 1)
+    wf["31"]["inputs"]["seed"] = int(seed)
+    wf["31"]["inputs"]["control_after_generate"] = "fixed"
+
+    # LoRA — node 30
+    if "lora_name" in job_input:
+        wf["30"]["inputs"]["lora_name"] = str(job_input["lora_name"])
+    if "lora_strength" in job_input:
+        strength = float(job_input["lora_strength"])
+        wf["30"]["inputs"]["strength_model"] = strength
+        wf["30"]["inputs"]["strength_clip"] = strength
+
+    # Latent upscale — node 37
+    if "upscale_factor" in job_input:
+        wf["37"]["inputs"]["scale_by"] = float(job_input["upscale_factor"])
+
+    # Pass 2 KSampler — node 38
+    if "upscale_steps" in job_input:
+        wf["38"]["inputs"]["steps"] = int(job_input["upscale_steps"])
+    if "upscale_denoise" in job_input:
+        wf["38"]["inputs"]["denoise"] = float(job_input["upscale_denoise"])
+    if "upscale_sampler" in job_input:
+        wf["38"]["inputs"]["sampler_name"] = str(job_input["upscale_sampler"])
+    if "upscale_scheduler" in job_input:
+        wf["38"]["inputs"]["scheduler"] = str(job_input["upscale_scheduler"])
+
+    return wf
+
+
+# ---------------------------------------------------------------------------
+# RunPod handler
+# ---------------------------------------------------------------------------
+def handler(job: dict) -> dict:
+    job_input: dict = job.get("input", {})
+
+    try:
+        workflow = build_workflow(job_input)
+    except Exception as exc:
+        return {"error": f"Failed to build workflow: {exc}"}
+
+    try:
+        prompt_id = queue_prompt(workflow)
+        print(f"[job] queued prompt {prompt_id}")
+        poll_until_done(prompt_id)
+        print(f"[job] prompt {prompt_id} finished")
+        raw_images = get_images(prompt_id)
+    except Exception as exc:
+        return {"error": f"ComfyUI execution failed: {exc}"}
+
+    if not raw_images:
+        return {"error": "No images were produced"}
+
+    return {
+        "images": [
+            {
+                "index": i,
+                "data": base64.b64encode(img).decode("utf-8"),
+                "format": "png",
+            }
+            for i, img in enumerate(raw_images)
+        ],
+        "prompt_id": prompt_id,
+        "seed": workflow["31"]["inputs"]["seed"],
+        "upscale_denoise": workflow["38"]["inputs"]["denoise"],
+        "upscale_sampler": workflow["38"]["inputs"]["sampler_name"],
+        "upscale_scheduler": workflow["38"]["inputs"]["scheduler"],
+    }
+
+
+# ---------------------------------------------------------------------------
+# Entrypoint
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    create_symlinks()
+    start_comfyui()
+    runpod.serverless.start({"handler": handler})

@@ -1,0 +1,86 @@
+[
+  {
+    "baseModel": "FLUX1",
+    "loraName": "eastern painting",
+    "workflow": "Workflows/flux_redux_workflow.json.json",
+    "triggerWord": "painting",
+    "examplePrompts": []
+  },
+  {
+    "baseModel": "FLUX1",
+    "loraName": "Japanese Ink-Wash",
+    "workflow": "Workflows/flux_redux_workflow.json.json",
+    "triggerWord": "",
+    "examplePrompts": [
+      "A majestic fox with a shimmering red-orange coat sits regally on a mossy rock in the heart of a moonlit forest. Its tail glows faintly, creating a mesmerizing swirl of light and ink splashes that trail into the air. Behind the fox, ancient trees loom with twisted, ink-drawn branches, their leaves rendered in watercolor gradients of midnight blue and silver. A full moon illuminates the scene, its glow casting long, dramatic shadows across the forest floor. In the background, faint outlines of ancient ruins peek through the trees, suggesting a forgotten civilization. Fireflies and glowing mushrooms add a magical touch, their tiny lights dotting the dark forest like scattered stars. This scene evokes a sense of wonder and mysticism, perfect for highlighting intricate ink and watercolor detailing.",
+      "A mystical tabby cat with fiery, flame-like fur in vibrant red, orange, and gold stands atop a nest made of glowing embers on the edge of a volcanic crater. The cat’s ink-drawn fur flickers like flames, casting warm light across the dark, ashen ground. Streams of molten lava, rendered in glowing watercolor gradients, flow from the crater’s edges, blending into the rugged landscape. The sky above is a swirl of smoky ink clouds and deep watercolor reds, blending seamlessly with the tabby cat’s radiant form. In the distance, jagged mountain peaks fade into the haze, their silhouettes outlined in bold, dramatic strokes",
+      "A lone samurai stands at the edge of a forest shrouded in soft autumn mist. His weathered armor glimmers faintly under the golden hues of falling leaves. Surrounding him are towering trees with vibrant red and orange foliage, their ink-drawn branches twisting dramatically against the cloudy sky. A worn wooden bridge stretches across a narrow river in the background, with reflections of the forest rippling in the water below. The samurai’s katana glows faintly as if imbued with ancient power, and a crow perches on a nearby branch, watching solemnly. This scene should exude a mix of tranquility and foreboding, capturing the beauty of nature with intricate ink splashes and watercolor gradients."
+    ]
+  },
+  {
+    "baseModel": "FLUX1",
+    "loraName": "Oil Painting Style",
+    "workflow": "Workflows/king_cat_oilpainting_workflow.json",
+    "triggerWord": "An oil painting",
+    "examplePrompts": [
+      "An oil painting, in a renaissance style, capturing a majestic tabby cat seated confidently and upright on an opulent, ornate gold and crimson velvet king's throne. The cat is wearing an elaborately embroidered dark red velvet royal cloak, trimmed with gold brocade and white ermine fur, draped around its shoulders and spilling onto the seat. A small, jeweled golden crown sits slightly askew but regal upon its head. In its right front paw, the cat holds an ornate, gem-encrusted ceremonial scepter (staff). The background is a grand, candlelit castle great hall with heavy tapestries and a large, dark-wood fireplace, suggesting power and ancient lineage. The entire scene is bathed in soft, dramatic light, emphasizing the rich, brushed textures and deep colors of the classical masterpiece. Shot in wide-angle to capture the grandeur of the throne room, rich oil textures are evident throughout.",
+      "An oil painting, renaissance style, of a regal tabby cat seated majestically on a magnificent golden king's throne. The cat is swathed in a luxurious crimson velvet royal cloak adorned with gold thread and ermine fur. It wears a smaller crown and, in its paws, holds an ornate, bejeweled scepter. The throne room behind is dimly lit but decorated with heavy tapestries and candlelight, emphasizing the dramatic and classical atmosphere. Rich, visible brushstrokes and textures characteristic of a classical oil masterpiece are present, highlighting the rich fabrics and the cat's fur. This wide-angle landscape shot captures the scale and opulence of the scene."
+    ]
+  },
+  {
+    "baseModel": "SDXL",
+    "loraName": "glass ink painting",
+    "workflow": "Workflows/king_cat_sdxl_workflow.json",
+    "triggerWord": "glass ink painting",
+    "examplePrompts": [
+      "<lora:INK_Glass_XL:1>,architecture, east asian architecture, glass ink painting, ink_glass,  glowing water flowing through the canyon, mist rising from the riverbanks, dynamic lighting reflecting off the leaves, intricate details on the canyon walls, ethereal and mystical atmosphere, vibrant red and blue tones creating contrast"
+    ]
+  },
+  {
+    "baseModel": "SDXL",
+    "loraName": "Studio Ghibli Dark Fairytale",
+    "workflow": "Workflows/king_cat_sdxl_workflow.json",
+    "triggerWord": "Studio Ghibli Dark Fairytale",
+    "examplePrompts": [
+      "<lora:DarkGhibliMJ7SDXL:1> Studio Ghibli Dark Fairytale, The image is a digital illustration of a white deer standing in a cave. The deer has large antlers that are spread out on its head with the tips of the antlers reaching upwards towards the sky. The antlers are covered in gold glitter giving the deer a luxurious and regal appearance. The background is dark and starry with a hint of blue and green. The cave walls are made of rocks and boulders and there are small white flowers scattered throughout the scene. The overall mood of the image is mystical and mystical., no humans, flower, antlers, painting (medium), traditional media, nature, tree, solo, white flower"
+    ]
+  },
+  {
+    "baseModel": "ZTurbo",
+    "loraName": "Ink wash",
+    "workflow": "Workflows/king_cat_sdxl_workflow.json",
+    "triggerWord": "",
+    "strength": 0.5,
+    "examplePrompts": [
+      "An artistic abstract ink wash painting. Fantasy style. Fantasy dreamlike art. Photorealistic. A stoic black Shiba Inu warrior kneels on one knee, his body posed like a solemn samurai. He is clad in ornate samurai armor, with glossy black fur, cream markings on the muzzle and chest, tan accents above the eyes and on the legs, erect triangular ears, and a thick curled tail. His expression is calm and grave. He grips a sword with both hands, the blade plunged deep into the ground before him. His head is bowed, eyes cast downward in silent reflection, as if honoring a fallen battle or preparing for one yet to come. Wind moves softly through the scene. Mist drifts around him. The atmosphere is solemn, scenic, and powerful."
+    ]
+  },
+  {
+    "baseModel": "ZTurbo",
+    "loraName": "Sketch",
+    "workflow": "Workflows/king_cat_sdxl_workflow.json",
+    "triggerWord": "Anridercharson art style",
+    "strength": 0.5,
+    "examplePrompts": [
+      "Anridercharson art style: A stoic black Shiba Inu is shown with glossy dark fur, cream markings on the muzzle, chest, and cheeks, warm tan accents above the eyes and along the legs, erect triangular ears, dark focused eyes, and a thick curled tail. The Shiba is depicted as a solemn samurai warrior in a one-knee kneeling pose, body upright and composed, with one knee lowered to the ground and the other leg planted firmly before him. He wears layered samurai armor with weathered plates, cloth ties, and guarded shoulders and forearms. In both paws, he grips the hilt of a sword that is plunged into the ground before him, the blade buried deep as he bows his head and looks downward in silence. His expression is calm, stern, and reflective, conveying discipline, grief, and honor. Behind him stretches a quiet, mournful landscape: a windswept cliff edge overlooking a mist-filled valley, with distant mountain ridges fading into pale haze. Sparse, twisted pine trees cling to the rocky ground, their silhouettes bent by the cold wind. Scattered autumn leaves and broken petals drift across the scene, while worn stone markers and patches of wild grass suggest an ancient battlefield long since fallen silent. Low clouds hang heavy in the sky, and faint light filters through them in soft bands, casting gentle gradients across the rocks, armor, and fog below. Ink washes blend softly across textured paper, capturing the shadowy contours of the Shiba’s face, armor, kneeling posture, and the solemn natural scenery around him, with subtle gradients and expressive monochrome brushwork reminiscent of Richard Anderson’s contemplative sketches."
+    ]
+  },
+  {
+    "baseModel": "ZTurbo",
+    "loraName": "Ukiyoe",
+    "workflow": "Workflows/king_cat_sdxl_workflow.json",
+    "triggerWord": "",
+    "strength": 0.5,
+    "examplePrompts": []
+  },
+  {
+    "baseModel": "ZTurbo",
+    "loraName": "WetInk",
+    "workflow": "Workflows/king_cat_sdxl_workflow.json",
+    "triggerWord": "w3t1nk",
+    "strength": 0.8,
+    "examplePrompts": [
+      "w3t1nk A closeup shot of a stoic black Shiba Inu with glossy black fur, cream markings on the muzzle, chest, and cheeks, and warm tan accents above the eyes and along the legs. Its erect triangular ears are alert, and its dark focused gaze is directed downward with solemn intensity. The Shiba is posed in a one-knee kneeling samurai stance, body upright and composed, one knee lowered to the ground and the other leg planted firmly before it. It wears traditional samurai armor with layered plates, tied cords, guarded shoulders, and armored forearms. In both paws, it grips the hilt of a shining katana that is plunged into the ground before it, the blade buried deep in the earth as if marking a vow, a memory, or a battlefield prayer. Behind the Shiba stretches a dramatic and mournful fantasy landscape: a rocky cliff edge overlooking a mist-filled valley, with distant mountain ridges fading into thick swirling fog. Twisted pine trees cling to the slope, their branches bent by the wind, while scattered autumn leaves drift across the air. Worn stone markers and sparse grasses hint at an ancient battlefield long fallen silent. The lighting is dramatic and atmospheric, with a dim golden glow breaking through heavy clouds, casting soft highlights across the armor, the sword, and the mist below. The scene feels solemn, powerful, and reverent. This is an artistic ink wash style painting, sumi-e aesthetic, delicate brushstrokes, high detail, intricate textures, expressive composition. No text, no watermark, no logos, no blur, no anatomical errors, no extra limbs."
+    ]
+  }
+]
