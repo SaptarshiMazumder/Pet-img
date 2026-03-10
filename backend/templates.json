@@ -1,7 +1,7 @@
 {
   "scholar_lord": {
     "name": "Noble Scholar Lord",
-    "preview_url": "assets/templates/catStoic.png",
+    "preview_url": "assets/templates/tab.png",
     "role_title": "a noble scholar lord",
     "attire_verb": "wears",
     "wardrobe": "small reading glasses, a distinguished traditional scholar's hat, and an elegant layered kimono with fine patterned fabric and formal draping that gives it a refined, shogun-like presence",
@@ -13,7 +13,7 @@
   },
   "edo_royal": {
     "name": "Edo-era Royal Figure",
-    "preview_url": "assets/templates/catStoic.png",
+    "preview_url": "assets/templates/fan.png",
     "role_title": "a noble Edo-era royal figure",
     "attire_verb": "is dressed in",
     "wardrobe": "an elegant richly layered traditional kimono with refined floral and patterned fabrics, wide flowing sleeves, formal draping, and an ornate noble hairstyle-inspired headpiece adapted for the {pronoun}",
@@ -23,16 +23,52 @@
     "lighting": "Soft ambient light casts delicate highlights across the kimono, the fan, and the surrounding floral details.",
     "mood": "intimate, noble, graceful, and atmospheric"
   },
-  "moonlit_cliffside": {
-    "name": "Moonlit Cliffside Vigil",
-    "preview_url": "assets/templates/catStoic.png",
-    "role_title": "a solitary samurai keeping a moonlit vigil",
+  "sake_on_pillow": {
+    "name": "Sake on Pillow",
+    "preview_url": "assets/templates/sake.png",
+    "role_title": "a relaxed figure at rest",
     "attire_verb": "wears",
-    "wardrobe": "a worn battle kimono layered under a dark haori, one shoulder partially exposed, a katana sheathed at the hip",
-    "pose_sentence": "The {pronoun} stands on two legs, paws at its sides, katana sheathed at the belt, at the edge of the cliff, robes billowing in the wind.",
-    "props_sentence": "",
-    "environment": "on a rugged cliffside overlooking a vast misty valley, ancient pine trees clinging to the rock face below, a full moon cutting through drifting clouds.",
-    "lighting": "Cold silver moonlight from above, deep shadows on the cliff face, a faint blue mist rising from the valley below.",
-    "mood": "solitary, windswept, quietly powerful, and poetic"
+    "wardrobe": "an ornate traditional kimono with rich patterns, a dark traditional hat, and a bright obi at the waist",
+    "pose_sentence": "The {pronoun}'s back rests against a large cushion or pillow. Seated cross legged —with paws visible. One paw holds a small sake cup as if taking a sip; the other rests on its lap. Human-like seated pose, shown from a slight sideways angle. Not seiza; legs are out in front.",
+    "props_sentence": "A large cushion or pillow supports the figure's back. To the side, a black lacquered tray holds a white sake bottle with blue patterns and a matching sake cup.",
+    "environment": "a traditional Japanese room with tatami flooring, decorated with hanging scrolls, shoji screens, wooden beams, ornamental ceramics, and subtle period furnishings. The interior evokes a serene, intimate atmosphere.",
+    "lighting": "Soft ambient light filters through the room, casting gentle highlights across the {pronoun}'s kimono, the sake set, the cushion, and the decorated interior.",
+    "mood": "relaxed, serene, intimate, contemplative, and atmospheric"
+  },
+  "ceremonial_throne": {
+    "name": "Ceremonial Throne",
+    "preview_url": "assets/templates/throne.png",
+    "role_title": "a majestic shogun or ceremonial ruler",
+    "attire_verb": "wears",
+    "wardrobe": "a blue kimono with intricate yellow patterns, a ceremonial haori with structured shoulders and broad collar in traditional style, an ornate obi with a decorative tassel, and a traditional Japanese ornamental shoulder piece",
+    "pose_sentence": "The {pronoun} is seated upright and symmetrically on a dark wooden throne-like chair with a high back and armrests, facing directly forward. Both paws rest on its lap or on the arms of the chair; one paw holds a closed traditional Japanese folding fan. Composed, dignified posture. Seated directly on the throne, no pillow.",
+    "props_sentence": "Traditional Japanese interior decorations around",
+    "environment": "a grand traditional Japanese hall with dark wooden pillars, a large screen or tapestry with traditional Japanese geometric patterns behind the throne, and two vertical banners with Japanese calligraphy hanging on either side. The throne sits on a multi-tiered wooden platform with steps. Traditional Japanese interior style.",
+    "lighting": "Soft ambient light filters through the space.",
+    "mood": "majestic, dignified, ceremonial, authoritative, and traditionally Japanese"
+  },
+  "boat_sakura": {
+    "name": "Boat on Lake with Sakura",
+    "preview_url": "assets/templates/catStoic.png",
+    "role_title": "a serene figure on the water",
+    "attire_verb": "wears",
+    "wardrobe": "a traditional kimono with subtle stripes or patterns, wide sleeves, suitable for being in a boat",
+    "pose_sentence": "The {pronoun} is seated in a light wooden boat near the shore of a calm lake, both paws on the oar—gripping the oar with both arms in a rowing motion, as if mid-stroke. Humanoid seated pose, legs tucked within the boat beneath the kimono. Shown from a slight sideways angle.",
+    "props_sentence": "A wooden boat on the calm water, close to the shore. An oar in the {pronoun}'s paws. Sakura petals and leaves floating on the water surface.",
+    "environment": "Cinematic photo taken from the shore: the edge of the water is visible in the foreground, with the boat on the lake beyond. The shore and the sakura trees are clearly visible—lush sakura (cherry blossoms) in full bloom along the water's edge, green foliage, and perhaps a traditional bridge or pavilion. Calm lake with clear water, subtle wave patterns, and sakura leaves and petals floating on the surface. Serene and peaceful.",
+    "lighting": "Soft natural daylight over the water, gentle reflections on the surface, a light blue sky with soft clouds.",
+    "mood": "serene, peaceful, contemplative, poetic, and atmospheric"
+  },
+  "sakura_samurai": {
+    "name": "Samurai under Sakura",
+    "preview_url": "assets/templates/samurai.png",
+    "role_title": "a solitary samurai warrior under the cherry blossoms",
+    "attire_verb": "wears",
+    "wardrobe": "dark traditional samurai armor—black or dark blue with subtle texture, helmet with crest, shoulder guards, dark kimono beneath the armor. A wakizashi or tanto sheathed at the left hip.",
+    "pose_sentence": "The {pronoun} stands with back mostly to the viewer, head turned slightly to the side, one paw holding a long katana pointing downward and slightly forward in a stance of readiness or contemplation. Humanoid, standing on two legs.",
+    "props_sentence": "A long katana in one paw; a shorter sword sheathed at the hip.",
+    "environment": "A large, ancient cherry blossom tree with thick gnarled dark branches and a lush canopy of vibrant bright pink or magenta blossoms. Numerous cherry petals falling through the air. Dark uneven ground with scattered pink petals and sparse foliage. A very large, soft pale pink or cream moon glowing in the background. Sky dark muted purplish-black. Traditional Japanese aesthetic with strong contrast between dark tones and vivid pinks.",
+    "lighting": "Strong backlight from the large pale disc; the figure is silhouetted against the glow. No direct front light; details read through dark tones and edges against the backlight.",
+    "mood": "dramatic, serene, contemplative, atmospheric, and traditionally Japanese"
   }
 }

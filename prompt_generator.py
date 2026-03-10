@@ -70,20 +70,25 @@ def extract_animal_appearance(image_path: str) -> dict:
     mime_type = f"image/{ext}"
 
     prompt = """
-You are analyzing an animal reference image. Your output will be used to build a single art prompt. Return JSON only.
+You are analyzing an animal reference image for physical appearance only. Your output will be used to build a single art prompt. Return JSON only.
 
-Describe the animal in the image in the same style as these examples:
+CRITICAL — DO NOT include any expression, mood, or gesture from the reference image:
+- Do NOT describe or infer: tongue, panting, smiling, open mouth, happy, sad, alert, calm, dignified, fierce, sleepy, or any other expression or emotion.
+- Do NOT copy any facial expression from the photo. Describe only neutral, physical traits: face shape, nose, eye shape and color, fur, markings, ears, etc.
+- If the animal has its tongue out, is panting, or has any distinctive expression in the photo, ignore it completely. Describe the face and body as neutral physical features only.
+
+Describe the animal in the same style as these examples (physical traits only, no expression):
 
 Example subject_phrase (dog): "A stoic Shiba Inu with warm golden-orange fur, soft cream-white markings on the muzzle, chest, and inner legs, a plush curled tail, small upright triangular ears, and dark almond-shaped eyes"
 Example subject_phrase (cat): "A stoic orange tabby cat with rich ginger fur marked by darker orange stripes, a pale muzzle, soft cream fur along the chest and inner body, long white whiskers, alert triangular ears, and steady amber eyes"
 
-Example face_sentence (dog): "The Shiba Inu has a rounded expressive face, a black nose, and a calm, self-possessed expression."
-Example face_sentence (cat): "The cat has a graceful, dignified face with a calm, self-possessed expression, and its striped coat gives it an elegant and distinguished presence."
+Example face_sentence (dog): "The Shiba Inu has a rounded face, a black nose, and dark almond-shaped eyes."
+Example face_sentence (cat): "The cat has a graceful face structure, a pale muzzle, and amber eyes; its striped coat gives it an elegant presence."
 
 Your job:
 1. Identify the species/breed (e.g. "Shiba Inu", "orange tabby cat", "golden retriever").
-2. Write subject_phrase: Start with "A stoic" then the species/breed name, then "with" and a rich description of: fur color and pattern, markings (muzzle, chest, legs, etc.), tail, ears, and eyes. Do NOT add "portrayed as" or any role — that comes later. Match the detail level of the examples.
-3. Write face_sentence: A single sentence starting with "The [species or breed]" describing the face, nose, expression, and optionally one line about coat or presence. Use a period at the end.
+2. Write subject_phrase: Start with "A stoic" then the species/breed name, then "with" and a rich description of: fur color and pattern, markings (muzzle, chest, legs, etc.), tail, ears, and eyes. Physical traits only. Do NOT add "portrayed as" or any role. Do NOT include any expression (no panting, tongue, smile, etc.).
+3. Write face_sentence: A single sentence starting with "The [species or breed]" describing only physical face features: face shape, nose, eye shape and color. Optionally one line about coat. Use a period at the end. Do NOT mention any expression, mood, or emotion.
 4. Set pronoun: "dog" if canine, "cat" if feline, otherwise "animal".
 
 Return JSON in exactly this shape (no extra fields):
@@ -110,7 +115,7 @@ Return JSON in exactly this shape (no extra fields):
 
     species = (data.get("species") or "animal").strip()
     subject_phrase = (data.get("subject_phrase") or "A stoic animal").strip()
-    face_sentence = (data.get("face_sentence") or f"The {species} has a calm, dignified expression.").strip()
+    face_sentence = (data.get("face_sentence") or f"The {species} has a neutral face with typical features.").strip()
     pronoun = (data.get("pronoun") or "animal").strip().lower()
     if pronoun not in ("dog", "cat", "animal"):
         pronoun = "animal"

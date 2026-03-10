@@ -39,8 +39,10 @@ def run_job_background(
             "lora_strength": lora_cfg.get("lora_strength", 0.3),
             "lora2_name": lora_cfg.get("lora2_name", "ukiyoeZTurbo.safetensors"),
             "lora2_strength": lora_cfg.get("lora2_strength", 0.0),
+            "width": 1216,
+            "height": 832,
         }
-        job_input.update(overrides)
+        job_input.update(overrides)  # overrides can still override dimensions if passed
 
         # Step 3: Submit to RunPod and poll until done
         runpod_result = run_job(job_input)
