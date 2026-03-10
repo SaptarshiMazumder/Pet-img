@@ -141,7 +141,8 @@ def compose_final_prompt(animal_data: dict, template: dict, style: dict) -> str:
     full_prompt = (
         f"{prefix} {subject}, portrayed as {role_title}. "
         f"{animal_data['appearance_summary']} "
-        f"It is dressed in {wardrobe}. "
+        f"Depicted in a dignified humanoid composition — upper body and face prominently framed, "
+        f"dressed in {wardrobe}, lower body naturally obscured by clothing, environment, or framing. "
         f"It is {pose_action}.{props_sentence} "
         f"The scene takes place {environment}. "
         f"{lighting} "

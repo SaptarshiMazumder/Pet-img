@@ -9,6 +9,13 @@
       "extra tails", "extra ears", "extra eyes", "extra heads",
       "asymmetric face", "asymmetric ears", "lopsided features"
     ],
+    "posture": [
+      "visible hind legs behind body", "hind legs dangling awkwardly",
+      "hind paws visible below robes", "animal back legs exposed",
+      "four paws visible simultaneously", "front and back legs both showing",
+      "animal posture inconsistency", "full quadruped body shown",
+      "animal body fully visible from head to tail", "exposed animal underbelly"
+    ],
     "face": [
       "ugly face", "deformed face", "distorted face", "poorly drawn face",
       "cross-eyed", "wall-eyed", "misaligned eyes",
