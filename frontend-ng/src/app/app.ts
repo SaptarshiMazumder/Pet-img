@@ -1,6 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from './services/api.service';
+
+interface JobEntry {
+  job_id: string;
+  template_key: string;
+  style_key: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  presigned_url?: string;
+  positive_prompt?: string;
+  seed?: number;
+  error?: string;
+  submitted_at: Date;
+}
 
 @Component({
   selector: 'app-root',
@@ -9,7 +21,7 @@ import { ApiService } from './services/api.service';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit {
+export class App implements OnInit, OnDestroy {
   styles: Record<string, any> = {};
   templates: Record<string, any> = {};
   styleKeys: string[] = [];
@@ -21,9 +33,11 @@ export class App implements OnInit {
   previewUrl: string | null = null;
   isDragOver = false;
 
-  generating = false;
+  submitting = false;
   errorMsg = '';
-  result: any = null;
+
+  jobs: JobEntry[] = [];
+  private activePolls = new Set<string>();
 
   constructor(private api: ApiService) {}
 
@@ -34,7 +48,6 @@ export class App implements OnInit {
       this.selectedStyle = this.styleKeys[0] || '';
     });
     this.api.getTemplates().subscribe(t => {
-      // Prefix Flask base URL so preview images resolve correctly
       for (const key of Object.keys(t)) {
         if (t[key].preview_url && !t[key].preview_url.startsWith('http')) {
           t[key].preview_url = this.api.assetUrl(t[key].preview_url);
@@ -43,6 +56,10 @@ export class App implements OnInit {
       this.templates = t;
       this.templateKeys = Object.keys(t);
     });
+  }
+
+  ngOnDestroy() {
+    this.activePolls.clear();
   }
 
   onFileChange(event: Event) {
@@ -71,50 +88,84 @@ export class App implements OnInit {
   selectTemplate(key: string) { this.selectedTemplate = key; }
 
   get canGenerate(): boolean {
-    return !!(this.uploadedFile && this.selectedTemplate && this.selectedStyle && !this.generating);
+    return !!(this.uploadedFile && this.selectedTemplate && this.selectedStyle && !this.submitting);
   }
 
   generate() {
     if (!this.canGenerate) return;
-    this.generating = true;
+    this.submitting = true;
     this.errorMsg = '';
-    this.result = null;
 
     const form = new FormData();
     form.append('image', this.uploadedFile!);
     form.append('template_key', this.selectedTemplate);
     form.append('style_key', this.selectedStyle);
 
-    this.api.generate(form).subscribe({
-      next: data => {
-        this.generating = false;
-        if (data.error) { this.errorMsg = data.error; return; }
-        const img0 = data.images?.[0];
-        if (img0?.url?.startsWith('http')) {
-          data.result_image_url = img0.url;
-        } else if (img0?.key) {
-          data.result_image_url = this.api.r2ImageUrl(img0.key);
-        }
-        this.result = data;
+    this.api.submitGenerate(form).subscribe({
+      next: (resp: any) => {
+        const job_id = resp?.job_id ?? resp;
+        this.submitting = false;
+        this.jobs = [{
+          job_id,
+          template_key: this.selectedTemplate,
+          style_key: this.selectedStyle,
+          status: 'pending',
+          submitted_at: new Date(),
+        }, ...this.jobs];
+        this.schedulePoll(job_id);
       },
       error: err => {
-        this.generating = false;
-        this.errorMsg = err.error?.error || 'Request failed';
+        this.submitting = false;
+        this.errorMsg = err?.error?.error || err?.message || 'Failed to submit job.';
+        console.error('submitGenerate error:', err);
       }
     });
   }
 
-  clearResult() {
-    this.result = null;
-    this.errorMsg = '';
+  private schedulePoll(jobId: string) {
+    this.activePolls.add(jobId);
+    setTimeout(() => this.doPoll(jobId), 2500);
   }
 
-  onImageError(event: Event) {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
-    this.errorMsg = 'Image failed to load. URL tried: ' + (this.result?.result_image_url ?? 'none');
+  private doPoll(jobId: string) {
+    if (!this.activePolls.has(jobId)) return;
+
+    this.api.getJobStatus(jobId).subscribe({
+      next: (job: any) => {
+        const idx = this.jobs.findIndex(j => j.job_id === jobId);
+        if (idx !== -1) {
+          this.jobs = [
+            ...this.jobs.slice(0, idx),
+            {
+              ...this.jobs[idx],
+              status: job.status,
+              presigned_url: job.presigned_url ?? undefined,
+              positive_prompt: job.positive_prompt ?? undefined,
+              seed: job.seed ?? undefined,
+              error: job.error ?? undefined,
+            },
+            ...this.jobs.slice(idx + 1),
+          ];
+        }
+        if (job.status === 'completed' || job.status === 'failed') {
+          this.activePolls.delete(jobId);
+        } else {
+          setTimeout(() => this.doPoll(jobId), 2500);
+        }
+      },
+      error: () => {
+        setTimeout(() => this.doPoll(jobId), 5000);
+      }
+    });
   }
 
+  removeJob(jobId: string) {
+    this.activePolls.delete(jobId);
+    this.jobs = this.jobs.filter(j => j.job_id !== jobId);
+  }
+
+  templateName(key: string): string { return this.templates[key]?.name ?? key; }
+  styleName(key: string): string { return this.styles[key]?.name ?? key; }
   templateIcon(i: number): string {
     return ['⛩', '🌸', '🗡', '🏯', '🌊', '🌙', '📜', '🏮'][i % 8];
   }

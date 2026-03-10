@@ -38,10 +38,26 @@
       </div>
     </div>
 
+    <div class="section-label" style="margin-top:28px">3. Choose a template</div>
+    <div class="template-grid-small">
+      <div *ngFor="let key of templateKeys; let i = index"
+           class="template-card-small"
+           [class.selected]="selectedTemplate === key"
+           (click)="selectTemplate(key)"
+           [title]="templates[key].name">
+        <img *ngIf="templates[key].preview_url" class="template-thumb-small"
+             [src]="templates[key].preview_url" [alt]="templates[key].name" />
+        <div *ngIf="!templates[key].preview_url" class="template-thumb-placeholder-small">
+          {{ templateIcon(i) }}
+        </div>
+        <div class="template-name-small">{{ templates[key].name }}</div>
+      </div>
+    </div>
+
     <button class="generate-btn" [disabled]="!canGenerate" (click)="generate()">
-      <span *ngIf="!generating">Generate Portrait</span>
-      <span *ngIf="generating" class="btn-loading">
-        <span class="spinner"></span> Generating&hellip;
+      <span *ngIf="!submitting">Generate Portrait</span>
+      <span *ngIf="submitting" class="btn-loading">
+        <span class="spinner"></span> Submitting…
       </span>
     </button>
 
@@ -49,58 +65,54 @@
 
   </section>
 
-  <!-- RIGHT: Template picker or Result -->
+  <!-- RIGHT: Generations queue -->
   <section class="panel panel-right">
+    <div class="section-label">Generations</div>
 
-    <!-- RESULT STATE -->
-    <ng-container *ngIf="result; else templatePicker">
-      <div class="result-header">
-        <div class="section-label">Result</div>
-        <button class="back-btn" (click)="clearResult()">&#8592; New portrait</button>
-      </div>
-      <div class="result-body">
-        <img [src]="result.result_image_url" class="result-image" alt="Generated portrait"
-             (error)="onImageError($event)" />
-        <div class="result-meta">
-          <div class="result-row">
-            <span class="result-key">Template</span>
-            <span class="result-val">{{ result.template }}</span>
+    <div class="queue-empty" *ngIf="jobs.length === 0">
+      <div class="queue-empty-icon">🎨</div>
+      <div>Submit a generation to see it here</div>
+    </div>
+
+    <div class="queue-list" *ngIf="jobs.length > 0">
+      <div *ngFor="let job of jobs" class="job-card" [class]="'job-card--' + job.status">
+
+        <!-- Header row -->
+        <div class="job-card-header">
+          <div class="job-card-meta">
+            <span class="job-badge" [class]="'job-badge--' + job.status">{{ job.status }}</span>
+            <span class="job-template">{{ templateName(job.template_key) }}</span>
+            <span class="job-style">{{ styleName(job.style_key) }}</span>
           </div>
-          <div class="result-row">
-            <span class="result-key">Style</span>
-            <span class="result-val">{{ result.style }}</span>
+          <button class="job-remove" (click)="removeJob(job.job_id)" title="Remove">✕</button>
+        </div>
+
+        <!-- In-progress -->
+        <div class="job-progress" *ngIf="job.status === 'pending' || job.status === 'processing'">
+          <div class="job-progress-bar">
+            <div class="job-progress-fill" [class.animating]="job.status === 'processing'"></div>
           </div>
-          <div class="result-row">
+          <span class="job-progress-label">
+            {{ job.status === 'pending' ? 'Waiting in queue…' : 'Generating portrait…' }}
+          </span>
+        </div>
+
+        <!-- Failed -->
+        <div class="job-error" *ngIf="job.status === 'failed'">
+          {{ job.error }}
+        </div>
+
+        <!-- Completed -->
+        <div class="job-result" *ngIf="job.status === 'completed'">
+          <img [src]="job.presigned_url" class="job-image" alt="Generated portrait" />
+          <div class="job-result-meta" *ngIf="job.seed">
             <span class="result-key">Seed</span>
-            <span class="result-val">{{ result.seed ?? '—' }}</span>
+            <span class="result-val">{{ job.seed }}</span>
           </div>
-          <div class="result-divider"></div>
-          <div class="result-label">Prompt</div>
-          <div class="result-prompt">{{ result.positive_prompt }}</div>
+          <div class="job-prompt" *ngIf="job.positive_prompt">{{ job.positive_prompt }}</div>
         </div>
-      </div>
-    </ng-container>
 
-    <!-- TEMPLATE PICKER STATE -->
-    <ng-template #templatePicker>
-      <div class="section-label">3. Choose a template</div>
-      <div class="template-grid">
-        <div *ngFor="let key of templateKeys; let i = index"
-             class="template-card"
-             [class.selected]="selectedTemplate === key"
-             (click)="selectTemplate(key)">
-          <img *ngIf="templates[key].preview_url" class="template-thumb"
-               [src]="templates[key].preview_url" [alt]="templates[key].name" />
-          <div *ngIf="!templates[key].preview_url" class="template-thumb-placeholder">
-            {{ templateIcon(i) }}
-          </div>
-          <div class="template-info">
-            <div class="template-name">{{ templates[key].name }}</div>
-            <div class="template-mood">{{ templates[key].mood || templates[key].environment }}</div>
-          </div>
-        </div>
       </div>
-    </ng-template>
-
+    </div>
   </section>
 </main>

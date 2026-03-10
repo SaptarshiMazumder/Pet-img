@@ -16,12 +16,12 @@ export class ApiService {
     return this.http.get<any>(`${this.base}/templates`);
   }
 
-  generate(formData: FormData): Observable<any> {
+  submitGenerate(formData: FormData): Observable<{ job_id: string }> {
     return this.http.post<any>(`${this.base}/generate`, formData);
   }
 
-  r2ImageUrl(key: string): string {
-    return `${this.base}/r2-image?key=${encodeURIComponent(key)}`;
+  getJobStatus(jobId: string): Observable<any> {
+    return this.http.get<any>(`${this.base}/job/${jobId}`);
   }
 
   assetUrl(path: string): string {

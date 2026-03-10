@@ -7,7 +7,11 @@
       "Bash(\"/c/Users/sapma/AppData/Roaming/npm/ng\" version)",
       "Bash(\"/c/Users/sapma/AppData/Roaming/npm/ng\" new frontend-ng --standalone --routing=false --style=css --skip-git --skip-tests)",
       "Bash(npm install)",
-      "Bash(\"./node_modules/.bin/tsc\" --noEmit)"
+      "Bash(\"./node_modules/.bin/tsc\" --noEmit)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d[''projects''][''frontend-ng''][''architect''][''build''][''options''], indent=2\\)\\)\")",
+      "Bash(npm list zone.js)",
+      "Bash(npm install zone.js --save)",
+      "Bash(python -c \":*)"
     ]
   }
 }
