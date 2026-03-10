@@ -1,0 +1,48 @@
+{
+  "base": {
+    "anatomy": [
+      "deformed paws", "malformed paws", "extra paws", "missing paws", "fused paws",
+      "deformed hands", "malformed hands", "extra fingers", "missing fingers", "fused fingers",
+      "bad hands", "ugly hands", "mutated hands", "poorly drawn hands",
+      "extra limbs", "missing limbs", "floating limbs", "disconnected limbs",
+      "bad anatomy", "wrong anatomy", "mutated anatomy",
+      "extra tails", "extra ears", "extra eyes", "extra heads",
+      "asymmetric face", "asymmetric ears", "lopsided features"
+    ],
+    "face": [
+      "ugly face", "deformed face", "distorted face", "poorly drawn face",
+      "cross-eyed", "wall-eyed", "misaligned eyes",
+      "drooling", "blurry face", "low detail face"
+    ],
+    "quality": [
+      "blurry", "out of focus", "soft focus", "low resolution", "low quality",
+      "jpeg artifacts", "compression artifacts", "pixelated", "grainy", "noisy",
+      "watermark", "text", "signature", "logo", "stamp", "username", "caption",
+      "oversaturated", "washed out", "flat lighting"
+    ],
+    "style_violations": [
+      "modern clothing", "western clothing", "jeans", "t-shirts", "sneakers",
+      "guns", "modern weapons", "mechanical objects"
+    ],
+    "composition": [
+      "multiple animals in frame", "crowd", "background characters",
+      "duplicate subject", "mirror image artifacts",
+      "cluttered composition", "busy background that overwhelms subject"
+    ]
+  },
+  "per_style": {
+    "inkwash": [
+      "photorealistic", "hyperrealistic", "CGI", "3D render",
+      "digital painting", "oil painting", "acrylic", "watercolor (western style)",
+      "anime style", "cartoon style", "chibi", "flat color fills",
+      "harsh outlines", "neon colors", "high contrast"
+    ],
+    "ukiyoe": [
+      "photorealistic", "hyperrealistic", "CGI", "3D render",
+      "sumi-e", "ink wash", "digital painting", "oil painting",
+      "anime style", "cartoon style", "chibi",
+      "gradient shading", "soft shadows", "realistic textures",
+      "western art style", "impressionist", "surrealist"
+    ]
+  }
+}

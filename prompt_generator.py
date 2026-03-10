@@ -19,6 +19,17 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 MODEL = "gemini-2.0-flash"
 
 STYLES_FILE = Path(__file__).parent / "styles.json"
+NEGATIVE_PROMPTS_FILE = Path(__file__).parent / "negative_prompts.json"
+
+
+def build_negative_prompt(style_key: str) -> str:
+    with open(NEGATIVE_PROMPTS_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    terms = []
+    for category in data["base"].values():
+        terms.extend(category)
+    terms.extend(data["per_style"].get(style_key, []))
+    return ", ".join(terms)
 
 
 def load_style(style_key: str) -> dict:
@@ -252,25 +263,33 @@ Return JSON in exactly this shape:
 # Step 2: Generate scenario
 # ----------------------------
 
-def generate_edo_scenario(animal_data: dict) -> dict:
+def generate_edo_scenario(
+    animal_data: dict,
+    allow_glasses: bool = ALLOW_GLASSES,
+    allow_hats: bool = ALLOW_HATS,
+    allow_armor: bool = ALLOW_ARMOR,
+    allow_kimono: bool = ALLOW_KIMONO,
+    allow_indoors: bool = ALLOW_INDOORS,
+    allow_outdoors: bool = ALLOW_OUTDOORS,
+) -> dict:
     chosen_theme = random.choice(SCENARIO_THEMES)
     chosen_mood = random.choice(MOODS)
 
     allowed_wardrobe = ["royal historical attire"]
-    if ALLOW_ARMOR:
+    if allow_armor:
         allowed_wardrobe.append("samurai armor")
-    if ALLOW_KIMONO:
+    if allow_kimono:
         allowed_wardrobe.append("layered kimono")
-    if ALLOW_HATS:
+    if allow_hats:
         allowed_wardrobe.append("shogun hat or scholar hat")
-    if ALLOW_GLASSES:
+    if allow_glasses:
         allowed_wardrobe.append("reading glasses occasionally")
 
     # Pick indoor or outdoor based on toggles
     modes = []
-    if ALLOW_INDOORS:
+    if allow_indoors:
         modes.append("indoor")
-    if ALLOW_OUTDOORS:
+    if allow_outdoors:
         modes.append("outdoor")
     chosen_mode = random.choice(modes)
 
@@ -388,15 +407,35 @@ def compose_final_prompt(animal_data: dict, scenario_data: dict, style: dict) ->
 # Main pipeline
 # ----------------------------
 
-def build_animal_edo_prompt(image_path: str, style: dict) -> dict:
+def build_animal_edo_prompt(
+    image_path: str,
+    style: dict,
+    style_key: str = "inkwash",
+    allow_glasses: bool = ALLOW_GLASSES,
+    allow_hats: bool = ALLOW_HATS,
+    allow_armor: bool = ALLOW_ARMOR,
+    allow_kimono: bool = ALLOW_KIMONO,
+    allow_indoors: bool = ALLOW_INDOORS,
+    allow_outdoors: bool = ALLOW_OUTDOORS,
+) -> dict:
     animal_data = extract_animal_appearance(image_path)
-    scenario_data = generate_edo_scenario(animal_data)
+    scenario_data = generate_edo_scenario(
+        animal_data,
+        allow_glasses=allow_glasses,
+        allow_hats=allow_hats,
+        allow_armor=allow_armor,
+        allow_kimono=allow_kimono,
+        allow_indoors=allow_indoors,
+        allow_outdoors=allow_outdoors,
+    )
     final_prompt = compose_final_prompt(animal_data, scenario_data, style=style)
+    negative_prompt = build_negative_prompt(style_key)
 
     return {
         "animal_data": animal_data,
         "scenario_data": scenario_data,
-        "final_prompt": final_prompt,
+        "positive_prompt": final_prompt,
+        "negative_prompt": negative_prompt,
     }
 
 
@@ -409,7 +448,11 @@ if __name__ == "__main__":
 
     image_path = sys.argv[1]
     style = pick_style_interactive()
-    result = build_animal_edo_prompt(image_path, style=style)
+    style_key = next(
+        k for k, v in json.loads(STYLES_FILE.read_text(encoding="utf-8")).items()
+        if v["trigger_word"] == style["trigger_word"]
+    )
+    result = build_animal_edo_prompt(image_path, style=style, style_key=style_key)
 
     print("\n=== ANIMAL DATA ===")
     print(json.dumps(result["animal_data"], indent=2, ensure_ascii=False))
@@ -417,5 +460,8 @@ if __name__ == "__main__":
     print("\n=== SCENARIO DATA ===")
     print(json.dumps(result["scenario_data"], indent=2, ensure_ascii=False))
 
-    print("\n=== FINAL PROMPT ===")
-    print(result["final_prompt"])
+    print("\n=== POSITIVE PROMPT ===")
+    print(result["positive_prompt"])
+
+    print("\n=== NEGATIVE PROMPT ===")
+    print(result["negative_prompt"])
