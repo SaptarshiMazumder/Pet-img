@@ -7,7 +7,7 @@
       "lora_name": "wetInkZTurbo.safetensors",
       "lora_strength": 0.3,
       "lora2_name": "ukiyoeZTurbo.safetensors",
-      "lora2_strength": 0.0
+      "lora2_strength": 0.5
     }
   },
   "ukiyoe": {
@@ -16,7 +16,7 @@
     "suffix": "Ukiyo-e style, Japanese woodblock print aesthetic, flat bold outlines, traditional Edo-period color palette, woodblock carving texture, stylized natural forms, decorative patterned fabrics, flowing linear detail, Japanese woodcut print, Hiroshige and Hokusai influenced, hand-printed feel. No text, no watermark, no logos, no blur, no anatomical errors, no extra limbs",
     "lora": {
       "lora_name": "wetInkZTurbo.safetensors",
-      "lora_strength": 0.0,
+      "lora_strength": 0.3,
       "lora2_name": "ukiyoeZTurbo.safetensors",
       "lora2_strength": 0.5
     }

@@ -17,75 +17,134 @@ runpod/
 
 ---
 
-## 1 — Prepare the RunPod Network Volume
+## 1 — Download models
 
-Create a Network Volume in the RunPod console (≥ 50 GB recommended) and attach it to a
-**temporary** GPU pod first so you can SSH in and download the models.
+Models can go on a **Network Volume** (recommended for serverless — persists across cold starts)
+or directly onto a **RunPod Pod** (faster to test, lost when the pod is deleted).
+Commands below are written out in full for both locations.
 
-The volume will be mounted at `/runpod-volume` in the serverless worker.
+---
 
-### 1a — Directory structure
+### Option A — Network Volume
+> Create a Network Volume (≥ 50 GB) in the RunPod console, attach it to a temporary GPU pod,
+> SSH in, and run these commands. Set `VOLUME_PATH=/workspace` on the serverless endpoint.
+
+#### Create directories
 
 ```bash
-mkdir -p /runpod-volume/models/unet
-mkdir -p /runpod-volume/models/vae
-mkdir -p /runpod-volume/models/clip
-mkdir -p /runpod-volume/models/loras
-mkdir -p /runpod-volume/output
+mkdir -p /workspace/models/diffusion_models
+mkdir -p /workspace/models/text_encoders
+mkdir -p /workspace/models/unet
+mkdir -p /workspace/models/vae
+mkdir -p /workspace/models/clip
+mkdir -p /workspace/models/loras
+mkdir -p /workspace/output
 ```
-
-### 1b — Download models
-
-> **Tip:** `wget -c` resumes interrupted downloads.
-> You may need a Hugging Face token for gated repos: `--header="Authorization: Bearer $HF_TOKEN"`
 
 #### UNET — Z-Image Turbo (bf16)
 
 ```bash
 wget "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors" \
-  -O /runpod-volume/models/unet/z_image_turbo_bf16.safetensors
+  -O /workspace/models/diffusion_models/z_image_turbo_bf16.safetensors
 ```
 
-#### VAE — FLUX ae.safetensors
+#### VAE — FLUX ae
 
 ```bash
 wget "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors" \
-  -O /runpod-volume/models/vae/ae.safetensors
+  -O /workspace/models/vae/ae.safetensors
 ```
 
-#### CLIP — Qwen3 4B (lumina2 format)
+#### CLIP — Qwen3 4B (lumina2)
 
 ```bash
 wget "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors" \
-  -O /runpod-volume/models/clip/qwen_3_4b.safetensors
+  -O /workspace/models/text_encoders/qwen_3_4b.safetensors
 ```
 
-#### LoRA 1 — wetInkZTurbo (style, strength 0.3)
-
-Applied first in the chain. Provides the wet ink / sumi-e base style. Trigger token: `w3t1nk`.
+#### LoRA 1 — wetInkZTurbo (trigger: `w3t1nk`, default strength 0.3)
 
 ```bash
-wget -c -O /runpod-volume/models/loras/wetInkZTurbo.safetensors \
-    "https://huggingface.co/<AUTHOR>/<REPO>/resolve/main/wetInkZTurbo.safetensors"
+wget "https://civitai.com/api/download/models/2533715?type=Model&format=SafeTensor&token=32935a7da15c304c648fd5d1633002fd" \
+  -O workspace/models/loras/wetInkZTurbo.safetensors"
 ```
 
-#### LoRA 2 — ukiyoeZTurbo (style, strength 0.5)
-
-Applied second, on top of LoRA 1. Adds ukiyo-e woodblock print aesthetics.
-Its CLIP output feeds the positive encoder; wetInkZTurbo CLIP feeds the negative encoder.
+#### LoRA 2 — ukiyoeZTurbo (trigger: `Ukiyo-e`, default strength 0.5)
 
 ```bash
-wget -c -O /runpod-volume/models/loras/ukiyoeZTurbo.safetensors \
-    "https://huggingface.co/<AUTHOR>/<REPO>/resolve/main/ukiyoeZTurbo.safetensors"
+wget "https://civitai.com/api/download/models/2457871?type=Model&format=SafeTensor&token=32935a7da15c304c648fd5d1633002fd" \
+  -O workspace/models/loras/ukiyoeZTurbo.safetensors
 ```
 
-### 1c — Verify
+#### Verify
 
 ```bash
-ls -lh /runpod-volume/models/unet/
-ls -lh /runpod-volume/models/vae/
-ls -lh /runpod-volume/models/clip/
-ls -lh /runpod-volume/models/loras/
+ls -lh /workspace/models/unet/
+ls -lh /workspace/models/diffusion_models
+ls -lh /workspace/models/text_encoders
+ls -lh /workspace/models/vae/
+ls -lh /workspace/models/clip/
+ls -lh /workspace/models/loras/
+```
+
+---
+
+### Option B — RunPod Pod (direct, no network volume)
+> SSH into your running pod. ComfyUI lives at `/workspace/runpod-slim/ComfyUI/`.
+> Models downloaded here are lost when the pod is terminated.
+
+#### Create directories
+
+```bash
+mkdir -p /workspace/runpod-slim/ComfyUI/models/unet
+mkdir -p /workspace/runpod-slim/ComfyUI/models/vae
+mkdir -p /workspace/runpod-slim/ComfyUI/models/clip
+mkdir -p /workspace/runpod-slim/ComfyUI/models/loras
+mkdir -p /workspace/runpod-slim/ComfyUI/output
+```
+
+#### UNET — Z-Image Turbo (bf16)
+
+```bash
+wget -c -O /workspace/runpod-slim/ComfyUI/models/unet/z_image_turbo_bf16.safetensors \
+  "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors"
+```
+
+#### VAE — FLUX ae
+
+```bash
+wget -c -O /workspace/runpod-slim/ComfyUI/models/vae/ae.safetensors \
+  "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors"
+```
+
+#### CLIP — Qwen3 4B (lumina2)
+
+```bash
+wget -c -O /workspace/runpod-slim/ComfyUI/models/clip/qwen_3_4b.safetensors \
+  "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors"
+```
+
+#### LoRA 1 — wetInkZTurbo (trigger: `w3t1nk`, default strength 0.3)
+
+```bash
+wget -c -O /workspace/runpod-slim/ComfyUI/models/loras/wetInkZTurbo.safetensors \
+  "https://huggingface.co/<AUTHOR>/<REPO>/resolve/main/wetInkZTurbo.safetensors"
+```
+
+#### LoRA 2 — ukiyoeZTurbo (trigger: `Ukiyo-e`, default strength 0.5)
+
+```bash
+wget -c -O /workspace/runpod-slim/ComfyUI/models/loras/ukiyoeZTurbo.safetensors \
+  "https://huggingface.co/<AUTHOR>/<REPO>/resolve/main/ukiyoeZTurbo.safetensors"
+```
+
+#### Verify
+
+```bash
+ls -lh /workspace/runpod-slim/ComfyUI/models/unet/
+ls -lh /workspace/runpod-slim/ComfyUI/models/vae/
+ls -lh /workspace/runpod-slim/ComfyUI/models/clip/
+ls -lh /workspace/runpod-slim/ComfyUI/models/loras/
 ```
 
 ---
@@ -113,7 +172,7 @@ Or trigger the GitHub Action: **Actions → Build Pet Generator Worker → Run w
 
 | Variable | Description |
 |---|---|
-| `VOLUME_PATH` | `/runpod-volume` |
+| `VOLUME_PATH` | `/workspace` |
 | `R2_ACCOUNT_ID` | Cloudflare account ID |
 | `R2_ACCESS_KEY_ID` | R2 API token key ID |
 | `R2_SECRET_ACCESS_KEY` | R2 API token secret |

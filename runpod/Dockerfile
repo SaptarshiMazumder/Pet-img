@@ -60,9 +60,9 @@ COPY handler.py /app/handler.py
 # Environment
 # ------------------------------------------------------------
 ENV PYTHONUNBUFFERED=1
-ENV VOLUME_PATH=/runpod-volume
+ENV VOLUME_PATH=/workspace
 
 # ------------------------------------------------------------
 # Entrypoint
 # ------------------------------------------------------------
-CMD ["python", "-u", "/app/handler.py"]
+CMD ["python3", "-u", "/app/handler.py"]
