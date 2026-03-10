@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from pathlib import Path
 
 from google import genai
@@ -34,19 +35,27 @@ def load_template(template_key: str) -> dict:
 
 
 def build_negative_prompt(style_key: str) -> str:
-    data = json.loads(NEGATIVE_PROMPTS_FILE.read_text(encoding="utf-8"))
-    terms = []
-    for category in data["base"].values():
-        terms.extend(category)
-    terms.extend(data["per_style"].get(style_key, []))
-    return ", ".join(terms)
+    """Read negative prompt terms from JSON (array of strings) and join for ComfyUI."""
+    default = "blurry, watermark, deformed paws, human like fingers"
+    try:
+        data = json.loads(NEGATIVE_PROMPTS_FILE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, FileNotFoundError):
+        return default
+    if isinstance(data, list):
+        terms = [str(t).strip() for t in data if t]
+        return ", ".join(terms) if terms else default
+    return default
 
 
 # ----------------------------
-# Step 1: Extract animal appearance (Gemini)
+# Step 1: Analyze animal in image (Gemini)
 # ----------------------------
 
 def extract_animal_appearance(image_path: str) -> dict:
+    """
+    Analyze the animal in the image: fur patterns, colors, eyes, ears, marks.
+    Returns subject_phrase (for "A stoic X with ..."), face_sentence, species, pronoun (dog/cat/animal).
+    """
     path = Path(image_path)
     if not path.exists():
         raise FileNotFoundError(f"Image not found: {image_path}")
@@ -61,50 +70,29 @@ def extract_animal_appearance(image_path: str) -> dict:
     mime_type = f"image/{ext}"
 
     prompt = """
-You are analyzing an animal reference image for prompt engineering.
+You are analyzing an animal reference image. Your output will be used to build a single art prompt. Return JSON only.
 
-Return JSON only. Be extremely precise and visual — you are feeding a portrait artist.
+Describe the animal in the image in the same style as these examples:
 
-Your job is to describe the animal's likeness-defining physical appearance in fine detail.
-Cover ALL of the following:
+Example subject_phrase (dog): "A stoic Shiba Inu with warm golden-orange fur, soft cream-white markings on the muzzle, chest, and inner legs, a plush curled tail, small upright triangular ears, and dark almond-shaped eyes"
+Example subject_phrase (cat): "A stoic orange tabby cat with rich ginger fur marked by darker orange stripes, a pale muzzle, soft cream fur along the chest and inner body, long white whiskers, alert triangular ears, and steady amber eyes"
 
-COAT & COLOR:
-- Exact base coat color(s) — be specific (e.g. "warm fawn", "blue-grey", "cream with apricot tint")
-- Secondary colors and exactly where they appear (muzzle, chest, eyebrows, paws, tail tip, etc.)
-- Coat pattern type (solid, bicolor, tricolor, tabby, brindle, merle, tuxedo, etc.)
-- Coat texture and length (short and smooth, dense double coat, wiry, silky, wavy, etc.)
-- Any white patches, dark masks, saddle markings, ticking, or gradients
+Example face_sentence (dog): "The Shiba Inu has a rounded expressive face, a black nose, and a calm, self-possessed expression."
+Example face_sentence (cat): "The cat has a graceful, dignified face with a calm, self-possessed expression, and its striped coat gives it an elegant and distinguished presence."
 
-FACE & HEAD:
-- Face shape (broad, narrow, flat/brachycephalic, elongated, round, wedge-shaped, etc.)
-- Forehead markings or wrinkles
-- Under-eye area — any tear stains, lighter fur rings, darker fur patches, prominent folds
-- Eye shape (almond, round, deep-set, wide-set, hooded) and exact eye color
-- Nose color, shape, and size
-- Muzzle length, shape, and color
-- Jowls, lip color, cheek structure
-- Ear shape, size, position, and inner ear color if visible
-- Whisker color and thickness if visible
-- Any distinctive facial markings that make this individual unique
+Your job:
+1. Identify the species/breed (e.g. "Shiba Inu", "orange tabby cat", "golden retriever").
+2. Write subject_phrase: Start with "A stoic" then the species/breed name, then "with" and a rich description of: fur color and pattern, markings (muzzle, chest, legs, etc.), tail, ears, and eyes. Do NOT add "portrayed as" or any role — that comes later. Match the detail level of the examples.
+3. Write face_sentence: A single sentence starting with "The [species or breed]" describing the face, nose, expression, and optionally one line about coat or presence. Use a period at the end.
+4. Set pronoun: "dog" if canine, "cat" if feline, otherwise "animal".
 
-DISTINCTIVE IDENTIFIERS:
-- Anything highly specific to this individual that sets it apart
-
-Do NOT mention posture, background, clothing, accessories, what the animal is doing, or camera angle.
-
-Return JSON in exactly this shape:
+Return JSON in exactly this shape (no extra fields):
 {
-  "species": "...",
-  "breed": "...",
-  "coat_summary": "...",
-  "face_details": ["...", "..."],
-  "distinctive_traits": ["...", "..."],
-  "appearance_summary": "...",
-  "prompt_subject_phrase": "..."
+  "species": "Shiba Inu",
+  "subject_phrase": "A stoic Shiba Inu with ...",
+  "face_sentence": "The Shiba Inu has ...",
+  "pronoun": "dog"
 }
-
-For prompt_subject_phrase: write a dense, comma-separated phrase capturing the most visually unique coat and face details — this will be injected directly into an art prompt.
-For appearance_summary: write 2-3 natural sentences describing the animal's full appearance for an artist.
 """
 
     response = client.models.generate_content(
@@ -117,78 +105,72 @@ For appearance_summary: write 2-3 natural sentences describing the animal's full
 
     text = response.text.strip()
     if text.startswith("```"):
-        text = text.strip("`").replace("json\n", "", 1).strip()
-    return json.loads(text)
+        text = re.sub(r"^```\s*json?\s*", "", text).strip().rstrip("`")
+    data = json.loads(text)
+
+    species = (data.get("species") or "animal").strip()
+    subject_phrase = (data.get("subject_phrase") or "A stoic animal").strip()
+    face_sentence = (data.get("face_sentence") or f"The {species} has a calm, dignified expression.").strip()
+    pronoun = (data.get("pronoun") or "animal").strip().lower()
+    if pronoun not in ("dog", "cat", "animal"):
+        pronoun = "animal"
+
+    return {
+        "species": species,
+        "subject_phrase": subject_phrase,
+        "face_sentence": face_sentence,
+        "pronoun": pronoun,
+    }
 
 
 # ----------------------------
-# Step 2: Compose final prompt
+# Step 2: Compose prompt from template + animal + style
 # ----------------------------
+
+def _fill_placeholders(s: str, *, pronoun: str, species: str) -> str:
+    return s.replace("{pronoun}", pronoun).replace("{species}", species)
+
 
 def compose_final_prompt(animal_data: dict, template: dict, style: dict) -> str:
-    prefix = style["trigger_word"]
-    style_suffix = style["suffix"]
-    subject = animal_data["prompt_subject_phrase"].strip()
+    """
+    Assemble: [trigger] [subject_phrase], portrayed as [role_title]. [face] It wears/dressed [wardrobe]. [pose]. [props] Setting. Lighting. Mood. [style_suffix]
+    Template fields can contain {pronoun} and {species}; we replace them.
+    """
+    trigger = (style.get("trigger_word") or "").strip()
+    style_suffix = (style.get("suffix") or "").strip()
 
-    species = animal_data.get("species", "animal").lower()
-    breed = animal_data.get("breed", "").strip()
-    coat_summary = animal_data.get("coat_summary", "").strip()
-    distinctive = animal_data.get("distinctive_traits", [])
+    subject_phrase = animal_data.get("subject_phrase", "A stoic animal").strip()
+    face_sentence = animal_data.get("face_sentence", "").strip()
+    species = animal_data.get("species", "animal").strip()
+    pronoun = animal_data.get("pronoun", "animal").strip().lower()
 
-    role_title = template["role_title"].strip()
-    wardrobe = template["wardrobe"].strip()
-    pose_action = template["pose_action"].strip()
-    environment = template["environment"].strip()
-    lighting = template["lighting"].strip()
-    mood = template["mood"].strip()
-    props = template.get("props", [])
+    role_title = template.get("role_title", "").strip()
+    wardrobe = template.get("wardrobe", "").strip()
+    attire_verb = template.get("attire_verb", "wears").strip()
+    pose_sentence = template.get("pose_sentence", "").strip()
+    props_sentence = (template.get("props_sentence") or "").strip()
+    environment = template.get("environment", "").strip()
+    lighting = template.get("lighting", "").strip()
+    mood = template.get("mood", "").strip()
 
-    # Species-specific paw language
-    paw_term = "paws"
-    if "cat" in species or "feline" in species or "kitten" in species:
-        paw_term = "cat paws with retractable claws"
-    elif "dog" in species or "canine" in species or "puppy" in species:
-        paw_term = "dog paws with visible paw pads"
-    elif "rabbit" in species or "bunny" in species:
-        paw_term = "rabbit paws"
-    elif "bear" in species:
-        paw_term = "bear paws with claws"
-    elif "fox" in species:
-        paw_term = "fox paws"
+    pose_sentence = _fill_placeholders(pose_sentence, pronoun=pronoun, species=species)
+    lighting = _fill_placeholders(lighting, pronoun=pronoun, species=species)
+    wardrobe = _fill_placeholders(wardrobe, pronoun=pronoun, species=species)
 
-    if props:
-        if len(props) == 1:
-            props_sentence = f" Beside it rests {props[0]}."
-        elif len(props) == 2:
-            props_sentence = f" Beside it rest {props[0]} and {props[1]}."
-        else:
-            props_sentence = f" Beside it rest {', '.join(props[:-1])}, and {props[-1]}."
-    else:
-        props_sentence = ""
+    parts = [
+        f"{trigger} {subject_phrase}, portrayed as {role_title}.",
+        face_sentence,
+        f"It {attire_verb} {wardrobe}.",
+        pose_sentence,
+    ]
+    if props_sentence:
+        parts.append(props_sentence)
+    parts.append(f"The setting is {environment}.")
+    parts.append(lighting)
+    parts.append(f"The mood feels {mood}.")
+    parts.append(style_suffix)
 
-    # Build appearance detail line
-    appearance_line = animal_data["appearance_summary"].strip()
-    if coat_summary:
-        appearance_line += f" Coat: {coat_summary}."
-    if distinctive:
-        appearance_line += f" Distinctive features: {'; '.join(distinctive)}."
-
-    species_label = f"{breed} {species}".strip() if breed else species
-
-    full_prompt = (
-        f"{prefix} {subject}, a {species_label} portrayed as {role_title}. "
-        f"{appearance_line} "
-        f"Depicted in a dignified humanoid composition — upper body and face prominently framed, "
-        f"dressed in {wardrobe}, retaining natural {paw_term} (not human hands or fingers), "
-        f"lower body naturally obscured by clothing, environment, or framing. "
-        f"It is {pose_action}.{props_sentence} "
-        f"The scene takes place {environment}. "
-        f"{lighting} "
-        f"The mood feels {mood}. "
-        f"{style_suffix}"
-    )
-
-    return " ".join(full_prompt.split())
+    return " ".join(p.strip() for p in parts if p.strip())
 
 
 # ----------------------------
@@ -222,7 +204,7 @@ if __name__ == "__main__":
         raise SystemExit(1)
 
     image_path = sys.argv[1]
-    template_key = sys.argv[2] if len(sys.argv) > 2 else "moonlit_cliffside"
+    template_key = sys.argv[2] if len(sys.argv) > 2 else "scholar_lord"
     style_key = sys.argv[3] if len(sys.argv) > 3 else "inkwash"
 
     style = load_style(style_key)

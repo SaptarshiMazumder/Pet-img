@@ -1,13 +1,38 @@
 {
+  "scholar_lord": {
+    "name": "Noble Scholar Lord",
+    "preview_url": "assets/templates/catStoic.png",
+    "role_title": "a noble scholar lord",
+    "attire_verb": "wears",
+    "wardrobe": "small reading glasses, a distinguished traditional scholar's hat, and an elegant layered kimono with fine patterned fabric and formal draping that gives it a refined, shogun-like presence",
+    "pose_sentence": "The {pronoun} is lying comfortably on a futon in a relaxed but dignified pose, one paw holding an unfurled scroll as if quietly studying it in contemplation.",
+    "props_sentence": "In front of the futon rests a small sake cup and a traditional sake bottle placed on a low lacquered tray.",
+    "environment": "a richly detailed traditional Japanese interior with tatami flooring, sliding shoji screens, wooden beams, and an atmosphere of quiet nobility. The walls are adorned with traditional Japanese paintings and refined decorative elements, including hanging scroll art, ornamental ceramics, and subtle period furnishings that evoke an old noble residence or castle chamber.",
+    "lighting": "Soft ambient light filters through the room, casting gentle highlights across the {pronoun}'s kimono, the sake set, the scroll, and the surrounding interior.",
+    "mood": "intimate, scholarly, noble, relaxed, and atmospheric"
+  },
+  "edo_royal": {
+    "name": "Edo-era Royal Figure",
+    "preview_url": "assets/templates/catStoic.png",
+    "role_title": "a noble Edo-era royal figure",
+    "attire_verb": "is dressed in",
+    "wardrobe": "an elegant richly layered traditional kimono with refined floral and patterned fabrics, wide flowing sleeves, formal draping, and an ornate noble hairstyle-inspired headpiece adapted for the {pronoun}",
+    "pose_sentence": "The {species} is shown in a poised upright side-profile pose, with the head gently inclined downward in a calm and elegant manner, one paw delicately holding an open traditional Japanese folding fan before the body. Its posture is graceful and composed, echoing the refined stillness of a classical court portrait.",
+    "props_sentence": "",
+    "environment": "a serene decorative composition with flowering branches, scattered blossoms, and subtle ornamental elements that frame the figure with noble elegance, while the garments flow beautifully in a dignified silhouette.",
+    "lighting": "Soft ambient light casts delicate highlights across the kimono, the fan, and the surrounding floral details.",
+    "mood": "intimate, noble, graceful, and atmospheric"
+  },
   "moonlit_cliffside": {
     "name": "Moonlit Cliffside Vigil",
     "preview_url": "assets/templates/catStoic.png",
-    "role_title": "solitary samurai keeping a moonlit vigil",
-    "wardrobe": "worn battle kimono layered under a dark haori, one shoulder partially exposed, a katana sheathed at the hip",
-    "pose_action": "standing at the very edge of a cliff, one foot on a jutting rock, robes billowing in the wind, gazing silently into the vast mist below",
-    "props": ["sheathed katana resting against the hip", "loose strands of hair caught in the wind"],
-    "environment": "on a rugged cliffside overlooking a vast misty valley, ancient pine trees clinging to the rock face below, a full moon cutting through drifting clouds",
+    "role_title": "a solitary samurai keeping a moonlit vigil",
+    "attire_verb": "wears",
+    "wardrobe": "a worn battle kimono layered under a dark haori, one shoulder partially exposed, a katana sheathed at the hip",
+    "pose_sentence": "The {pronoun} stands on two legs, paws at its sides, katana sheathed at the belt, at the edge of the cliff, robes billowing in the wind.",
+    "props_sentence": "",
+    "environment": "on a rugged cliffside overlooking a vast misty valley, ancient pine trees clinging to the rock face below, a full moon cutting through drifting clouds.",
     "lighting": "Cold silver moonlight from above, deep shadows on the cliff face, a faint blue mist rising from the valley below.",
     "mood": "solitary, windswept, quietly powerful, and poetic"
   }
-  }
+}
