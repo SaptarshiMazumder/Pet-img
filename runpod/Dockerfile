@@ -4,17 +4,14 @@
 # ============================================================
 FROM runpod/worker-comfyui:5.7.1-base
 
-# R2 client + RunPod SDK
-RUN pip install --no-cache-dir boto3 runpod==1.7.3
+# R2 client (runpod SDK already in base image)
+RUN pip install --no-cache-dir boto3 requests
 
-# App code
-COPY workflow_api.json /app/workflow_api.json
-COPY handler.py /app/handler.py
+# App code — handler at root so base image entrypoint can find it
+COPY workflow_api.json /workflow_api.json
+COPY handler.py /handler.py
 COPY extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 
 WORKDIR /comfyui
 
 ENV PYTHONUNBUFFERED=1
-ENV VOLUME_PATH=/workspace
-
-CMD ["python3", "-u", "/app/handler.py"]
