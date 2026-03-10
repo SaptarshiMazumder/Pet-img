@@ -4,7 +4,7 @@
 
 # --- Anatomy & Limbs ---
 deformed paws, malformed paws, extra paws, missing paws, fused paws
-deformed hands, malformed hands, extra fingers, missing fingers, fused fingers
+deformed hands, malformed hands, extra fingers, missing fingers, human like fingers, fused fingers
 bad hands, ugly hands, mutated hands, poorly drawn hands
 extra limbs, missing limbs, floating limbs, disconnected limbs
 bad anatomy, wrong anatomy, mutated anatomy

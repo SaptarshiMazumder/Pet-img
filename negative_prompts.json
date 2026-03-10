@@ -2,6 +2,9 @@
   "base": {
     "anatomy": [
       "deformed paws", "malformed paws", "extra paws", "missing paws", "fused paws",
+      "human hands", "human fingers", "human-like hands", "human-like fingers",
+      "finger digits", "knuckles", "fingernails", "humanized hands", "anthropomorphic hands",
+      "hands instead of paws", "fingers instead of paws",
       "deformed hands", "malformed hands", "extra fingers", "missing fingers", "fused fingers",
       "bad hands", "ugly hands", "mutated hands", "poorly drawn hands",
       "extra limbs", "missing limbs", "floating limbs", "disconnected limbs",

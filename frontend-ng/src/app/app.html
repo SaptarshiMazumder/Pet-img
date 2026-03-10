@@ -1,0 +1,106 @@
+<header>
+  <div class="header-inner">
+    <span class="logo-mark">墓</span>
+    <h1>Pet Generator</h1>
+    <p class="tagline">Edo-era portraits from your pet's photo</p>
+  </div>
+</header>
+
+<main>
+  <!-- LEFT: Upload + Controls -->
+  <section class="panel panel-left">
+
+    <div class="section-label">1. Upload your pet</div>
+    <div class="upload-area"
+         [class.drag-over]="isDragOver"
+         (click)="fileInput.click()"
+         (drop)="onDrop($event)"
+         (dragover)="onDragOver($event)"
+         (dragleave)="onDragLeave()">
+      <input #fileInput type="file" accept="image/png,image/jpeg,image/webp" hidden (change)="onFileChange($event)" />
+      <div class="upload-placeholder" *ngIf="!previewUrl">
+        <div class="upload-icon">🐾</div>
+        <div class="upload-text">Click or drag to upload</div>
+        <div class="upload-sub">PNG, JPG, WEBP</div>
+      </div>
+      <img *ngIf="previewUrl" [src]="previewUrl" class="image-preview" alt="Preview" />
+    </div>
+
+    <div class="section-label" style="margin-top:28px">2. Choose a style</div>
+    <div class="style-selector">
+      <div *ngFor="let key of styleKeys"
+           class="style-option"
+           [class.selected]="selectedStyle === key"
+           (click)="selectStyle(key)">
+        <div class="style-dot"></div>
+        <span class="style-name">{{ styles[key].name }}</span>
+        <span class="style-trigger">{{ styles[key].trigger_word }}</span>
+      </div>
+    </div>
+
+    <button class="generate-btn" [disabled]="!canGenerate" (click)="generate()">
+      <span *ngIf="!generating">Generate Portrait</span>
+      <span *ngIf="generating" class="btn-loading">
+        <span class="spinner"></span> Generating&hellip;
+      </span>
+    </button>
+
+    <div class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+  </section>
+
+  <!-- RIGHT: Template picker or Result -->
+  <section class="panel panel-right">
+
+    <!-- RESULT STATE -->
+    <ng-container *ngIf="result; else templatePicker">
+      <div class="result-header">
+        <div class="section-label">Result</div>
+        <button class="back-btn" (click)="clearResult()">&#8592; New portrait</button>
+      </div>
+      <div class="result-body">
+        <img [src]="result.result_image_url" class="result-image" alt="Generated portrait"
+             (error)="onImageError($event)" />
+        <div class="result-meta">
+          <div class="result-row">
+            <span class="result-key">Template</span>
+            <span class="result-val">{{ result.template }}</span>
+          </div>
+          <div class="result-row">
+            <span class="result-key">Style</span>
+            <span class="result-val">{{ result.style }}</span>
+          </div>
+          <div class="result-row">
+            <span class="result-key">Seed</span>
+            <span class="result-val">{{ result.seed ?? '—' }}</span>
+          </div>
+          <div class="result-divider"></div>
+          <div class="result-label">Prompt</div>
+          <div class="result-prompt">{{ result.positive_prompt }}</div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- TEMPLATE PICKER STATE -->
+    <ng-template #templatePicker>
+      <div class="section-label">3. Choose a template</div>
+      <div class="template-grid">
+        <div *ngFor="let key of templateKeys; let i = index"
+             class="template-card"
+             [class.selected]="selectedTemplate === key"
+             (click)="selectTemplate(key)">
+          <img *ngIf="templates[key].preview_url" class="template-thumb"
+               [src]="templates[key].preview_url" [alt]="templates[key].name" />
+          <div *ngIf="!templates[key].preview_url" class="template-thumb-placeholder">
+            {{ templateIcon(i) }}
+          </div>
+          <div class="template-info">
+            <div class="template-name">{{ templates[key].name }}</div>
+            <div class="template-mood">{{ templates[key].mood || templates[key].environment }}</div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+  </section>
+</main>

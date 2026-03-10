@@ -10,18 +10,20 @@ mimetypes.add_type("image/svg+xml", ".svg")
 import boto3
 from botocore.config import Config
 from flask import Flask, jsonify, request, send_from_directory, Response
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from backend.config import STYLES_FILE, TEMPLATES_FILE, ASSETS_DIR, FRONTEND_DIR
+from backend.config import STYLES_FILE, TEMPLATES_FILE, ASSETS_DIR
 from prompt_generator import build_animal_edo_prompt, load_style, load_template
 from runpod_client import run_job
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB
+CORS(app)
 
 
 # ----------------------------
@@ -88,19 +90,6 @@ def r2_image():
         return Response(obj["Body"].read(), mimetype="image/png")
     except Exception as e:
         return jsonify({"error": str(e), "bucket": bucket, "key": key}), 500
-
-
-@app.get("/")
-def serve_index():
-    return send_from_directory(FRONTEND_DIR, "index.html")
-
-
-@app.get("/<path:path>")
-def serve_frontend(path):
-    full = FRONTEND_DIR / path
-    if full.exists():
-        return send_from_directory(FRONTEND_DIR, path)
-    return send_from_directory(FRONTEND_DIR, "index.html")
 
 
 @app.post("/generate")

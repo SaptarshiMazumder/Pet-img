@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install -g @angular/cli)",
+      "Bash(npm root -g)",
+      "Read(//c/Users/sapma/AppData/Roaming/npm/**)",
+      "Bash(\"/c/Users/sapma/AppData/Roaming/npm/ng\" version)",
+      "Bash(\"/c/Users/sapma/AppData/Roaming/npm/ng\" new frontend-ng --standalone --routing=false --style=css --skip-git --skip-tests)",
+      "Bash(npm install)",
+      "Bash(\"./node_modules/.bin/tsc\" --noEmit)"
+    ]
+  }
+}

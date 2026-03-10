@@ -63,38 +63,48 @@ def extract_animal_appearance(image_path: str) -> dict:
     prompt = """
 You are analyzing an animal reference image for prompt engineering.
 
-Return JSON only.
+Return JSON only. Be extremely precise and visual — you are feeding a portrait artist.
 
-Your job is to describe ONLY the animal's likeness-defining physical appearance.
-Focus on:
-- species
-- fur or coat color
-- fur patterns and markings
-- muzzle details
-- face shape
-- eye shape and eye color
-- nose color/shape
-- ears shape/size/orientation
-- whiskers if visible
-- distinctive identifiers that help preserve likeness
-- overall facial vibe
+Your job is to describe the animal's likeness-defining physical appearance in fine detail.
+Cover ALL of the following:
 
-Do NOT mention:
-- posture, pose, or body position
-- background, clothing, or accessories
-- what the animal is doing
-- camera or viewpoint
+COAT & COLOR:
+- Exact base coat color(s) — be specific (e.g. "warm fawn", "blue-grey", "cream with apricot tint")
+- Secondary colors and exactly where they appear (muzzle, chest, eyebrows, paws, tail tip, etc.)
+- Coat pattern type (solid, bicolor, tricolor, tabby, brindle, merle, tuxedo, etc.)
+- Coat texture and length (short and smooth, dense double coat, wiry, silky, wavy, etc.)
+- Any white patches, dark masks, saddle markings, ticking, or gradients
 
-Be concrete and visual. Prioritize face details and markings.
+FACE & HEAD:
+- Face shape (broad, narrow, flat/brachycephalic, elongated, round, wedge-shaped, etc.)
+- Forehead markings or wrinkles
+- Under-eye area — any tear stains, lighter fur rings, darker fur patches, prominent folds
+- Eye shape (almond, round, deep-set, wide-set, hooded) and exact eye color
+- Nose color, shape, and size
+- Muzzle length, shape, and color
+- Jowls, lip color, cheek structure
+- Ear shape, size, position, and inner ear color if visible
+- Whisker color and thickness if visible
+- Any distinctive facial markings that make this individual unique
+
+DISTINCTIVE IDENTIFIERS:
+- Anything highly specific to this individual that sets it apart
+
+Do NOT mention posture, background, clothing, accessories, what the animal is doing, or camera angle.
 
 Return JSON in exactly this shape:
 {
   "species": "...",
-  "appearance_summary": "...",
+  "breed": "...",
+  "coat_summary": "...",
   "face_details": ["...", "..."],
   "distinctive_traits": ["...", "..."],
+  "appearance_summary": "...",
   "prompt_subject_phrase": "..."
 }
+
+For prompt_subject_phrase: write a dense, comma-separated phrase capturing the most visually unique coat and face details — this will be injected directly into an art prompt.
+For appearance_summary: write 2-3 natural sentences describing the animal's full appearance for an artist.
 """
 
     response = client.models.generate_content(
@@ -120,6 +130,11 @@ def compose_final_prompt(animal_data: dict, template: dict, style: dict) -> str:
     style_suffix = style["suffix"]
     subject = animal_data["prompt_subject_phrase"].strip()
 
+    species = animal_data.get("species", "animal").lower()
+    breed = animal_data.get("breed", "").strip()
+    coat_summary = animal_data.get("coat_summary", "").strip()
+    distinctive = animal_data.get("distinctive_traits", [])
+
     role_title = template["role_title"].strip()
     wardrobe = template["wardrobe"].strip()
     pose_action = template["pose_action"].strip()
@@ -127,6 +142,19 @@ def compose_final_prompt(animal_data: dict, template: dict, style: dict) -> str:
     lighting = template["lighting"].strip()
     mood = template["mood"].strip()
     props = template.get("props", [])
+
+    # Species-specific paw language
+    paw_term = "paws"
+    if "cat" in species or "feline" in species or "kitten" in species:
+        paw_term = "cat paws with retractable claws"
+    elif "dog" in species or "canine" in species or "puppy" in species:
+        paw_term = "dog paws with visible paw pads"
+    elif "rabbit" in species or "bunny" in species:
+        paw_term = "rabbit paws"
+    elif "bear" in species:
+        paw_term = "bear paws with claws"
+    elif "fox" in species:
+        paw_term = "fox paws"
 
     if props:
         if len(props) == 1:
@@ -138,11 +166,21 @@ def compose_final_prompt(animal_data: dict, template: dict, style: dict) -> str:
     else:
         props_sentence = ""
 
+    # Build appearance detail line
+    appearance_line = animal_data["appearance_summary"].strip()
+    if coat_summary:
+        appearance_line += f" Coat: {coat_summary}."
+    if distinctive:
+        appearance_line += f" Distinctive features: {'; '.join(distinctive)}."
+
+    species_label = f"{breed} {species}".strip() if breed else species
+
     full_prompt = (
-        f"{prefix} {subject}, portrayed as {role_title}. "
-        f"{animal_data['appearance_summary']} "
+        f"{prefix} {subject}, a {species_label} portrayed as {role_title}. "
+        f"{appearance_line} "
         f"Depicted in a dignified humanoid composition — upper body and face prominently framed, "
-        f"dressed in {wardrobe}, lower body naturally obscured by clothing, environment, or framing. "
+        f"dressed in {wardrobe}, retaining natural {paw_term} (not human hands or fingers), "
+        f"lower body naturally obscured by clothing, environment, or framing. "
         f"It is {pose_action}.{props_sentence} "
         f"The scene takes place {environment}. "
         f"{lighting} "
