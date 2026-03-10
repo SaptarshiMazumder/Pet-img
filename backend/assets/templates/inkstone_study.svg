@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#080808"/>
+      <stop offset="100%" stop-color="#101008"/>
+    </linearGradient>
+    <radialGradient id="candle" cx="52%" cy="65%" r="35%">
+      <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#g)"/>
+  <!-- shelves of scrolls -->
+  <rect x="0" y="40" width="400" height="6" fill="#1a1408" opacity="0.8"/>
+  <rect x="0" y="100" width="400" height="6" fill="#1a1408" opacity="0.8"/>
+  <rect x="0" y="160" width="180" height="6" fill="#1a1408" opacity="0.8"/>
+  <!-- scroll rolls -->
+  <g fill="#2a2010" stroke="#c9a84c" stroke-width="0.5" opacity="0.6">
+    <rect x="10" y="46" width="12" height="48" rx="6"/>
+    <rect x="28" y="46" width="12" height="48" rx="6"/>
+    <rect x="46" y="46" width="12" height="48" rx="6"/>
+    <rect x="64" y="46" width="12" height="48" rx="6"/>
+    <rect x="82" y="46" width="12" height="48" rx="6"/>
+    <rect x="10" y="106" width="12" height="48" rx="6"/>
+    <rect x="28" y="106" width="12" height="48" rx="6"/>
+    <rect x="46" y="106" width="12" height="48" rx="6"/>
+    <rect x="220" y="46" width="12" height="48" rx="6"/>
+    <rect x="238" y="46" width="12" height="48" rx="6"/>
+    <rect x="256" y="46" width="12" height="48" rx="6"/>
+  </g>
+  <!-- writing desk -->
+  <rect x="100" y="195" width="220" height="10" rx="2" fill="#2a1e08" stroke="#c9a84c" stroke-width="0.5" opacity="0.8"/>
+  <!-- paper on desk -->
+  <rect x="130" y="165" width="140" height="30" rx="1" fill="#e8e0d0" opacity="0.15"/>
+  <!-- candle glow -->
+  <rect width="400" height="300" fill="url(#candle)"/>
+  <!-- candle -->
+  <rect x="205" y="178" width="6" height="20" fill="#e8e0d0" opacity="0.5"/>
+  <ellipse cx="208" cy="176" rx="4" ry="5" fill="#c9a84c" opacity="0.8"/>
+  <!-- label -->
+  <text x="200" y="255" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#c9a84c" opacity="0.9" letter-spacing="2">THE INKSTONE</text>
+  <text x="200" y="275" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="#a07830" letter-spacing="1">STUDY</text>
+</svg>

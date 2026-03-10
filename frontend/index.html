@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pet Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <span class="logo-mark">&#x5893;</span>
+      <h1>Pet Generator</h1>
+      <p class="tagline">Edo-era portraits from your pet's photo</p>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- LEFT: Upload + Controls -->
+    <section class="panel panel-left">
+
+      <div class="section-label">1. Upload your pet</div>
+      <div class="upload-area" id="uploadArea">
+        <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp" hidden />
+        <div class="upload-placeholder" id="uploadPlaceholder">
+          <div class="upload-icon">&#x1F43E;</div>
+          <div class="upload-text">Click or drag to upload</div>
+          <div class="upload-sub">PNG, JPG, WEBP</div>
+        </div>
+        <img id="imagePreview" class="image-preview hidden" alt="Preview" />
+      </div>
+
+      <div class="section-label" style="margin-top:28px">2. Choose a style</div>
+      <div class="style-selector" id="styleSelector">
+        <!-- populated by JS -->
+      </div>
+
+      <button class="generate-btn" id="generateBtn" disabled>
+        <span id="generateLabel">Generate Portrait</span>
+        <span id="generateSpinner" class="spinner hidden"></span>
+      </button>
+
+      <div class="error-msg hidden" id="errorMsg"></div>
+
+    </section>
+
+    <!-- RIGHT: Template Picker -->
+    <section class="panel panel-right">
+      <div class="section-label">3. Choose a template</div>
+      <div class="template-grid" id="templateGrid">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RESULT -->
+  <section class="result-section hidden" id="resultSection">
+    <div class="result-inner">
+      <div class="result-image-wrap">
+        <img id="resultImage" class="result-image" alt="Generated portrait" />
+      </div>
+      <div class="result-meta">
+        <div class="result-row">
+          <span class="result-key">Template</span>
+          <span class="result-val" id="metaTemplate">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-key">Style</span>
+          <span class="result-val" id="metaStyle">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-key">Seed</span>
+          <span class="result-val" id="metaSeed">—</span>
+        </div>
+        <div class="result-divider"></div>
+        <div class="result-label">Prompt</div>
+        <div class="result-prompt" id="metaPrompt"></div>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

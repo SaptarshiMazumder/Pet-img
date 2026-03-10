@@ -12,7 +12,7 @@ import json
 RUNPOD_API_KEY = os.environ.get("RUNPOD_API_KEY", "")
 RUNPOD_ENDPOINT_ID = os.environ.get("RUNPOD_ENDPOINT_ID", "")
 
-BASE_URL = "https://api.runpod.io/v2"
+BASE_URL = "https://api.runpod.ai/v2"
 POLL_INTERVAL = 2   # seconds between status checks
 TIMEOUT = 300       # max seconds to wait for a job
 
