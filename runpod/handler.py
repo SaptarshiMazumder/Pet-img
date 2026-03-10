@@ -78,9 +78,9 @@ def upload_to_r2(image_bytes: bytes, key: str) -> str:
 # Model symlinks
 # ---------------------------------------------------------------------------
 MODEL_SYMLINKS = {
-    COMFYUI_DIR / "models" / "unet": VOLUME_ROOT / "models" / "unet",
+    COMFYUI_DIR / "models" / "diffusion_models": VOLUME_ROOT / "models" / "diffusion_models",
+    COMFYUI_DIR / "models" / "text_encoders": VOLUME_ROOT / "models" / "text_encoders",
     COMFYUI_DIR / "models" / "vae": VOLUME_ROOT / "models" / "vae",
-    COMFYUI_DIR / "models" / "clip": VOLUME_ROOT / "models" / "clip",
     COMFYUI_DIR / "models" / "loras": VOLUME_ROOT / "models" / "loras",
     COMFYUI_DIR / "output": VOLUME_ROOT / "output",
 }
