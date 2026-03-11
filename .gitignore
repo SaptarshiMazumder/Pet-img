@@ -29,6 +29,7 @@ output/
 .env
 .env.*
 *.env
+*firebase-adminsdk*.json
 
 # OS
 .DS_Store

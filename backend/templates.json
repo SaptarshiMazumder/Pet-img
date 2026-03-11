@@ -5,11 +5,12 @@
     "role_title": "a noble scholar lord",
     "attire_verb": "wears",
     "wardrobe": "small reading glasses, a distinguished traditional scholar's hat, and an elegant layered kimono with fine patterned fabric and formal draping that gives it a refined, shogun-like presence",
-    "pose_sentence": "The {pronoun} is lying comfortably on a futon in a relaxed but dignified pose, one paw holding an unfurled scroll as if quietly studying it in contemplation.",
-    "props_sentence": "In front of the futon rests a small sake cup and a traditional sake bottle placed on a low lacquered tray.",
+    "pose_sentence": "The {pronoun} is seated on tatami flooring with its back resting fully against a large, thick rectangular floor cushion (a firm zabuton bolster) that is propped upright against a solid dark wooden pillar. The back is clearly leaning and supported by this cushion-against-pillar structure — it is the primary support for the figure's posture. The upper body leans back slightly into the cushion in a relaxed but dignified way. One paw is raised and actively holding an unfurled scroll open in front of itself, reading it — the scroll is clearly gripped in the paw and held up, visible and central to the composition. The lower body and hind legs are completely hidden beneath the thick, flowing kimono fabric that drapes over the lap — only the head, upper body, and raised paw holding the scroll are visible.",
+    "props_sentence": "A large thick rectangular floor cushion propped against a dark wooden pillar supports the figure's back. In front of the figure, a small low lacquered tray holds a sake bottle and a small sake cup.",
     "environment": "a richly detailed traditional Japanese interior with tatami flooring, sliding shoji screens, wooden beams, and an atmosphere of quiet nobility. The walls are adorned with traditional Japanese paintings and refined decorative elements, including hanging scroll art, ornamental ceramics, and subtle period furnishings that evoke an old noble residence or castle chamber.",
     "lighting": "Soft ambient light filters through the room, casting gentle highlights across the {pronoun}'s kimono, the sake set, the scroll, and the surrounding interior.",
-    "mood": "intimate, scholarly, noble, relaxed, and atmospheric"
+    "mood": "intimate, scholarly, noble, relaxed, and atmospheric",
+    "not_suitable_for": []
   },
   "edo_royal": {
     "name": "Edo-era Royal Figure",
@@ -17,23 +18,25 @@
     "role_title": "a noble Edo-era royal figure",
     "attire_verb": "is dressed in",
     "wardrobe": "an elegant richly layered traditional kimono with refined floral and patterned fabrics, wide flowing sleeves, formal draping, and an ornate noble hairstyle-inspired headpiece adapted for the {pronoun}",
-    "pose_sentence": "The {species} is shown in a poised upright side-profile pose, with the head gently inclined downward in a calm and elegant manner, one paw delicately holding an open traditional Japanese folding fan before the body. Its posture is graceful and composed, echoing the refined stillness of a classical court portrait.",
+    "pose_sentence": "The {species} is shown in a poised upright side-profile pose, with the head gently inclined downward in a calm and elegant manner, one paw delicately holding an open traditional Japanese folding fan before the body. Its posture is graceful and composed, echoing the refined stillness of a classical court portrait. The lower body and legs are entirely concealed beneath the long, sweeping kimono that pools at the base — only the head, shoulders, upper body, and one raised paw holding the fan are visible.",
     "props_sentence": "",
     "environment": "a serene decorative composition with flowering branches, scattered blossoms, and subtle ornamental elements that frame the figure with noble elegance, while the garments flow beautifully in a dignified silhouette.",
     "lighting": "Soft ambient light casts delicate highlights across the kimono, the fan, and the surrounding floral details.",
-    "mood": "intimate, noble, graceful, and atmospheric"
+    "mood": "intimate, noble, graceful, and atmospheric",
+    "not_suitable_for": []
   },
   "sake_on_pillow": {
     "name": "Sake on Pillow",
     "preview_url": "assets/templates/sake.png",
-    "role_title": "a relaxed figure at rest",
+    "role_title": "a noble scholar lord at rest",
     "attire_verb": "wears",
-    "wardrobe": "an ornate traditional kimono with rich patterns, a dark traditional hat, and a bright obi at the waist",
-    "pose_sentence": "The {pronoun}'s back rests against a large cushion or pillow. Seated cross legged —with paws visible. One paw holds a small sake cup as if taking a sip; the other rests on its lap. Human-like seated pose, shown from a slight sideways angle. Not seiza; legs are out in front.",
-    "props_sentence": "A large cushion or pillow supports the figure's back. To the side, a black lacquered tray holds a white sake bottle with blue patterns and a matching sake cup.",
-    "environment": "a traditional Japanese room with tatami flooring, decorated with hanging scrolls, shoji screens, wooden beams, ornamental ceramics, and subtle period furnishings. The interior evokes a serene, intimate atmosphere.",
-    "lighting": "Soft ambient light filters through the room, casting gentle highlights across the {pronoun}'s kimono, the sake set, the cushion, and the decorated interior.",
-    "mood": "relaxed, serene, intimate, contemplative, and atmospheric"
+    "wardrobe": "small reading glasses, a distinguished traditional scholar's hat, and an elegant layered kimono with fine patterned fabric and formal draping that gives it a refined, shogun-like presence",
+    "pose_sentence": "The {pronoun} is seated with its back against a large cushion propped against the wall, shown from the waist up only. One paw holds a small sake cup raised as if taking a sip; the other paw rests on its lap. Relaxed but dignified seated pose, shown from a slight sideways angle. The lower body is completely hidden beneath the thick kimono fabric that drapes over the lap — no legs or hind limbs are visible.",
+    "props_sentence": "A large cushion is placed behind the figure, against the wall, supporting the back only. Beside the figure, a black lacquered tray holds a white sake bottle with blue patterns and a matching sake cup. Nearby: a low lacquered table, an incense burner with lit incense sticks, a small ceramic vase with a single branch or flower. Hanging scroll paintings (kakemono) on the walls, ornamental ceramics, and traditional furnishings fill the space.",
+    "environment": "a richly detailed traditional Japanese interior with tatami flooring, sliding shoji screens, wooden beams, and an atmosphere of quiet nobility. The walls are adorned with traditional Japanese paintings and refined decorative elements, including hanging scroll art, ornamental ceramics, and subtle period furnishings that evoke an old noble residence or castle chamber.",
+    "lighting": "Soft ambient light filters through the room, casting gentle highlights across the {pronoun}'s kimono, the sake set, and the surrounding interior.",
+    "mood": "intimate, scholarly, noble, relaxed, and atmospheric",
+    "not_suitable_for": ["corgi"]
   },
   "ceremonial_throne": {
     "name": "Ceremonial Throne",
@@ -41,11 +44,12 @@
     "role_title": "a majestic shogun or ceremonial ruler",
     "attire_verb": "wears",
     "wardrobe": "a blue kimono with intricate yellow patterns, a ceremonial haori with structured shoulders and broad collar in traditional style, an ornate obi with a decorative tassel, and a traditional Japanese ornamental shoulder piece",
-    "pose_sentence": "The {pronoun} is seated upright and symmetrically on a dark wooden throne-like chair with a high back and armrests, facing directly forward. Both paws rest on its lap or on the arms of the chair; one paw holds a closed traditional Japanese folding fan. Composed, dignified posture. Seated directly on the throne, no pillow.",
+    "pose_sentence": "The {pronoun} is seated upright and symmetrically on a dark wooden throne-like chair with a high back and armrests, facing directly forward. Both paws rest on its lap or on the arms of the chair; one paw holds a closed traditional Japanese folding fan. Composed, dignified posture. Seated directly on the throne, no pillow. The lower body and legs are entirely hidden beneath the voluminous kimono and the throne structure — only the upper body, shoulders, and paws are visible.",
     "props_sentence": "Traditional Japanese interior decorations around",
     "environment": "a grand traditional Japanese hall with dark wooden pillars, a large screen or tapestry with traditional Japanese geometric patterns behind the throne, and two vertical banners with Japanese calligraphy hanging on either side. The throne sits on a multi-tiered wooden platform with steps. Traditional Japanese interior style.",
     "lighting": "Soft ambient light filters through the space.",
-    "mood": "majestic, dignified, ceremonial, authoritative, and traditionally Japanese"
+    "mood": "majestic, dignified, ceremonial, authoritative, and traditionally Japanese",
+    "not_suitable_for": []
   },
   "boat_sakura": {
     "name": "Boat on Lake with Sakura",
@@ -53,11 +57,25 @@
     "role_title": "a serene figure on the water",
     "attire_verb": "wears",
     "wardrobe": "a traditional kimono with subtle stripes or patterns, wide sleeves, suitable for being in a boat",
-    "pose_sentence": "The {pronoun} is seated in a light wooden boat near the shore of a calm lake, both paws on the oar—gripping the oar with both arms in a rowing motion, as if mid-stroke. Humanoid seated pose, legs tucked within the boat beneath the kimono. Shown from a slight sideways angle.",
+    "pose_sentence": "The {pronoun} is seated in a light wooden boat near the shore of a calm lake, both paws gripping an oar in a rowing motion. The lower body and legs are completely hidden inside the boat hull and beneath the flowing kimono — only the upper body, head, and paws on the oar are visible above the boat's sides. Shown from a slight sideways angle.",
     "props_sentence": "A wooden boat on the calm water, close to the shore. An oar in the {pronoun}'s paws. Sakura petals and leaves floating on the water surface.",
     "environment": "Cinematic photo taken from the shore: the edge of the water is visible in the foreground, with the boat on the lake beyond. The shore and the sakura trees are clearly visible—lush sakura (cherry blossoms) in full bloom along the water's edge, green foliage, and perhaps a traditional bridge or pavilion. Calm lake with clear water, subtle wave patterns, and sakura leaves and petals floating on the surface. Serene and peaceful.",
     "lighting": "Soft natural daylight over the water, gentle reflections on the surface, a light blue sky with soft clouds.",
-    "mood": "serene, peaceful, contemplative, poetic, and atmospheric"
+    "mood": "serene, peaceful, contemplative, poetic, and atmospheric",
+    "not_suitable_for": ["shiba", "akita", "husky", "malamute", "samoyed", "hokkaido", "kishu", "kai", "shikoku", "jindo", "chow chow", "pomeranian", "keeshond", "finnish spitz", "norwegian elkhound", "american eskimo"]
+  },
+  "battle_lord": {
+    "name": "Battle Lord",
+    "preview_url": "assets/templates/warrior.png",
+    "role_title": "a battle-ready samurai lord",
+    "attire_verb": "wears",
+    "wardrobe": "traditional Japanese yoroi battle armor in red—layered lacquered chest plate with intricate patterns, broad red shoulder guards, armored sleeves, a kusazuri skirt of armor plates, and a red kabuto helmet with crest. A dark kimono beneath the armor. A menpo face guard. Katana and wakizashi at the waist.",
+    "pose_sentence": "The {pronoun} is seated in a commanding frontal pose, both paws resting on its thighs, body facing the viewer. Symmetrical, dignified war-portrait stance. Humanoid seated pose. The lower body and legs are completely hidden behind the heavy layered armor skirt (kusazuri) and the ground — only the upper body, armored chest, helmet, and paws on thighs are visible.",
+    "props_sentence": "A daisho—katana and wakizashi—tucked at the waist. A quiver of arrows visible behind one shoulder.",
+    "environment": "a traditional Japanese dojo interior: tatami mat flooring, dark wooden pillars, high ceiling. Walls with a single hanging scroll (kakemono) with calligraphy—dojo name or a martial maxim. Perhaps a low wooden weapons rack or armor stand in the background. Simple, dignified dojo atmosphere. Traditional Japanese style.",
+    "lighting": "Soft ambient light filters through the room, casting gentle highlights across the {pronoun}'s armor and the decorated interior.",
+    "mood": "fierce, imposing, martial, powerful, and traditionally Japanese",
+    "not_suitable_for": []
   },
   "sakura_samurai": {
     "name": "Samurai under Sakura",
@@ -65,10 +83,11 @@
     "role_title": "a solitary samurai warrior under the cherry blossoms",
     "attire_verb": "wears",
     "wardrobe": "dark traditional samurai armor—black or dark blue with subtle texture, helmet with crest, shoulder guards, dark kimono beneath the armor. A wakizashi or tanto sheathed at the left hip.",
-    "pose_sentence": "The {pronoun} stands with back mostly to the viewer, head turned slightly to the side, one paw holding a long katana pointing downward and slightly forward in a stance of readiness or contemplation. Humanoid, standing on two legs.",
+    "pose_sentence": "The {pronoun} stands with back mostly to the viewer, head turned slightly to the side, one paw holding a long katana pointing downward and slightly forward in a stance of readiness or contemplation. Humanoid, standing on two legs. The lower body and legs are largely obscured in deep shadow against the dark ground, with the silhouette reading as a unified dark shape against the glowing moon.",
     "props_sentence": "A long katana in one paw; a shorter sword sheathed at the hip.",
     "environment": "A large, ancient cherry blossom tree with thick gnarled dark branches and a lush canopy of vibrant bright pink or magenta blossoms. Numerous cherry petals falling through the air. Dark uneven ground with scattered pink petals and sparse foliage. A very large, soft pale pink or cream moon glowing in the background. Sky dark muted purplish-black. Traditional Japanese aesthetic with strong contrast between dark tones and vivid pinks.",
     "lighting": "Strong backlight from the large pale disc; the figure is silhouetted against the glow. No direct front light; details read through dark tones and edges against the backlight.",
-    "mood": "dramatic, serene, contemplative, atmospheric, and traditionally Japanese"
+    "mood": "dramatic, serene, contemplative, atmospheric, and traditionally Japanese",
+    "not_suitable_for": ["shiba", "akita", "husky", "malamute", "samoyed", "hokkaido", "kishu", "kai", "shikoku", "jindo", "chow chow", "pomeranian", "keeshond", "finnish spitz", "norwegian elkhound", "american eskimo"]
   }
 }

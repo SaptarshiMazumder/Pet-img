@@ -11,7 +11,8 @@
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d[''projects''][''frontend-ng''][''architect''][''build''][''options''], indent=2\\)\\)\")",
       "Bash(npm list zone.js)",
       "Bash(npm install zone.js --save)",
-      "Bash(python -c \":*)"
+      "Bash(python -c \":*)",
+      "WebFetch(domain:dashboard.gelato.com)"
     ]
   }
 }

@@ -162,8 +162,9 @@ def compose_final_prompt(animal_data: dict, template: dict, style: dict) -> str:
     lighting = _fill_placeholders(lighting, pronoun=pronoun, species=species)
     wardrobe = _fill_placeholders(wardrobe, pronoun=pronoun, species=species)
 
+    subject_line = f"{trigger} {subject_phrase}".strip() if trigger else subject_phrase
     parts = [
-        f"{trigger} {subject_phrase}, portrayed as {role_title}.",
+        f"{subject_line}, portrayed as {role_title}.",
         face_sentence,
         f"It {attire_verb} {wardrobe}.",
         pose_sentence,

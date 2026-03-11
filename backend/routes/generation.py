@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request
 from prompt_generator import load_style, load_template
 from backend.job_store import job_store
 from backend.worker import run_job_background
+from backend.auth_middleware import get_optional_uid
 
 generation_bp = Blueprint("generation", __name__)
 
@@ -46,6 +47,9 @@ def generate():
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
+    dry_run = request.form.get("dry_run", "false").lower() == "true"
+    uid = get_optional_uid()
+
     overrides = {}
     for field, cast in _OVERRIDE_FIELDS:
         val = request.form.get(field)
@@ -65,6 +69,7 @@ def generate():
     thread = threading.Thread(
         target=run_job_background,
         args=(job_id, tmp_path, style, style_key, template_key, overrides),
+        kwargs={"dry_run": dry_run, "uid": uid},
         daemon=True,
     )
     thread.start()

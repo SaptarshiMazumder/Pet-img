@@ -3,6 +3,14 @@
     <span class="logo-mark">墓</span>
     <h1>Pet Generator</h1>
     <p class="tagline">Edo-era portraits from your pet's photo</p>
+    <div class="header-auth">
+      @if (currentUser) {
+        <span class="auth-name">{{ currentUser.displayName || currentUser.email }}</span>
+        <button class="auth-btn" (click)="signOut()">Sign out</button>
+      } @else {
+        <button class="auth-btn auth-btn--signin" (click)="signIn()">Sign in with Google</button>
+      }
+    </div>
   </div>
 </header>
 
@@ -10,58 +18,72 @@
   <!-- LEFT: Upload + Controls -->
   <section class="panel panel-left">
 
-    <div class="section-label">1. Upload your pet</div>
-    <div class="upload-area"
-         [class.drag-over]="isDragOver"
-         (click)="fileInput.click()"
-         (drop)="onDrop($event)"
-         (dragover)="onDragOver($event)"
-         (dragleave)="onDragLeave()">
-      <input #fileInput type="file" accept="image/png,image/jpeg,image/webp" hidden (change)="onFileChange($event)" />
-      <div class="upload-placeholder" *ngIf="!previewUrl">
-        <div class="upload-icon">🐾</div>
-        <div class="upload-text">Click or drag to upload</div>
-        <div class="upload-sub">PNG, JPG, WEBP</div>
-      </div>
-      <img *ngIf="previewUrl" [src]="previewUrl" class="image-preview" alt="Preview" />
-    </div>
+    <div class="panel-left-scroll">
 
-    <div class="section-label" style="margin-top:28px">2. Choose a style</div>
-    <div class="style-selector">
-      <div *ngFor="let key of styleKeys"
-           class="style-option"
-           [class.selected]="selectedStyle === key"
-           (click)="selectStyle(key)">
-        <div class="style-dot"></div>
-        <span class="style-name">{{ styles[key].name }}</span>
-        <span class="style-trigger">{{ styles[key].trigger_word }}</span>
-      </div>
-    </div>
-
-    <div class="section-label" style="margin-top:28px">3. Choose a template</div>
-    <div class="template-grid-small">
-      <div *ngFor="let key of templateKeys; let i = index"
-           class="template-card-small"
-           [class.selected]="selectedTemplate === key"
-           (click)="selectTemplate(key)"
-           [title]="templates[key].name">
-        <img *ngIf="templates[key].preview_url" class="template-thumb-small"
-             [src]="templates[key].preview_url" [alt]="templates[key].name" />
-        <div *ngIf="!templates[key].preview_url" class="template-thumb-placeholder-small">
-          {{ templateIcon(i) }}
+      <div class="section-label">1. Upload your pet</div>
+      <div class="upload-area"
+           [class.drag-over]="isDragOver"
+           (click)="fileInput.click()"
+           (drop)="onDrop($event)"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave()">
+        <input #fileInput type="file" accept="image/png,image/jpeg,image/webp" hidden (change)="onFileChange($event)" />
+        <div class="upload-placeholder" *ngIf="!previewUrl">
+          <div class="upload-icon">🐾</div>
+          <div class="upload-text">Click or drag to upload</div>
+          <div class="upload-sub">PNG, JPG, WEBP</div>
         </div>
-        <div class="template-name-small">{{ templates[key].name }}</div>
+        <img *ngIf="previewUrl" [src]="previewUrl" class="image-preview" alt="Preview" />
       </div>
+
+      <div class="section-label" style="margin-top:24px">2. Choose a style</div>
+      <div class="style-selector">
+        <div *ngFor="let key of styleKeys"
+             class="style-option"
+             [class.selected]="selectedStyle === key"
+             (click)="selectStyle(key)">
+          <div class="style-dot"></div>
+          <span class="style-name">{{ styles[key].name }}</span>
+          <span class="style-trigger">{{ styles[key].trigger_word }}</span>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:24px">3. Choose a template</div>
+      <div class="template-grid-small">
+        <div *ngFor="let key of templateKeys; let i = index"
+             class="template-card-small"
+             [class.selected]="selectedTemplate === key"
+             (click)="selectTemplate(key)"
+             [title]="templates[key].name">
+          <img *ngIf="templates[key].preview_url" class="template-thumb-small"
+               [src]="templates[key].preview_url" [alt]="templates[key].name" />
+          <div *ngIf="!templates[key].preview_url" class="template-thumb-placeholder-small">
+            {{ templateIcon(i) }}
+          </div>
+          <div class="template-name-small">{{ templates[key].name }}</div>
+        </div>
+      </div>
+
+    </div><!-- /panel-left-scroll -->
+
+    <div class="panel-left-footer">
+      <div class="dry-run-row">
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="dryRun" />
+          <span class="toggle-track">
+            <span class="toggle-thumb"></span>
+          </span>
+          <span class="toggle-text">Dry run <span class="toggle-hint">(print prompt, skip RunPod)</span></span>
+        </label>
+      </div>
+      <button class="generate-btn" [disabled]="!canGenerate" (click)="generate()">
+        <span *ngIf="!submitting">{{ dryRun ? 'Generate (Dry Run)' : 'Generate Portrait' }}</span>
+        <span *ngIf="submitting" class="btn-loading">
+          <span class="spinner"></span> Submitting…
+        </span>
+      </button>
+      <div class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</div>
     </div>
-
-    <button class="generate-btn" [disabled]="!canGenerate" (click)="generate()">
-      <span *ngIf="!submitting">Generate Portrait</span>
-      <span *ngIf="submitting" class="btn-loading">
-        <span class="spinner"></span> Submitting…
-      </span>
-    </button>
-
-    <div class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</div>
 
   </section>
 
@@ -74,45 +96,189 @@
       <div>Submit a generation to see it here</div>
     </div>
 
-    <div class="queue-list" *ngIf="jobs.length > 0">
-      <div *ngFor="let job of jobs" class="job-card" [class]="'job-card--' + job.status">
+    <div class="gen-grid" *ngIf="jobs.length > 0">
+      <div *ngFor="let job of jobs"
+           class="gen-card"
+           [class.gen-card--clickable]="job.status === 'completed' && job.presigned_url"
+           (click)="job.status === 'completed' && job.presigned_url ? openExpandFromJob(job) : null">
 
-        <!-- Header row -->
-        <div class="job-card-header">
-          <div class="job-card-meta">
-            <span class="job-badge" [class]="'job-badge--' + job.status">{{ job.status }}</span>
-            <span class="job-template">{{ templateName(job.template_key) }}</span>
-            <span class="job-style">{{ styleName(job.style_key) }}</span>
+        <!-- Loading -->
+        @if (job.status === 'pending' || job.status === 'processing') {
+          <div class="gen-card-loading">
+            <div class="gen-spinner"></div>
+            <div class="gen-card-status-text">{{ job.status === 'pending' ? 'Queued…' : 'Generating…' }}</div>
           </div>
-          <button class="job-remove" (click)="removeJob(job.job_id)" title="Remove">✕</button>
-        </div>
-
-        <!-- In-progress -->
-        <div class="job-progress" *ngIf="job.status === 'pending' || job.status === 'processing'">
-          <div class="job-progress-bar">
-            <div class="job-progress-fill" [class.animating]="job.status === 'processing'"></div>
-          </div>
-          <span class="job-progress-label">
-            {{ job.status === 'pending' ? 'Waiting in queue…' : 'Generating portrait…' }}
-          </span>
-        </div>
+        }
 
         <!-- Failed -->
-        <div class="job-error" *ngIf="job.status === 'failed'">
-          {{ job.error }}
-        </div>
+        @if (job.status === 'failed') {
+          <div class="gen-card-failed">
+            <div class="gen-card-fail-icon">✕</div>
+            <div class="gen-card-fail-text">{{ job.error }}</div>
+          </div>
+        }
 
         <!-- Completed -->
-        <div class="job-result" *ngIf="job.status === 'completed'">
-          <img [src]="job.presigned_url" class="job-image" alt="Generated portrait" />
-          <div class="job-result-meta" *ngIf="job.seed">
-            <span class="result-key">Seed</span>
-            <span class="result-val">{{ job.seed }}</span>
+        @if (job.status === 'completed' && job.presigned_url) {
+          <img class="gen-card-img" [src]="job.presigned_url" alt="Generated portrait" />
+          <div class="gen-card-overlay">
+            <p class="gen-card-prompt">{{ job.positive_prompt }}</p>
           </div>
-          <div class="job-prompt" *ngIf="job.positive_prompt">{{ job.positive_prompt }}</div>
+        }
+
+        <!-- Footer -->
+        <div class="gen-card-footer">
+          <span class="gen-card-name">{{ templateName(job.template_key) }}</span>
+          <button class="gen-card-remove" (click)="$event.stopPropagation(); removeJob(job.job_id)" title="Remove">✕</button>
         </div>
 
       </div>
     </div>
   </section>
 </main>
+
+<!-- Order Modal -->
+@if (orderModalJob) {
+  <div class="modal-backdrop" (click)="closeOrderModal()"></div>
+  <div class="order-modal">
+    <div class="modal-header">
+      <h2>Order Print</h2>
+      <button class="modal-close" (click)="closeOrderModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-preview">
+        <img [src]="orderModalJob.presigned_url" class="modal-preview-img" />
+      </div>
+      <form class="order-form" (ngSubmit)="submitOrder()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input [(ngModel)]="orderForm.firstName" name="firstName" required />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input [(ngModel)]="orderForm.lastName" name="lastName" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Address Line 1 <span class="field-hint">(Japanese characters required: e.g. 東京都港区1丁目2-3)</span></label>
+          <input [(ngModel)]="orderForm.addressLine1" name="addressLine1" required />
+        </div>
+        <div class="form-group">
+          <label>Address Line 2</label>
+          <input [(ngModel)]="orderForm.addressLine2" name="addressLine2" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City</label>
+            <input [(ngModel)]="orderForm.city" name="city" required />
+          </div>
+          <div class="form-group">
+            <label>Post Code</label>
+            <input [(ngModel)]="orderForm.postCode" name="postCode" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="orderForm.email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input [(ngModel)]="orderForm.phone" name="phone" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Product</label>
+          @if (productsLoading) {
+            <div class="field-hint">Loading products…</div>
+          } @else if (products.length > 0) {
+            <select [(ngModel)]="orderForm.product_uid" name="product_uid" required>
+              @for (p of products; track p.uid) {
+                <option [value]="p.uid">{{ p.label }}</option>
+              }
+            </select>
+          } @else {
+            <input [(ngModel)]="orderForm.product_uid" name="product_uid" required placeholder="e.g. framed_poster_product_pf_400x300-mm_…" />
+            <span class="field-hint">Could not load catalog — enter UID manually</span>
+          }
+        </div>
+        <div class="dry-run-row" style="margin-top:12px">
+          <label class="toggle-label">
+            <input type="checkbox" name="order_type_toggle"
+              [checked]="orderForm.order_type === 'order'"
+              (change)="orderForm.order_type = $any($event.target).checked ? 'order' : 'draft'" />
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-text">Live order <span class="toggle-hint">(off = draft, visible on dashboard but not sent to print)</span></span>
+          </label>
+        </div>
+        @if (orderSuccess) {
+          <div class="order-success">{{ orderSuccess }}</div>
+        }
+        @if (orderError) {
+          <div class="order-error">{{ orderError }}</div>
+        }
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeOrderModal()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="orderSubmitting || productsLoading || !orderForm.product_uid">
+            @if (!orderSubmitting) {
+              <span>{{ orderForm.order_type === 'order' ? 'Place Order (JPY)' : 'Save as Draft' }}</span>
+            } @else {
+              <span>{{ orderForm.order_type === 'order' ? 'Placing order…' : 'Saving draft…' }}</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Gallery: past generations for signed-in users -->
+@if (currentUser) {
+  <section class="gallery-section">
+    <div class="gallery-header">
+      <div class="section-label">Your Past Generations</div>
+      <button class="gallery-refresh" (click)="loadGallery()" [disabled]="galleryLoading">↻ Refresh</button>
+    </div>
+
+    @if (galleryLoading) {
+      <div class="gallery-loading">Loading…</div>
+    } @else if (gallery.length === 0) {
+      <div class="gallery-empty">No generations yet. Submit one above!</div>
+    } @else {
+      <div class="gen-grid gen-grid--gallery">
+        @for (item of gallery; track item.job_id) {
+          <div class="gen-card"
+               [class.gen-card--clickable]="!!item.presigned_url"
+               (click)="item.presigned_url ? openExpandFromGallery(item) : null">
+            @if (item.presigned_url) {
+              <img class="gen-card-img" [src]="item.presigned_url" [alt]="templateName(item.template_key)" />
+              <div class="gen-card-overlay"></div>
+            } @else {
+              <div class="gen-card-loading"><div class="gen-card-fail-icon">?</div></div>
+            }
+            <div class="gen-card-footer">
+              <span class="gen-card-name">{{ templateName(item.template_key) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+}
+
+<!-- Lightbox -->
+@if (expandedItem) {
+  <div class="lightbox-backdrop" (click)="closeExpand()"></div>
+  <div class="lightbox">
+    <button class="lightbox-close" (click)="closeExpand()">✕</button>
+    <img class="lightbox-img" [src]="expandedItem.presigned_url" alt="Generated portrait" />
+    <div class="lightbox-meta">
+      <div class="lightbox-title">{{ templateName(expandedItem.template_key) }} · {{ styleName(expandedItem.style_key) }}</div>
+      @if (expandedItem.positive_prompt) {
+        <p class="lightbox-prompt">{{ expandedItem.positive_prompt }}</p>
+      }
+      <button class="order-btn" (click)="orderFromExpand()">Order Print</button>
+    </div>
+  </div>
+}

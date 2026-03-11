@@ -7,7 +7,7 @@
       "lora_name": "wetInkZTurbo.safetensors",
       "lora_strength": 0.3,
       "lora2_name": "ukiyoeZTurbo.safetensors",
-      "lora2_strength": 0.5
+      "lora2_strength": 0.55
     }
   },
   "ukiyoe": {
@@ -18,7 +18,7 @@
       "lora_name": "wetInkZTurbo.safetensors",
       "lora_strength": 0.3,
       "lora2_name": "ukiyoeZTurbo.safetensors",
-      "lora2_strength": 0.5
+      "lora2_strength": 0.55
     }
   }
 }

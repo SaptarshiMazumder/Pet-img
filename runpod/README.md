@@ -66,14 +66,14 @@ wget "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/te
 
 ```bash
 wget "https://civitai.com/api/download/models/2533715?type=Model&format=SafeTensor&token=32935a7da15c304c648fd5d1633002fd" \
-  -O workspace/models/loras/wetInkZTurbo.safetensors"
+  -O /workspace/models/loras/wetInkZTurbo.safetensors"
 ```
 
 #### LoRA 2 — ukiyoeZTurbo (trigger: `Ukiyo-e`, default strength 0.5)
 
 ```bash
 wget "https://civitai.com/api/download/models/2457871?type=Model&format=SafeTensor&token=32935a7da15c304c648fd5d1633002fd" \
-  -O workspace/models/loras/ukiyoeZTurbo.safetensors
+  -O /workspace/models/loras/ukiyoeZTurbo.safetensors
 ```
 
 #### Verify

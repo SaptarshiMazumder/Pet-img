@@ -27,4 +27,16 @@ export class ApiService {
   assetUrl(path: string): string {
     return `${this.base}${path.startsWith('/') ? '' : '/'}${path}`;
   }
+
+  placeOrder(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.base}/print/order`, payload);
+  }
+
+  getProducts(catalog = 'framed-posters'): Observable<any> {
+    return this.http.get<any>(`${this.base}/print/products?catalog=${catalog}`);
+  }
+
+  getUserGenerations(): Observable<{ generations: any[] }> {
+    return this.http.get<any>(`${this.base}/user/generations`);
+  }
 }
