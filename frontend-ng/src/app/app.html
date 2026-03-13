@@ -129,6 +129,9 @@
         <!-- Footer -->
         <div class="gen-card-footer">
           <span class="gen-card-name">{{ templateName(job.template_key) }}</span>
+          @if (job.duration_seconds != null) {
+            <span class="gen-card-duration">{{ formatDuration(job.duration_seconds) }}</span>
+          }
           <button class="gen-card-remove" (click)="$event.stopPropagation(); removeJob(job.job_id)" title="Remove">✕</button>
         </div>
 

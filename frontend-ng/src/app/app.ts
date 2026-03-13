@@ -39,6 +39,7 @@ interface JobEntry {
   positive_prompt?: string;
   seed?: number;
   error?: string;
+  duration_seconds?: number;
   submitted_at: Date;
 }
 
@@ -240,6 +241,7 @@ export class App implements OnInit, OnDestroy {
               positive_prompt: job.positive_prompt ?? undefined,
               seed: job.seed ?? undefined,
               error: job.error ?? undefined,
+              duration_seconds: job.duration_seconds ?? undefined,
             },
             ...this.jobs.slice(idx + 1),
           ];
@@ -353,6 +355,10 @@ export class App implements OnInit, OnDestroy {
         this.orderSubmitting = false;
       },
     });
+  }
+
+  formatDuration(s: number): string {
+    return s >= 60 ? `${Math.floor(s / 60)}m ${Math.round(s % 60)}s` : `${Math.round(s)}s`;
   }
 
   templateName(key: string): string { return this.templates[key]?.name ?? key; }

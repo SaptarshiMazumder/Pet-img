@@ -3,69 +3,10 @@ import time
 from pathlib import Path
 
 from prompt_generator import build_animal_edo_prompt
-from runpod_client import submit_job, poll_job, set_workers
+from runpod_client import submit_job, poll_job
 from backend.job_store import job_store
 from backend.storage import generate_presigned_url
-
-_IDLE_TIMEOUT = 120  # seconds of zero-job inactivity before full scale-down
-
-_active_jobs = 0
-_active_lock = threading.Lock()
-_idle_timer: threading.Timer | None = None
-_idle_lock = threading.Lock()
-
-
-# ---------------------------------------------------------------------------
-# Scale helpers
-# ---------------------------------------------------------------------------
-
-def _cancel_idle_timer() -> None:
-    global _idle_timer
-    with _idle_lock:
-        if _idle_timer is not None:
-            _idle_timer.cancel()
-            _idle_timer = None
-
-
-def _start_idle_timer() -> None:
-    global _idle_timer
-    with _idle_lock:
-        if _idle_timer is not None:
-            _idle_timer.cancel()
-        _idle_timer = threading.Timer(_IDLE_TIMEOUT, _scale_to_zero)
-        _idle_timer.daemon = True
-        _idle_timer.start()
-
-
-def _scale_to_zero() -> None:
-    try:
-        set_workers(min_n=0, max_n=0)
-    except Exception as exc:
-        print(f"[scale] failed to scale to zero: {exc}")
-
-
-def _on_job_start() -> None:
-    global _active_jobs
-    with _active_lock:
-        _active_jobs += 1
-    _cancel_idle_timer()
-
-
-def _on_job_finish() -> None:
-    global _active_jobs
-    with _active_lock:
-        _active_jobs -= 1
-        remaining = _active_jobs
-    if remaining == 0:
-        threading.Thread(target=_set_max_one, daemon=True).start()
-        _start_idle_timer()
-
-
-def _set_max_one() -> None:
-    try:
-        set_workers(min_n=1, max_n=1)
-    except Exception as exc:
-        print(f"[scale] failed to set max=1: {exc}")
+from backend.scaling import scaler
 
 
 # ---------------------------------------------------------------------------
@@ -114,10 +55,11 @@ def _remove_active_job(job_id: str) -> None:
 # ---------------------------------------------------------------------------
 
 def _save_to_firestore(uid: str, job_id: str, r2_key: str, template_key: str,
-                       style_key: str, positive_prompt: str, seed=None) -> None:
+                       style_key: str, positive_prompt: str, seed=None,
+                       duration_seconds: float | None = None) -> None:
     try:
         from firebase_admin import firestore as fb_firestore
-        _get_db().collection("generations").document(job_id).set({
+        doc = {
             "uid": uid,
             "r2_key": r2_key,
             "template_key": template_key,
@@ -125,7 +67,10 @@ def _save_to_firestore(uid: str, job_id: str, r2_key: str, template_key: str,
             "positive_prompt": positive_prompt,
             "seed": seed,
             "created_at": fb_firestore.SERVER_TIMESTAMP,
-        })
+        }
+        if duration_seconds is not None:
+            doc["duration_seconds"] = round(duration_seconds, 1)
+        _get_db().collection("generations").document(job_id).set(doc)
     except Exception as exc:
         print(f"[Firestore] Failed to save generation {job_id}: {exc}")
 
@@ -137,7 +82,8 @@ def _save_to_firestore(uid: str, job_id: str, r2_key: str, template_key: str,
 def _process_runpod_result(job_id: str, runpod_result: dict, style_key: str,
                             template_key: str, uid: str | None,
                             positive_prompt: str = "", negative_prompt: str = "",
-                            animal_data: dict | None = None) -> None:
+                            animal_data: dict | None = None,
+                            duration_seconds: float | None = None) -> None:
     images = runpod_result.get("images", [])
     r2_key = images[0]["key"] if images and images[0].get("key") else None
     presigned_url = generate_presigned_url(r2_key, expires=3600) if r2_key else None
@@ -151,6 +97,7 @@ def _process_runpod_result(job_id: str, runpod_result: dict, style_key: str,
             style_key=style_key,
             positive_prompt=positive_prompt,
             seed=runpod_result.get("seed"),
+            duration_seconds=duration_seconds,
         )
 
     job_store.update(
@@ -164,6 +111,7 @@ def _process_runpod_result(job_id: str, runpod_result: dict, style_key: str,
         style=style_key,
         seed=runpod_result.get("seed"),
         prompt_id=runpod_result.get("prompt_id"),
+        duration_seconds=duration_seconds,
     )
 
 
@@ -181,7 +129,7 @@ def run_job_background(
     dry_run: bool = False,
     uid: str | None = None,
 ) -> None:
-    _on_job_start()
+    scaler.on_job_start()
     _persist_active_job(job_id, style_key, template_key, uid)
     try:
         job_store.update(job_id, status="processing")
@@ -227,7 +175,10 @@ def run_job_background(
         runpod_job_id = submit_job(job_input)
         _update_runpod_job_id(job_id, runpod_job_id)
 
+        t_submit = time.time()
         runpod_result = poll_job(runpod_job_id)
+        duration = time.time() - t_submit
+
         _process_runpod_result(
             job_id=job_id,
             runpod_result=runpod_result,
@@ -237,6 +188,7 @@ def run_job_background(
             positive_prompt=result["positive_prompt"],
             negative_prompt=result["negative_prompt"],
             animal_data=result["animal_data"],
+            duration_seconds=duration,
         )
 
     except Exception as exc:
@@ -245,7 +197,7 @@ def run_job_background(
     finally:
         Path(tmp_path).unlink(missing_ok=True)
         _remove_active_job(job_id)
-        _on_job_finish()
+        scaler.on_job_finish()
 
 
 # ---------------------------------------------------------------------------
@@ -263,13 +215,11 @@ def recover_active_jobs() -> None:
             runpod_job_id = data.get("runpod_job_id")
 
             if not runpod_job_id:
-                # Job never reached RunPod (server died during Gemini step) — mark failed
                 job_store.create(job_id)
                 job_store.update(job_id, status="failed", error="Server restarted before job was submitted to RunPod")
                 _remove_active_job(job_id)
                 continue
 
-            # Resume polling in a background thread
             job_store.create(job_id)
             job_store.update(job_id, status="processing")
             thread = threading.Thread(
@@ -287,7 +237,7 @@ def recover_active_jobs() -> None:
 
 
 def _recover_job(job_id: str, runpod_job_id: str, style_key: str, template_key: str, uid: str | None) -> None:
-    _on_job_start()
+    scaler.on_job_start()
     try:
         runpod_result = poll_job(runpod_job_id)
         _process_runpod_result(
@@ -301,4 +251,4 @@ def _recover_job(job_id: str, runpod_job_id: str, style_key: str, template_key: 
         job_store.update(job_id, status="failed", error=str(exc))
     finally:
         _remove_active_job(job_id)
-        _on_job_finish()
+        scaler.on_job_finish()
