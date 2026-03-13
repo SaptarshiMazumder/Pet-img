@@ -34,7 +34,7 @@ interface JobEntry {
   job_id: string;
   template_key: string;
   style_key: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'fixing' | 'completed' | 'failed';
   presigned_url?: string;
   positive_prompt?: string;
   seed?: number;

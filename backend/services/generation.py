@@ -58,7 +58,7 @@ def process_runpod_result(
     )
 
 
-def _review_and_fix_if_needed(runpod_result: dict) -> dict:
+def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:
     """
     Review the generated image with Gemini. If defects are found, fix with Gemini image edit
     and upload the fixed image to R2. Returns the (possibly modified) runpod_result.
@@ -69,6 +69,8 @@ def _review_and_fix_if_needed(runpod_result: dict) -> dict:
     images = runpod_result.get("images", [])
     if not images or not images[0].get("key"):
         return runpod_result
+
+    job_store.update(job_id, status="fixing")
 
     r2_key = images[0]["key"]
     try:
@@ -168,7 +170,7 @@ def run_job_background(
         duration = time.time() - t_submit
 
         # Review with Gemini; fix defects (mangled paws, extra limbs, etc.) if found
-        runpod_result = _review_and_fix_if_needed(runpod_result)
+        runpod_result = _review_and_fix_if_needed(job_id, runpod_result)
 
         process_runpod_result(
             job_id=job_id,

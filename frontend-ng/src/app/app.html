@@ -103,10 +103,14 @@
            (click)="job.status === 'completed' && job.presigned_url ? openExpandFromJob(job) : null">
 
         <!-- Loading -->
-        @if (job.status === 'pending' || job.status === 'processing') {
+        @if (job.status === 'pending' || job.status === 'processing' || job.status === 'fixing') {
           <div class="gen-card-loading">
             <div class="gen-spinner"></div>
-            <div class="gen-card-status-text">{{ job.status === 'pending' ? 'Queued…' : 'Generating…' }}</div>
+            <div class="gen-card-status-text">
+              @if (job.status === 'pending') { Queued… }
+              @else if (job.status === 'fixing') { Fixing minor issues… }
+              @else { Generating… }
+            </div>
           </div>
         }
 

@@ -47,7 +47,7 @@ def _recover_job(job_id: str, runpod_job_id: str, style_key: str, template_key: 
     scaler.on_job_start()
     try:
         runpod_result = poll_job(runpod_job_id)
-        runpod_result = _review_and_fix_if_needed(runpod_result)
+        runpod_result = _review_and_fix_if_needed(job_id, runpod_result)
         process_runpod_result(
             job_id=job_id,
             runpod_result=runpod_result,
