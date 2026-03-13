@@ -9,7 +9,7 @@ from prompt_generator import load_style, load_template
 from backend.job_store import job_store
 from backend.worker import run_job_background
 from backend.auth_middleware import get_optional_uid
-from backend.runpod_client import set_workers
+from backend.scaling import scaler
 
 generation_bp = Blueprint("generation", __name__)
 
@@ -22,18 +22,10 @@ _OVERRIDE_FIELDS: list[tuple[str, type]] = [
 ]
 
 
-def _warm_worker():
-    try:
-        set_workers(min_n=1, max_n=2)
-        print("[warm] workers set to min=1 max=2")
-    except Exception as exc:
-        print(f"[warm] failed: {exc}")
-
-
 @generation_bp.post("/warm")
 def warm():
     """Called when a user visits the site — spins up a worker preemptively."""
-    threading.Thread(target=_warm_worker, daemon=True).start()
+    threading.Thread(target=scaler.warm, daemon=True).start()
     return jsonify({"ok": True}), 200
 
 

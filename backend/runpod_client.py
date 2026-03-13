@@ -46,6 +46,10 @@ def set_workers(min_n: int, max_n: int) -> None:
     if ep is None:
         raise RuntimeError(f"Endpoint {RUNPOD_ENDPOINT_ID} not found")
 
+    if ep.get("workersMin") == min_n and ep.get("workersMax") == max_n:
+        print(f"[scale] already at min={min_n} max={max_n}, skipping")
+        return
+
     env_str = ""
     if ep.get("env"):
         pairs = ", ".join(f'{{key: "{e["key"]}", value: "{e["value"]}"}}'for e in ep["env"])
