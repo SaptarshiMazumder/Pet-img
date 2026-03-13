@@ -5,3 +5,4 @@ google-genai==1.65.0
 boto3
 requests==2.31.0
 firebase-admin
+runpod

@@ -6,8 +6,8 @@ import os
 import time
 from pathlib import Path
 
-from prompt_generator import build_animal_edo_prompt
-from runpod_client import submit_job, poll_job
+from backend.services.prompt_builder import build_animal_edo_prompt
+from backend.runpod import submit_job, poll_job
 from backend.job_store import job_store
 from backend.storage import generate_presigned_url, download_object, upload_object
 from backend.scaling import scaler
@@ -80,8 +80,7 @@ def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:
         return runpod_result
 
     try:
-        from backend.services.image_review import review_image
-        from backend.services.image_fix import fix_image
+        from backend.services.image_quality import review_image, fix_image
 
         fix_prompt = review_image(image_bytes)
         if not fix_prompt:

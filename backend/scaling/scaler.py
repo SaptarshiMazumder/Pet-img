@@ -45,7 +45,7 @@ class ScalerService:
         if self._tracker.active_count > 0:
             return  # workers already busy, nothing to do
 
-        from backend.runpod_client import set_workers
+        from backend.runpod import set_workers
         try:
             set_workers(min_n=1, max_n=_WARM_MAX)
             print(f"[scaler] warm → workers 1/{_WARM_MAX}")
@@ -80,7 +80,7 @@ class ScalerService:
     # ------------------------------------------------------------------
 
     def _ensure_capacity(self, desired_max: int) -> None:
-        from backend.runpod_client import set_workers
+        from backend.runpod import set_workers
         try:
             set_workers(min_n=1, max_n=desired_max)
             print(f"[scaler] job started → workers 1/{desired_max}")
@@ -104,7 +104,7 @@ class ScalerService:
         if not self._has_had_activity:
             return  # server just started with no user activity yet — stay dormant
 
-        from backend.runpod_client import set_workers
+        from backend.runpod import set_workers
 
         count = self._tracker.active_count
         now = time.time()

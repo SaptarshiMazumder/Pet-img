@@ -5,7 +5,7 @@ from pathlib import Path
 
 from flask import Blueprint, jsonify, request
 
-from prompt_generator import load_style, load_template
+from backend.services.prompt_builder import load_style, load_template
 from backend.job_store import job_store
 from backend.services.generation import run_job_background
 from backend.auth_middleware import get_optional_uid

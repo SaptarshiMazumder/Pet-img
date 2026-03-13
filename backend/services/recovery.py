@@ -8,7 +8,7 @@ from backend.job_store import job_store
 from backend.scaling import scaler
 from backend.db import active_jobs as active_jobs_db
 from backend.services.generation import process_runpod_result, _review_and_fix_if_needed
-from runpod_client import poll_job
+from backend.runpod import poll_job
 
 
 def recover_active_jobs() -> None:

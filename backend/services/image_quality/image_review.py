@@ -1,7 +1,6 @@
 """
-Image review service — uses Gemini to analyze generated animal portraits for defects.
-Checks for mangled paws/feet, extra limbs, extra tails, wrong body parts, etc.
-Returns a fix prompt if issues are found, or None if the image looks okay.
+Image review — analyze generated animal portraits for defects via Gemini vision.
+Returns a fix prompt if issues found, else None.
 """
 import json
 import os
@@ -11,17 +10,7 @@ from google import genai
 from google.genai import types
 
 _client = None
-
-
-def _get_client():
-    global _client
-    if _client is None:
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise RuntimeError("GEMINI_API_KEY must be set for image review")
-        _client = genai.Client(api_key=api_key)
-    return _client
-
+MODEL = "gemini-3.1-flash-lite-preview"
 
 REVIEW_PROMPT = """
 You are reviewing an AI-generated image of an animal in a humanoid pose (e.g., standing on two legs, dressed as a character).
@@ -47,13 +36,23 @@ Return ONLY valid JSON. No markdown, no explanation, no extra text.
 """
 
 
+def _get_client():
+    global _client
+    if _client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise RuntimeError("GEMINI_API_KEY must be set for image review")
+        _client = genai.Client(api_key=api_key)
+    return _client
+
+
 def review_image(image_bytes: bytes, mime_type: str = "image/png") -> str | None:
     """
     Analyze the image for defects. Returns a fix prompt if issues found, else None.
     """
     client = _get_client()
     response = client.models.generate_content(
-        model="gemini-3.1-flash-lite-preview",
+        model=MODEL,
         contents=[
             types.Part.from_text(text=REVIEW_PROMPT),
             types.Part.from_bytes(data=image_bytes, mime_type=mime_type),

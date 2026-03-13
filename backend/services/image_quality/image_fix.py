@@ -1,6 +1,6 @@
 """
-Image fix service — uses Gemini (or Vertex AI) to edit images based on a fix prompt.
-Applies the instruction from the review step (e.g., "fix the paws... Do not touch anything else.")
+Image fix — apply defect corrections via Gemini image editing.
+Uses the fix prompt from the image review step.
 """
 import os
 
@@ -8,8 +8,6 @@ from google import genai
 from google.genai import types
 
 _client = None
-
-# Model for image editing (supports image-to-image with text instruction)
 IMAGE_EDIT_MODEL = "gemini-3.1-flash-image-preview"
 
 
@@ -29,7 +27,6 @@ def fix_image(image_bytes: bytes, fix_prompt: str, mime_type: str = "image/png")
     """
     client = _get_client()
 
-    # Build the edit instruction — be explicit about preserving the rest
     full_prompt = f"{fix_prompt}\n\nApply only this change. Preserve the rest of the image exactly."
 
     response = client.models.generate_content(
