@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import request, jsonify, g
-from backend.firebase_app import verify_token
+from backend.firebase import verify_token
 
 
 def require_auth(f):

@@ -35,7 +35,7 @@ app = create_app()
 
 def _startup_recovery():
     try:
-        from backend.worker import recover_active_jobs
+        from backend.services.recovery import recover_active_jobs
         recover_active_jobs()
     except Exception as exc:
         print(f"[startup] recovery failed: {exc}")

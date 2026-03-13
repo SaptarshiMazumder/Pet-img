@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, g
 
 from backend.auth_middleware import require_auth
-from backend.firebase_app import get_db
+from backend.db import portrait_generation as generations_db
 from backend.storage import generate_presigned_url
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
@@ -11,13 +11,7 @@ user_bp = Blueprint("user", __name__, url_prefix="/user")
 @require_auth
 def get_generations():
     """Return the authenticated user's generation history with fresh presigned URLs."""
-    docs = (
-        get_db()
-        .collection("generations")
-        .where("uid", "==", g.uid)
-        .limit(100)
-        .stream()
-    )
+    docs = generations_db.get_by_uid(g.uid)
 
     results = []
     for doc in docs:

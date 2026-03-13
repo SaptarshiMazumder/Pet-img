@@ -11,7 +11,7 @@ from pathlib import Path
 import firebase_admin
 from firebase_admin import credentials, firestore, auth as fb_auth
 
-_ROOT = Path(__file__).parent.parent  # project root
+_ROOT = Path(__file__).parent.parent.parent  # project root
 _app = None
 
 
