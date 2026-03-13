@@ -39,4 +39,8 @@ export class ApiService {
   getUserGenerations(): Observable<{ generations: any[] }> {
     return this.http.get<any>(`${this.base}/user/generations`);
   }
+
+  warm(): void {
+    this.http.post(`${this.base}/warm`, {}).subscribe({ error: () => {} });
+  }
 }

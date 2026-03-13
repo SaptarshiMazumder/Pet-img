@@ -87,6 +87,7 @@ export class App implements OnInit, OnDestroy {
   constructor(private api: ApiService, private auth: AuthService) {}
 
   ngOnInit() {
+    this.api.warm();
     this.api.getStyles().subscribe(s => {
       this.styles = s;
       this.styleKeys = Object.keys(s);

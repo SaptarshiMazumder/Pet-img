@@ -32,5 +32,17 @@ def create_app() -> Flask:
 
 app = create_app()
 
+
+def _startup_recovery():
+    try:
+        from backend.worker import recover_active_jobs
+        recover_active_jobs()
+    except Exception as exc:
+        print(f"[startup] recovery failed: {exc}")
+
+
+import threading as _threading
+_threading.Thread(target=_startup_recovery, daemon=True).start()
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
