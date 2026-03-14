@@ -1,61 +1,98 @@
 :host { display: block; }
 
-.chips-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
+.carousel-wrap {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 5px 12px 5px 5px;
-  border: 1.5px solid var(--border);
-  border-radius: 100px;
-  background: var(--surface);
-  color: var(--text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  font-family: inherit;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  transition: border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+  gap: 6px;
 }
 
-.chip:hover {
-  border-color: var(--accent-dim);
-  color: var(--text);
-  background: var(--surface-hover);
+.carousel-track {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  padding: 4px 2px;
 }
 
-.chip.selected {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-glow);
-  box-shadow: 0 0 0 1px var(--accent);
-}
+.carousel-track::-webkit-scrollbar { display: none; }
 
-.chip-thumb {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
+.carousel-card {
   flex-shrink: 0;
+  width: 100px;
+  scroll-snap-align: start;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.chip-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--surface-hover);
+.carousel-card:hover {
+  border-color: var(--accent-dim);
+}
+
+.carousel-card--selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 12px var(--accent-glow);
+}
+
+.carousel-img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+.carousel-placeholder {
+  width: 100%;
+  aspect-ratio: 3 / 4;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8125rem;
-  flex-shrink: 0;
+  font-size: 1.5rem;
+  background: var(--surface-hover);
 }
 
-.chip-label {
-  line-height: 1;
+.carousel-label {
+  display: block;
+  padding: 6px 6px 7px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.carousel-card--selected .carousel-label {
+  color: var(--accent);
+}
+
+.carousel-arrow {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.carousel-arrow:hover {
+  border-color: var(--accent-dim);
+  color: var(--accent);
 }

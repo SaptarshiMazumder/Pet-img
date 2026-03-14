@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-template-selector',
@@ -13,9 +13,15 @@ export class TemplateSelectorComponent {
   @Input() selectedTemplate = '';
   @Output() templateSelected = new EventEmitter<string>();
 
+  @ViewChild('track') trackRef!: ElementRef<HTMLElement>;
+
   private icons = ['⛩', '🌸', '🗡', '🏯', '🌊', '🌙', '📜', '🏮'];
 
   getIcon(i: number): string {
     return this.icons[i % this.icons.length];
+  }
+
+  scroll(dir: -1 | 1) {
+    this.trackRef?.nativeElement.scrollBy({ left: dir * 220, behavior: 'smooth' });
   }
 }

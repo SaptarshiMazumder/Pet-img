@@ -11,7 +11,7 @@ from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+load_dotenv(Path(__file__).parent / ".env")
 
 from backend.routes.catalog import catalog_bp
 from backend.routes.generation import generation_bp
