@@ -1,0 +1,39 @@
+<div
+  class="upload-zone"
+  [class.drag-over]="isDragOver"
+  [class.has-image]="!!previewUrl"
+  (click)="fileInput.click()"
+  (drop)="onDrop($event)"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave()"
+>
+  <input
+    #fileInput
+    type="file"
+    accept="image/png,image/jpeg,image/webp"
+    hidden
+    (change)="onFileChange($event)"
+  />
+
+  @if (!previewUrl) {
+    <div class="upload-placeholder">
+      <div class="upload-icon-ring">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+        </svg>
+      </div>
+      <p class="upload-title">Drop your pet's photo here</p>
+      <p class="upload-hint">PNG · JPG · WEBP &nbsp;·&nbsp; or click to browse</p>
+    </div>
+  } @else {
+    <img class="upload-preview" [src]="previewUrl" alt="Pet photo" />
+    <div class="upload-change-overlay">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+      </svg>
+      <span>Change photo</span>
+    </div>
+  }
+</div>

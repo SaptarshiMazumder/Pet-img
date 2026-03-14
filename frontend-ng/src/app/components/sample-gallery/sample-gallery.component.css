@@ -1,0 +1,121 @@
+:host { display: block; }
+
+.gallery-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 240px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.spinner-ring {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.gallery-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 240px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.gallery-empty p {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0;
+}
+
+.empty-sub {
+  font-size: 0.8125rem !important;
+  font-weight: 400 !important;
+  color: var(--text-muted) !important;
+}
+
+/* ── Grid ─────────────────────────────────────── */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 480px)  { .gallery-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 768px)  { .gallery-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+@media (min-width: 1280px) { .gallery-grid { grid-template-columns: repeat(5, 1fr); } }
+
+/* ── Card ─────────────────────────────────────── */
+.gallery-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gallery-card:hover {
+  transform: scale(1.025);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+}
+
+.gallery-card:hover .gallery-hover {
+  opacity: 1;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-hover {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.gallery-del {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  backdrop-filter: blur(4px);
+}
+
+.gallery-del:hover {
+  background: rgba(200, 107, 107, 0.75);
+  color: white;
+}

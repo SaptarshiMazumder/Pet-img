@@ -1,108 +1,85 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { User } from 'firebase/auth';
 import { ApiService } from './services/api.service';
 import { AuthService } from './services/auth.service';
 import { CharacterComponent } from './components/character/character.component';
-
-interface GalleryEntry {
-  job_id: string;
-  template_key: string;
-  style_key: string;
-  presigned_url: string | null;
-  seed: number | null;
-  created_at: string | null;
-}
-
-interface OrderForm {
-  firstName: string;
-  lastName: string;
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  postCode: string;
-  country: string;
-  email: string;
-  phone: string;
-  product_uid: string;
-  quantity: number;
-  order_type: 'draft' | 'order';
-}
-
-interface JobEntry {
-  job_id: string;
-  template_key: string;
-  style_key: string;
-  status: 'pending' | 'processing' | 'fixing' | 'completed' | 'failed';
-  presigned_url?: string;
-  positive_prompt?: string;
-  seed?: number;
-  error?: string;
-  duration_seconds?: number;
-  submitted_at: Date;
-}
+import { UploadAreaComponent } from './components/upload-area/upload-area.component';
+import { TemplateSelectorComponent } from './components/template-selector/template-selector.component';
+import { JobQueueComponent } from './components/job-queue/job-queue.component';
+import { SampleGalleryComponent } from './components/sample-gallery/sample-gallery.component';
+import { PastGalleryComponent } from './components/past-gallery/past-gallery.component';
+import { LightboxComponent } from './components/lightbox/lightbox.component';
+import { OrderModalComponent } from './components/order-modal/order-modal.component';
+import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry } from './models';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, CharacterComponent],
+  imports: [
+    FormsModule,
+    CharacterComponent,
+    UploadAreaComponent,
+    TemplateSelectorComponent,
+    JobQueueComponent,
+    SampleGalleryComponent,
+    PastGalleryComponent,
+    LightboxComponent,
+    OrderModalComponent,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App implements OnInit, OnDestroy {
+  // ── Templates ──────────────────────────────────────────────
   templates: Record<string, any> = {};
   templateKeys: string[] = [];
-
   selectedTemplate = '';
+
+  // ── Upload ─────────────────────────────────────────────────
   uploadedFile: File | null = null;
   previewUrl: string | null = null;
-  isDragOver = false;
 
+  // ── Generate ───────────────────────────────────────────────
   submitting = false;
   errorMsg = '';
   dryRun = false;
-
   jobs: JobEntry[] = [];
   private activePolls = new Set<string>();
 
+  // ── Auth / User ────────────────────────────────────────────
+  currentUser: User | null = null;
+  private authSub!: Subscription;
+
+  // ── Gallery (past generations) ──────────────────────────────
+  gallery: GalleryEntry[] = [];
+  galleryLoading = false;
+
+  // ── Samples ────────────────────────────────────────────────
+  samples: SampleEntry[] = [];
+  samplesLoading = false;
+  sampleUploadFile: File | null = null;
+  samplePreviewUrl: string | null = null;
+  sampleUploading = false;
+  sampleError = '';
+
+  // ── Lightbox ───────────────────────────────────────────────
+  expandedItem: ExpandedItem | null = null;
+
+  // ── Order modal ────────────────────────────────────────────
   orderModalJob: JobEntry | null = null;
-  orderForm: OrderForm = this._defaultOrderForm();
   orderSubmitting = false;
   orderError = '';
   orderSuccess = '';
-
   products: { uid: string; label: string }[] = [];
   productsLoading = false;
 
-  currentUser: User | null = null;
-  gallery: GalleryEntry[] = [];
-  galleryLoading = false;
-  private authSub!: Subscription;
-
-  expandedItem: {
-    job_id: string;
-    presigned_url: string;
-    positive_prompt?: string;
-    template_key: string;
-    style_key: string;
-    isSample?: boolean;
-  } | null = null;
-
+  // ── Navigation ─────────────────────────────────────────────
   activeTab: 'generate' | 'samples' | 'upload' = 'samples';
   characterAnimation: 'idle' | 'happy' = 'idle';
   fabRotating = false;
   private happyTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  // Samples tab
-  samples: { sample_id: string; presigned_url: string | null }[] = [];
-  samplesLoading = false;
-  sampleUploadFile: File | null = null;
-  samplePreviewUrl: string | null = null;
-  sampleDragOver = false;
-  sampleUploading = false;
-  sampleError = '';
 
   constructor(
     private api: ApiService,
@@ -130,6 +107,7 @@ export class App implements OnInit, OnDestroy {
         this.samples = [];
       }
     });
+    this.loadSamples();
   }
 
   ngOnDestroy() {
@@ -138,13 +116,16 @@ export class App implements OnInit, OnDestroy {
     if (this.happyTimeout) clearTimeout(this.happyTimeout);
   }
 
+  // ── Auth ───────────────────────────────────────────────────
   signIn() {
     this.auth.signInWithGoogle().catch((err) => console.error('Sign-in error', err));
   }
+
   signOut() {
     this.auth.signOut();
   }
 
+  // ── Gallery ────────────────────────────────────────────────
   loadGallery() {
     this.galleryLoading = true;
     this.api.getUserGenerations().subscribe({
@@ -158,87 +139,7 @@ export class App implements OnInit, OnDestroy {
     });
   }
 
-  openExpandFromJob(job: JobEntry) {
-    if (!job.presigned_url) return;
-    this.expandedItem = {
-      job_id: job.job_id,
-      presigned_url: job.presigned_url,
-      positive_prompt: job.positive_prompt,
-      template_key: job.template_key,
-      style_key: job.style_key,
-    };
-  }
-
-  openExpandFromGallery(item: GalleryEntry) {
-    if (!item.presigned_url) return;
-    this.expandedItem = {
-      job_id: item.job_id,
-      presigned_url: item.presigned_url,
-      template_key: item.template_key,
-      style_key: item.style_key,
-    };
-  }
-
-  closeExpand() {
-    this.expandedItem = null;
-  }
-
-  openExpandFromSample(s: { sample_id: string; presigned_url: string | null }) {
-    if (!s.presigned_url) return;
-    this.expandedItem = {
-      job_id: s.sample_id,
-      presigned_url: s.presigned_url,
-      template_key: '',
-      style_key: '',
-      isSample: true,
-    };
-  }
-
-  orderFromExpand() {
-    if (!this.expandedItem) return;
-    const item = this.expandedItem;
-    this.closeExpand();
-    this.openOrderModal({
-      job_id: item.job_id,
-      template_key: item.template_key,
-      style_key: item.style_key,
-      status: 'completed',
-      presigned_url: item.presigned_url,
-      submitted_at: new Date(),
-    });
-  }
-
-  openOrderModalFromGallery(item: GalleryEntry) {
-    this.openOrderModal({
-      job_id: item.job_id,
-      template_key: item.template_key,
-      style_key: item.style_key,
-      status: 'completed',
-      presigned_url: item.presigned_url ?? undefined,
-      submitted_at: item.created_at ? new Date(item.created_at) : new Date(),
-    });
-  }
-
-  onFileChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files?.[0]) this.setFile(input.files[0]);
-  }
-
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    this.isDragOver = false;
-    const file = event.dataTransfer?.files[0];
-    if (file) this.setFile(file);
-  }
-
-  onDragOver(event: DragEvent) {
-    event.preventDefault();
-    this.isDragOver = true;
-  }
-  onDragLeave() {
-    this.isDragOver = false;
-  }
-
+  // ── Upload ─────────────────────────────────────────────────
   setFile(file: File) {
     this.uploadedFile = file;
     const reader = new FileReader();
@@ -254,6 +155,7 @@ export class App implements OnInit, OnDestroy {
     return !!(this.uploadedFile && this.selectedTemplate && !this.submitting);
   }
 
+  // ── Generate ───────────────────────────────────────────────
   generate() {
     if (!this.canGenerate) return;
     this.submitting = true;
@@ -284,7 +186,6 @@ export class App implements OnInit, OnDestroy {
       error: (err) => {
         this.submitting = false;
         this.errorMsg = err?.error?.error || err?.message || 'Failed to submit job.';
-        console.error('submitGenerate error:', err);
       },
     });
   }
@@ -296,7 +197,6 @@ export class App implements OnInit, OnDestroy {
 
   private doPoll(jobId: string) {
     if (!this.activePolls.has(jobId)) return;
-
     this.api.getJobStatus(jobId).subscribe({
       next: (job: any) => {
         const idx = this.jobs.findIndex((j) => j.job_id === jobId);
@@ -335,26 +235,60 @@ export class App implements OnInit, OnDestroy {
     this.jobs = this.jobs.filter((j) => j.job_id !== jobId);
   }
 
-  private _defaultOrderForm(): OrderForm {
-    return {
-      firstName: '',
-      lastName: '',
-      addressLine1: '',
-      addressLine2: '',
-      city: '',
-      postCode: '',
-      country: 'JP',
-      email: '',
-      phone: '',
-      product_uid: '',
-      quantity: 1,
-      order_type: 'draft',
+  // ── Lightbox ───────────────────────────────────────────────
+  openExpandFromJob(job: JobEntry) {
+    if (!job.presigned_url) return;
+    this.expandedItem = {
+      job_id: job.job_id,
+      presigned_url: job.presigned_url,
+      positive_prompt: job.positive_prompt,
+      template_key: job.template_key,
+      style_key: job.style_key,
     };
   }
 
+  openExpandFromGallery(item: GalleryEntry) {
+    if (!item.presigned_url) return;
+    this.expandedItem = {
+      job_id: item.job_id,
+      presigned_url: item.presigned_url,
+      template_key: item.template_key,
+      style_key: item.style_key,
+    };
+  }
+
+  openExpandFromSample(s: SampleEntry) {
+    if (!s.presigned_url) return;
+    this.expandedItem = {
+      job_id: s.sample_id,
+      presigned_url: s.presigned_url,
+      template_key: '',
+      style_key: '',
+      isSample: true,
+    };
+  }
+
+  closeExpand() {
+    this.expandedItem = null;
+  }
+
+  orderFromExpand() {
+    if (!this.expandedItem) return;
+    const item = this.expandedItem;
+    this.closeExpand();
+    this.openOrderModal({
+      job_id: item.job_id,
+      template_key: item.template_key,
+      style_key: item.style_key,
+      status: 'completed',
+      presigned_url: item.presigned_url,
+      submitted_at: new Date(),
+    });
+  }
+
+  // ── Order modal ────────────────────────────────────────────
   openOrderModal(job: JobEntry) {
     this.orderModalJob = job;
-    this.orderForm = this._defaultOrderForm();
     this.orderError = '';
     this.orderSuccess = '';
     if (this.products.length === 0) {
@@ -365,12 +299,9 @@ export class App implements OnInit, OnDestroy {
           this.products = list
             .map((p: any) => ({
               uid: p.productUid ?? p.uid ?? p.product_uid ?? '',
-              label: p.title ?? p.name ?? this._uidLabel(p.productUid ?? p.uid ?? ''),
+              label: p.title ?? p.name ?? this.uidLabel(p.productUid ?? p.uid ?? ''),
             }))
             .filter((p) => p.uid);
-          if (this.products.length > 0) {
-            this.orderForm.product_uid = this.products[0].uid;
-          }
           this.productsLoading = false;
         },
         error: () => {
@@ -380,21 +311,24 @@ export class App implements OnInit, OnDestroy {
     }
   }
 
-  private _uidLabel(uid: string): string {
-    const m = uid.match(/pf_([\d]+x[\d]+-mm)/);
-    const size = m ? m[1].replace(/-mm$/, ' mm').replace('x', ' × ') : '';
-    const pt = uid.match(/pt_([\w-]+)/);
-    const paper = pt ? pt[1].replace(/-/g, ' ') : '';
-    return [size, paper].filter(Boolean).join(' — ') || uid;
+  openOrderFromGallery(item: GalleryEntry) {
+    this.openOrderModal({
+      job_id: item.job_id,
+      template_key: item.template_key,
+      style_key: item.style_key,
+      status: 'completed',
+      presigned_url: item.presigned_url ?? undefined,
+      submitted_at: item.created_at ? new Date(item.created_at) : new Date(),
+    });
   }
 
   closeOrderModal() {
     this.orderModalJob = null;
   }
 
-  submitOrder() {
+  onOrderSubmitted(form: OrderForm) {
     if (!this.orderModalJob?.presigned_url) return;
-    if (!this.orderForm.product_uid) {
+    if (!form.product_uid) {
       this.orderError = 'Please select a product.';
       return;
     }
@@ -402,22 +336,21 @@ export class App implements OnInit, OnDestroy {
     this.orderError = '';
     this.orderSuccess = '';
 
-    const f = this.orderForm;
     const payload = {
       image_url: this.orderModalJob.presigned_url,
-      product_uid: f.product_uid,
-      quantity: f.quantity,
-      order_type: f.order_type,
+      product_uid: form.product_uid,
+      quantity: form.quantity,
+      order_type: form.order_type,
       shipping_address: {
-        firstName: f.firstName,
-        lastName: f.lastName,
-        addressLine1: f.addressLine1,
-        addressLine2: f.addressLine2,
-        city: f.city,
-        postCode: f.postCode,
-        country: f.country,
-        email: f.email,
-        phone: f.phone,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        addressLine1: form.addressLine1,
+        addressLine2: form.addressLine2,
+        city: form.city,
+        postCode: form.postCode,
+        country: form.country,
+        email: form.email,
+        phone: form.phone,
       },
     };
 
@@ -433,40 +366,15 @@ export class App implements OnInit, OnDestroy {
     });
   }
 
-  switchTab(tab: 'generate' | 'samples' | 'upload') {
-    this.activeTab = tab;
-    if (
-      (tab === 'samples' || tab === 'upload') &&
-      this.samples.length === 0 &&
-      !this.samplesLoading
-    ) {
-      this.loadSamples();
-    }
+  private uidLabel(uid: string): string {
+    const m = uid.match(/pf_([\d]+x[\d]+-mm)/);
+    const size = m ? m[1].replace(/-mm$/, ' mm').replace('x', ' × ') : '';
+    const pt = uid.match(/pt_([\w-]+)/);
+    const paper = pt ? pt[1].replace(/-/g, ' ') : '';
+    return [size, paper].filter(Boolean).join(' — ') || uid;
   }
 
-  goToGenerate() {
-    this.characterAnimation = 'happy';
-    this.fabRotating = true;
-    if (this.happyTimeout) clearTimeout(this.happyTimeout);
-    // Switch to idle when Happy.gif finishes its first play (before it loops).
-    this.happyTimeout = setTimeout(() => {
-      this.characterAnimation = 'idle';
-      this.happyTimeout = null;
-    }, 1600);
-    setTimeout(() => {
-      this.fabRotating = false;
-    }, 400);
-    if (this.activeTab === 'generate') {
-      this.activeTab = 'samples';
-    } else {
-      this.activeTab = 'generate';
-    }
-  }
-
-  onCharacterTap() {
-    this.goToGenerate();
-  }
-
+  // ── Samples ────────────────────────────────────────────────
   loadSamples() {
     this.samplesLoading = true;
     this.api.getSamples().subscribe({
@@ -479,6 +387,8 @@ export class App implements OnInit, OnDestroy {
       },
     });
   }
+
+  sampleDragOver = false;
 
   onSampleFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -501,7 +411,7 @@ export class App implements OnInit, OnDestroy {
     this.sampleDragOver = false;
   }
 
-  private setSampleFile(file: File | null) {
+  setSampleFile(file: File | null) {
     this.sampleUploadFile = file;
     this.samplePreviewUrl = null;
     if (file) {
@@ -539,17 +449,34 @@ export class App implements OnInit, OnDestroy {
     });
   }
 
-  formatDuration(s: number): string {
-    return s >= 60 ? `${Math.floor(s / 60)}m ${Math.round(s % 60)}s` : `${Math.round(s)}s`;
+  // ── Navigation ─────────────────────────────────────────────
+  switchTab(tab: 'generate' | 'samples' | 'upload') {
+    this.activeTab = tab;
+    if (
+      (tab === 'samples' || tab === 'upload') &&
+      this.samples.length === 0 &&
+      !this.samplesLoading
+    ) {
+      this.loadSamples();
+    }
   }
 
-  templateName(key: string): string {
-    return this.templates[key]?.name ?? key;
+  goToGenerate() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.characterAnimation = 'happy';
+    this.fabRotating = true;
+    if (this.happyTimeout) clearTimeout(this.happyTimeout);
+    this.happyTimeout = setTimeout(() => {
+      this.characterAnimation = 'idle';
+      this.happyTimeout = null;
+    }, 1640);
+    setTimeout(() => {
+      this.fabRotating = false;
+    }, 400);
+    this.activeTab = this.activeTab === 'generate' ? 'samples' : 'generate';
   }
-  styleName(_key: string): string {
-    return 'Ink Wash';
-  }
-  templateIcon(i: number): string {
-    return ['⛩', '🌸', '🗡', '🏯', '🌊', '🌙', '📜', '🏮'][i % 8];
+
+  onCharacterTap() {
+    this.goToGenerate();
   }
 }

@@ -1,0 +1,115 @@
+@if (job) {
+  <div class="modal-backdrop" (click)="closed.emit()"></div>
+  <div class="order-modal">
+    <div class="modal-header">
+      <h2>Order Print</h2>
+      <button class="modal-close" (click)="closed.emit()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      @if (job.presigned_url) {
+        <div class="modal-preview">
+          <img [src]="job.presigned_url" class="modal-preview-img" alt="Portrait" />
+        </div>
+      }
+
+      <form class="order-form" (ngSubmit)="submitted.emit(form)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input [(ngModel)]="form.firstName" name="firstName" required />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input [(ngModel)]="form.lastName" name="lastName" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Address Line 1 <span class="field-hint">(Japanese required: e.g. 東京都港区1丁目2-3)</span></label>
+          <input [(ngModel)]="form.addressLine1" name="addressLine1" required />
+        </div>
+
+        <div class="form-group">
+          <label>Address Line 2 <span class="field-hint">(optional)</span></label>
+          <input [(ngModel)]="form.addressLine2" name="addressLine2" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>City</label>
+            <input [(ngModel)]="form.city" name="city" required />
+          </div>
+          <div class="form-group">
+            <label>Post Code</label>
+            <input [(ngModel)]="form.postCode" name="postCode" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="form.email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input [(ngModel)]="form.phone" name="phone" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Product</label>
+          @if (productsLoading) {
+            <div class="field-hint">Loading products…</div>
+          } @else if (products.length > 0) {
+            <select [(ngModel)]="form.product_uid" name="product_uid" required>
+              @for (p of products; track p.uid) {
+                <option [value]="p.uid">{{ p.label }}</option>
+              }
+            </select>
+          } @else {
+            <input [(ngModel)]="form.product_uid" name="product_uid" required
+              placeholder="e.g. framed_poster_product_pf_400x300-mm_…" />
+            <span class="field-hint">Could not load catalog — enter UID manually</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" [(ngModel)]="form.quantity" name="quantity" min="1" max="10" required />
+        </div>
+
+        <div class="order-type-row">
+          <label class="toggle-label">
+            <input type="checkbox" name="order_type_toggle"
+              [checked]="form.order_type === 'order'"
+              (change)="form.order_type = $any($event.target).checked ? 'order' : 'draft'" />
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-text">Live order
+              <span class="toggle-hint">(off = draft — saved to dashboard but not sent to print)</span>
+            </span>
+          </label>
+        </div>
+
+        @if (success) { <div class="msg-success">{{ success }}</div> }
+        @if (error)   { <div class="msg-error">{{ error }}</div> }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closed.emit()">Cancel</button>
+          <button type="submit" class="btn-primary"
+            [disabled]="submitting || productsLoading || !form.product_uid">
+            @if (!submitting) {
+              {{ form.order_type === 'order' ? 'Place Order (JPY)' : 'Save as Draft' }}
+            } @else {
+              {{ form.order_type === 'order' ? 'Placing order…' : 'Saving draft…' }}
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

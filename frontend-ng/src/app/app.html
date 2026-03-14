@@ -1,369 +1,232 @@
+<!-- ── Header ─────────────────────────────────────────────── -->
 <header>
   <div class="header-inner">
-    <span class="logo-mark">墓</span>
-    <h1>Pet Generator</h1>
-    <p class="tagline">Edo-era portraits from your pet's photo</p>
+    <div class="header-brand">
+      <span class="logo-mark">墓</span>
+      <span class="brand-name">Pet Generator</span>
+    </div>
+
+    <nav class="header-tabs">
+      <button class="htab" [class.htab--active]="activeTab === 'samples'" (click)="switchTab('samples')">Gallery</button>
+      <button class="htab" [class.htab--active]="activeTab === 'generate'" (click)="switchTab('generate')">Create</button>
+      <button class="htab htab--upload" [class.htab--active]="activeTab === 'upload'" (click)="switchTab('upload')">Upload</button>
+    </nav>
+
     <div class="header-auth">
       @if (currentUser) {
-        <span class="auth-name">{{ currentUser.displayName || currentUser.email }}</span>
-        <button class="auth-btn" (click)="signOut()">Sign out</button>
+        <div class="auth-avatar" [title]="currentUser.displayName || currentUser.email || ''">
+          {{ (currentUser.displayName || currentUser.email || '?')[0].toUpperCase() }}
+        </div>
+        <button class="btn-auth" (click)="signOut()">Sign out</button>
       } @else {
-        <button class="auth-btn auth-btn--signin" (click)="signIn()">Sign in with Google</button>
+        <button class="btn-auth btn-auth--signin" (click)="signIn()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Sign in
+        </button>
       }
     </div>
   </div>
 </header>
 
-<nav class="tab-bar">
-  <button class="tab-btn" [class.tab-btn--active]="activeTab === 'samples'" (click)="switchTab('samples')">Samples</button>
-  <button class="tab-btn" [class.tab-btn--active]="activeTab === 'upload'" (click)="switchTab('upload')">Upload</button>
-</nav>
-
+<!-- ── Main ──────────────────────────────────────────────── -->
 <main>
-  <!-- GENERATE SCREEN (upload + templates) -->
-  <section class="panel panel-left" *ngIf="activeTab === 'generate'">
 
-    <div class="panel-left-scroll">
+  <!-- GALLERY TAB ──────────────────────────────────────────── -->
+  @if (activeTab === 'samples') {
+    <div class="page-samples">
+      <section class="hero">
+        <div class="hero-eyebrow">AI-Powered Art</div>
+        <h2 class="hero-title">Transform your pet into<br><span class="hero-accent">Edo-era art</span></h2>
+        <p class="hero-sub">Upload any photo and choose from our curated portrait styles inspired by Ukiyo-e masters.</p>
+        <button class="hero-cta" (click)="switchTab('generate')">
+          Create Portrait
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+      </section>
 
-      <div class="section-label">1. Upload your pet</div>
-      <div class="upload-area"
-           [class.drag-over]="isDragOver"
-           (click)="fileInput.click()"
-           (drop)="onDrop($event)"
-           (dragover)="onDragOver($event)"
-           (dragleave)="onDragLeave()">
-        <input #fileInput type="file" accept="image/png,image/jpeg,image/webp" hidden (change)="onFileChange($event)" />
-        <div class="upload-placeholder" *ngIf="!previewUrl">
-          <div class="upload-icon">🐾</div>
-          <div class="upload-text">Click or drag to upload</div>
-          <div class="upload-sub">PNG, JPG, WEBP</div>
-        </div>
-        <img *ngIf="previewUrl" [src]="previewUrl" class="image-preview" alt="Preview" />
-      </div>
-
-      <div class="section-label section-label--spaced">2. Choose a template</div>
-      <div class="template-grid-small">
-        <div *ngFor="let key of templateKeys; let i = index"
-             class="template-card-small"
-             [class.selected]="selectedTemplate === key"
-             (click)="selectTemplate(key)"
-             [title]="templates[key].name">
-          <img *ngIf="templates[key].preview_url" class="template-thumb-small"
-               [src]="templates[key].preview_url" [alt]="templates[key].name" />
-          <div *ngIf="!templates[key].preview_url" class="template-thumb-placeholder-small">
-            {{ templateIcon(i) }}
-          </div>
-          <div class="template-name-small">{{ templates[key].name }}</div>
-        </div>
-      </div>
-
-    </div><!-- /panel-left-scroll -->
-
-    <div class="panel-left-footer">
-      <div class="dry-run-row">
-        <label class="toggle-label">
-          <input type="checkbox" [(ngModel)]="dryRun" />
-          <span class="toggle-track">
-            <span class="toggle-thumb"></span>
-          </span>
-          <span class="toggle-text">Dry run <span class="toggle-hint">(print prompt, skip RunPod)</span></span>
-        </label>
-      </div>
-      <button class="generate-btn" [disabled]="!canGenerate" (click)="generate()">
-        <span *ngIf="!submitting">{{ dryRun ? 'Generate (Dry Run)' : 'Generate Portrait' }}</span>
-        <span *ngIf="submitting" class="btn-loading">
-          <span class="spinner"></span> Submitting…
-        </span>
-      </button>
-      <div class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</div>
+      <section class="samples-section">
+        <app-sample-gallery
+          [samples]="samples"
+          [loading]="samplesLoading"
+          [showDelete]="true"
+          (sampleClicked)="openExpandFromSample($event)"
+          (sampleDeleted)="deleteSample($event)"
+        />
+      </section>
     </div>
+  }
 
-  </section>
+  <!-- CREATE TAB ───────────────────────────────────────────── -->
+  @if (activeTab === 'generate') {
+    <div class="page-generate">
 
-  <!-- RIGHT: Generations queue -->
-  <section class="panel panel-right" *ngIf="activeTab === 'generate'">
-    <div class="section-label">Generations</div>
+      <!-- Left sidebar: controls -->
+      <aside class="gen-sidebar">
+        <div class="sidebar-scroll">
 
-    <div class="queue-empty" *ngIf="jobs.length === 0">
-      <div class="queue-empty-icon">🎨</div>
-      <div class="queue-empty-title">Your portraits will appear here</div>
-      <div class="queue-empty-sub">Upload a photo, pick a style, and tap Generate</div>
-    </div>
-
-    <div class="gen-grid" *ngIf="jobs.length > 0">
-      <div *ngFor="let job of jobs"
-           class="gen-card"
-           [class.gen-card--clickable]="job.status === 'completed' && job.presigned_url"
-           (click)="job.status === 'completed' && job.presigned_url ? openExpandFromJob(job) : null">
-
-        <!-- Loading -->
-        @if (job.status === 'pending' || job.status === 'processing' || job.status === 'fixing') {
-          <div class="gen-card-loading">
-            <div class="gen-spinner"></div>
-            <div class="gen-card-status-text">
-              @if (job.status === 'pending') { Queued… }
-              @else if (job.status === 'fixing') { Fixing minor issues… }
-              @else { Generating… }
-            </div>
+          <div class="sidebar-block">
+            <p class="sidebar-label">1 · Upload your pet</p>
+            <app-upload-area [previewUrl]="previewUrl" (fileSelected)="setFile($event)" />
           </div>
-        }
 
-        <!-- Failed -->
-        @if (job.status === 'failed') {
-          <div class="gen-card-failed">
-            <div class="gen-card-fail-icon">✕</div>
-            <div class="gen-card-fail-text">{{ job.error }}</div>
+          <div class="sidebar-block">
+            <p class="sidebar-label">2 · Choose a style</p>
+            <app-template-selector
+              [templates]="templates"
+              [templateKeys]="templateKeys"
+              [selectedTemplate]="selectedTemplate"
+              (templateSelected)="selectTemplate($event)"
+            />
           </div>
-        }
 
-        <!-- Completed -->
-        @if (job.status === 'completed' && job.presigned_url) {
-          <img class="gen-card-img" [src]="job.presigned_url" alt="Generated portrait" />
-          <div class="gen-card-overlay">
-            <p class="gen-card-prompt">{{ job.positive_prompt }}</p>
-          </div>
-        }
+        </div>
 
-        <!-- Footer -->
-        <div class="gen-card-footer">
-          <span class="gen-card-name">{{ templateName(job.template_key) }}</span>
-          @if (job.duration_seconds != null) {
-            <span class="gen-card-duration">{{ formatDuration(job.duration_seconds) }}</span>
+        <div class="sidebar-footer">
+          <label class="toggle-label">
+            <input type="checkbox" [(ngModel)]="dryRun" />
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-text">Dry run <span class="toggle-hint">(print prompt, skip RunPod)</span></span>
+          </label>
+
+          <button class="generate-btn" [disabled]="!canGenerate" (click)="generate()">
+            @if (!submitting) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m9.813 15.904 1.075-4.267m1.075-4.267.427-1.708a.25.25 0 0 1 .305-.188l1.432.358a1 1 0 0 1 .75 1.037l-.196 1.307m-3.793 3.461.196-1.308M12 8.25l-3 .75m6 6-3 .75m-6.75 3.75L3 20.25m18 0-3.75-1.5M21 3l-1.5 3.75M3 3l1.5 3.75" />
+              </svg>
+              {{ dryRun ? 'Generate (Dry Run)' : 'Generate Portrait' }}
+            } @else {
+              <span class="btn-spinner"></span>
+              Submitting…
+            }
+          </button>
+
+          @if (errorMsg) {
+            <div class="error-msg">{{ errorMsg }}</div>
           }
-          <button class="gen-card-remove" (click)="$event.stopPropagation(); removeJob(job.job_id)" title="Remove">✕</button>
         </div>
+      </aside>
 
-      </div>
+      <!-- Right: job results -->
+      <section class="gen-results">
+        <div class="gen-results-header">
+          <h3 class="gen-results-title">Generations</h3>
+        </div>
+        <app-job-queue
+          [jobs]="jobs"
+          [templates]="templates"
+          (jobClicked)="openExpandFromJob($event)"
+          (jobRemoved)="removeJob($event)"
+        />
+      </section>
+
     </div>
-  </section>
+  }
 
-  <!-- SAMPLES GALLERY -->
-  <section class="samples-gallery" *ngIf="activeTab === 'samples'">
-    <div class="samples-gallery-inner">
-      @if (samplesLoading) {
-        <div class="samples-loading">
-          <div class="gen-spinner"></div>
-          <span>Loading samples…</span>
-        </div>
-      } @else if (samples.length === 0) {
-        <div class="samples-empty">
-          <div class="samples-empty-icon">🎨</div>
-          <p>No samples yet</p>
-          <p class="samples-empty-sub">Check back soon for Edo-era portrait examples</p>
-        </div>
-      } @else {
-        <div class="samples-scroll">
-          @for (s of samples; track s.sample_id) {
-            <div class="sample-card" (click)="openExpandFromSample(s)">
-              @if (s.presigned_url) {
-                <img class="sample-card-img" [src]="s.presigned_url" alt="Sample portrait" />
-              }
-              <button class="sample-card-delete" (click)="$event.stopPropagation(); deleteSample(s.sample_id)" title="Delete">✕</button>
+  <!-- UPLOAD TAB (admin) ───────────────────────────────────── -->
+  @if (activeTab === 'upload') {
+    <div class="page-upload">
+      <div class="upload-panel">
+        <h3 class="upload-panel-title">Upload Sample Image</h3>
+
+        <div class="sample-drop-zone"
+             [class.drag-over]="sampleDragOver"
+             (click)="sampleFileInput.click()"
+             (drop)="onSampleDrop($event)"
+             (dragover)="onSampleDragOver($event)"
+             (dragleave)="onSampleDragLeave()">
+          <input type="file" accept="image/png,image/jpeg,image/webp" #sampleFileInput hidden
+            (change)="onSampleFileChange($event)" />
+          @if (!sampleUploadFile) {
+            <div class="sample-placeholder">
+              <span class="sample-placeholder-icon">📤</span>
+              <span>Click or drag image here</span>
+              <span class="sample-hint">PNG · JPG · WEBP</span>
+            </div>
+          } @else {
+            <div class="sample-preview-wrap">
+              <img [src]="samplePreviewUrl" alt="Preview" class="sample-preview-img" />
+              <span class="sample-filename">{{ sampleUploadFile.name }}</span>
             </div>
           }
         </div>
-      }
-    </div>
-  </section>
 
-  <!-- UPLOAD TAB (admin - gate later) -->
-  <section class="panel panel-upload" *ngIf="activeTab === 'upload'">
-    <div class="section-label">Upload sample image</div>
-    <div class="sample-upload-area"
-         [class.drag-over]="sampleDragOver"
-         (click)="sampleFileInput.click()"
-         (drop)="onSampleDrop($event)"
-         (dragover)="onSampleDragOver($event)"
-         (dragleave)="onSampleDragLeave()">
-      <input type="file" accept="image/png,image/jpeg,image/webp" #sampleFileInput hidden (change)="onSampleFileChange($event)" />
-      @if (!sampleUploadFile) {
-        <div class="sample-upload-placeholder">
-          <span class="sample-upload-icon">📤</span>
-          <span>Click or drag image here</span>
-          <span class="sample-upload-hint">PNG, JPG, WEBP</span>
+        <div class="upload-actions">
+          <button class="generate-btn upload-submit-btn"
+            [disabled]="!sampleUploadFile || sampleUploading"
+            (click)="uploadSample()">
+            @if (!sampleUploading) { Upload sample }
+            @else { <span class="btn-spinner"></span> Uploading… }
+          </button>
+          <button class="refresh-btn-sm" (click)="loadSamples()" [disabled]="samplesLoading">↻ Refresh</button>
         </div>
-      } @else {
-        <div class="sample-upload-preview">
-          <img [src]="samplePreviewUrl" alt="Preview" />
-          <span class="sample-upload-filename">{{ sampleUploadFile.name }}</span>
-        </div>
-      }
+        @if (sampleError) { <div class="error-msg">{{ sampleError }}</div> }
+      </div>
     </div>
-    <div class="sample-upload-actions">
-      <button class="generate-btn sample-upload-btn" [disabled]="!sampleUploadFile || sampleUploading" (click)="uploadSample()">
-        <span *ngIf="!sampleUploading">Upload sample</span>
-        <span *ngIf="sampleUploading" class="btn-loading"><span class="spinner"></span> Uploading…</span>
-      </button>
-      <button class="gallery-refresh" (click)="loadSamples()" [disabled]="samplesLoading">↻ Refresh</button>
-    </div>
-    <div class="error-msg" *ngIf="sampleError">{{ sampleError }}</div>
-  </section>
-
-  <!-- FAB with character overlay -->
-  <div class="fab-wrapper">
-    <button class="fab" [class.fab--rotating]="fabRotating" (click)="goToGenerate()" [attr.aria-label]="activeTab === 'generate' ? 'Back to gallery' : 'Create portrait'">
-      <span class="fab-icon">
-        @if (activeTab === 'generate') {
-          <svg class="fab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-        } @else {
-          <svg class="fab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        }
-      </span>
-    </button>
-    <app-character [animation]="characterAnimation" (tapped)="onCharacterTap()" />
-  </div>
+  }
 
 </main>
 
-<!-- Order Modal -->
-@if (orderModalJob) {
-  <div class="modal-backdrop" (click)="closeOrderModal()"></div>
-  <div class="order-modal">
-    <div class="modal-header">
-      <h2>Order Print</h2>
-      <button class="modal-close" (click)="closeOrderModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-preview">
-        <img [src]="orderModalJob.presigned_url" class="modal-preview-img" />
-      </div>
-      <form class="order-form" (ngSubmit)="submitOrder()">
-        <div class="form-row">
-          <div class="form-group">
-            <label>First Name</label>
-            <input [(ngModel)]="orderForm.firstName" name="firstName" required />
-          </div>
-          <div class="form-group">
-            <label>Last Name</label>
-            <input [(ngModel)]="orderForm.lastName" name="lastName" required />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Address Line 1 <span class="field-hint">(Japanese characters required: e.g. 東京都港区1丁目2-3)</span></label>
-          <input [(ngModel)]="orderForm.addressLine1" name="addressLine1" required />
-        </div>
-        <div class="form-group">
-          <label>Address Line 2</label>
-          <input [(ngModel)]="orderForm.addressLine2" name="addressLine2" />
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>City</label>
-            <input [(ngModel)]="orderForm.city" name="city" required />
-          </div>
-          <div class="form-group">
-            <label>Post Code</label>
-            <input [(ngModel)]="orderForm.postCode" name="postCode" required />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" [(ngModel)]="orderForm.email" name="email" required />
-          </div>
-          <div class="form-group">
-            <label>Phone</label>
-            <input [(ngModel)]="orderForm.phone" name="phone" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Product</label>
-          @if (productsLoading) {
-            <div class="field-hint">Loading products…</div>
-          } @else if (products.length > 0) {
-            <select [(ngModel)]="orderForm.product_uid" name="product_uid" required>
-              @for (p of products; track p.uid) {
-                <option [value]="p.uid">{{ p.label }}</option>
-              }
-            </select>
-          } @else {
-            <input [(ngModel)]="orderForm.product_uid" name="product_uid" required placeholder="e.g. framed_poster_product_pf_400x300-mm_…" />
-            <span class="field-hint">Could not load catalog — enter UID manually</span>
-          }
-        </div>
-        <div class="dry-run-row dry-run-row--modal">
-          <label class="toggle-label">
-            <input type="checkbox" name="order_type_toggle"
-              [checked]="orderForm.order_type === 'order'"
-              (change)="orderForm.order_type = $any($event.target).checked ? 'order' : 'draft'" />
-            <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            <span class="toggle-text">Live order <span class="toggle-hint">(off = draft, visible on dashboard but not sent to print)</span></span>
-          </label>
-        </div>
-        @if (orderSuccess) {
-          <div class="order-success">{{ orderSuccess }}</div>
-        }
-        @if (orderError) {
-          <div class="order-error">{{ orderError }}</div>
-        }
-        <div class="modal-actions">
-          <button type="button" class="btn-secondary" (click)="closeOrderModal()">Cancel</button>
-          <button type="submit" class="btn-primary" [disabled]="orderSubmitting || productsLoading || !orderForm.product_uid">
-            @if (!orderSubmitting) {
-              <span>{{ orderForm.order_type === 'order' ? 'Place Order (JPY)' : 'Save as Draft' }}</span>
-            } @else {
-              <span>{{ orderForm.order_type === 'order' ? 'Placing order…' : 'Saving draft…' }}</span>
-            }
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
-
-<!-- Gallery: past generations for signed-in users -->
+<!-- ── Past gallery (logged-in users) ────────────────────── -->
 @if (currentUser) {
-  <section class="gallery-section">
-    <div class="gallery-header">
-      <div class="section-label">Your Past Generations</div>
-      <button class="gallery-refresh" (click)="loadGallery()" [disabled]="galleryLoading">↻ Refresh</button>
+  <section class="past-section">
+    <div class="past-section-inner">
+      <app-past-gallery
+        [gallery]="gallery"
+        [loading]="galleryLoading"
+        [templates]="templates"
+        (itemClicked)="openExpandFromGallery($event)"
+        (refresh)="loadGallery()"
+      />
     </div>
-
-    @if (galleryLoading) {
-      <div class="gallery-loading">Loading…</div>
-    } @else if (gallery.length === 0) {
-      <div class="gallery-empty">No generations yet. Submit one above!</div>
-    } @else {
-      <div class="gen-grid gen-grid--gallery">
-        @for (item of gallery; track item.job_id) {
-          <div class="gen-card"
-               [class.gen-card--clickable]="!!item.presigned_url"
-               (click)="item.presigned_url ? openExpandFromGallery(item) : null">
-            @if (item.presigned_url) {
-              <img class="gen-card-img" [src]="item.presigned_url" [alt]="templateName(item.template_key)" />
-              <div class="gen-card-overlay"></div>
-            } @else {
-              <div class="gen-card-loading"><div class="gen-card-fail-icon">?</div></div>
-            }
-            <div class="gen-card-footer">
-              <span class="gen-card-name">{{ templateName(item.template_key) }}</span>
-            </div>
-          </div>
-        }
-      </div>
-    }
   </section>
 }
 
-<!-- Lightbox -->
-@if (expandedItem) {
-  <div class="lightbox-backdrop" (click)="closeExpand()"></div>
-  <div class="lightbox">
-    <button class="lightbox-close" (click)="closeExpand()">✕</button>
-    <img class="lightbox-img" [src]="expandedItem.presigned_url" alt="Generated portrait" />
-    @if (!expandedItem.isSample) {
-      <div class="lightbox-meta">
-        <div class="lightbox-title">{{ templateName(expandedItem.template_key) }} · {{ styleName(expandedItem.style_key) }}</div>
-        @if (expandedItem.positive_prompt) {
-          <p class="lightbox-prompt">{{ expandedItem.positive_prompt }}</p>
-        }
-        <button class="order-btn" (click)="orderFromExpand()">Order Print</button>
-      </div>
-    }
-  </div>
-}
+<!-- ── FAB ───────────────────────────────────────────────── -->
+<div class="fab-wrapper">
+  <button
+    class="fab"
+    [class.fab--rotating]="fabRotating"
+    (click)="goToGenerate()"
+    [attr.aria-label]="activeTab === 'generate' ? 'Back to gallery' : 'Create portrait'"
+  >
+    <span class="fab-icon">
+      @if (activeTab === 'generate') {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+      } @else {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+          <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      }
+    </span>
+  </button>
+  <app-character [animation]="characterAnimation" (tapped)="onCharacterTap()" />
+</div>
+
+<!-- ── Lightbox ──────────────────────────────────────────── -->
+<app-lightbox
+  [item]="expandedItem"
+  [templates]="templates"
+  (closed)="closeExpand()"
+  (orderClicked)="orderFromExpand()"
+/>
+
+<!-- ── Order modal ───────────────────────────────────────── -->
+<app-order-modal
+  [job]="orderModalJob"
+  [products]="products"
+  [productsLoading]="productsLoading"
+  [submitting]="orderSubmitting"
+  [error]="orderError"
+  [success]="orderSuccess"
+  (closed)="closeOrderModal()"
+  (submitted)="onOrderSubmitted($event)"
+/>

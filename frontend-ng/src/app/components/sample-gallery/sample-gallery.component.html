@@ -1,0 +1,38 @@
+@if (loading) {
+  <div class="gallery-loading">
+    <div class="spinner-ring"></div>
+    <span>Loading…</span>
+  </div>
+} @else if (samples.length === 0) {
+  <div class="gallery-empty">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="52" height="52">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+    </svg>
+    <p>No samples yet</p>
+    <p class="empty-sub">Check back soon for Edo-era portrait examples</p>
+  </div>
+} @else {
+  <div class="gallery-grid">
+    @for (s of samples; track s.sample_id) {
+      <div class="gallery-card" (click)="sampleClicked.emit(s)">
+        @if (s.presigned_url) {
+          <img class="gallery-img" [src]="s.presigned_url" alt="Sample portrait" />
+        }
+        <div class="gallery-hover">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+          </svg>
+        </div>
+        @if (showDelete) {
+          <button class="gallery-del" (click)="onDelete($event, s.sample_id)" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+        }
+      </div>
+    }
+  </div>
+}

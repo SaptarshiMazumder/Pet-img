@@ -49,12 +49,8 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ],
-            "polyfills": [
-              "zone.js"
-            ]
+            "styles": ["src/styles.css"],
+            "polyfills": ["zone.js"]
           },
           "configurations": {
             "production": {
@@ -90,7 +86,10 @@
               "buildTarget": "frontend-ng:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "allowedHosts": ["unspending-sallie-unemulsified.ngrok-free.dev"]
+          }
         }
       }
     }

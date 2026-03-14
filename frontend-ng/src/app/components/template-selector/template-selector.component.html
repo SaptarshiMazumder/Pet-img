@@ -1,0 +1,17 @@
+<div class="chips-row">
+  @for (key of templateKeys; track key; let i = $index) {
+    <button
+      class="chip"
+      [class.selected]="selectedTemplate === key"
+      (click)="templateSelected.emit(key)"
+      [title]="templates[key]?.name"
+    >
+      @if (templates[key]?.preview_url) {
+        <img class="chip-thumb" [src]="templates[key].preview_url" [alt]="templates[key]?.name" />
+      } @else {
+        <span class="chip-icon">{{ getIcon(i) }}</span>
+      }
+      <span class="chip-label">{{ templates[key]?.name }}</span>
+    </button>
+  }
+</div>
