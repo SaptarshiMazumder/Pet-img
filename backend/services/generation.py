@@ -9,7 +9,7 @@ from pathlib import Path
 from backend.services.prompt_builder import build_animal_edo_prompt
 from backend.runpod import submit_job, poll_job
 from backend.job_store import job_store
-from backend.storage import generate_presigned_url, download_object, upload_object
+from backend.storage import public_url, download_object, upload_object
 from backend.autoscaler_client import autoscaler
 from backend.db import active_jobs as active_jobs_db
 from backend.db import portrait_generation as portrait_generation_db
@@ -29,7 +29,7 @@ def process_runpod_result(
     """Convert a RunPod result into a presigned URL, persist to Firestore, update job store."""
     images = runpod_result.get("images", [])
     r2_key = images[0]["key"] if images and images[0].get("key") else None
-    presigned_url = generate_presigned_url(r2_key, expires=3600) if r2_key else None
+    presigned_url = public_url(r2_key) if r2_key else None
 
     if uid and r2_key:
         portrait_generation_db.save(

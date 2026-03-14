@@ -49,3 +49,9 @@ def upload_object(key: str, data: bytes, content_type: str = "image/png") -> Non
         Body=data,
         ContentType=content_type,
     )
+
+
+def public_url(key: str) -> str:
+    """Return the public CDN URL for an R2 object (served via Cloudflare CDN, no expiry)."""
+    base = os.getenv("R2_PUBLIC_BASE_URL", "https://pub-5ac903a98f564cc2b50d3727394f9431.r2.dev")
+    return f"{base.rstrip('/')}/{key}"

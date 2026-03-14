@@ -196,7 +196,8 @@
 <div class="bottom-bar-wrapper">
   <app-character [animation]="characterAnimation" (tapped)="onCharacterTap()" />
   <div class="bottom-bar" [class.bottom-bar--open]="catMenuOpen">
-    <button class="bar-btn bar-btn--left" (click)="goToGenerate(); closeCatMenu()"
+    <button class="bar-btn bar-btn--left"
+      (click)="switchTab(activeTab === 'generate' ? 'samples' : 'generate'); $event.stopPropagation()"
       [attr.aria-label]="activeTab === 'generate' ? 'Back to gallery' : 'Create portrait'">
       @if (activeTab === 'generate') {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
@@ -209,7 +210,7 @@
       }
     </button>
     <div class="bar-cat-gap"></div>
-    <button class="bar-btn bar-btn--right"></button>
+    <button class="bar-btn bar-btn--right" (click)="$event.stopPropagation()"></button>
   </div>
 </div>
 

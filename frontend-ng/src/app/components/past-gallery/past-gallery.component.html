@@ -24,7 +24,7 @@
         (click)="item.presigned_url ? itemClicked.emit(item) : null"
       >
         @if (item.presigned_url) {
-          <img class="past-img" [src]="item.presigned_url" [alt]="templateName(item.template_key)" />
+          <img class="past-img" [src]="item.presigned_url" [alt]="templateName(item.template_key)" loading="lazy" />
           <div class="past-hover">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
               <path stroke-linecap="round" stroke-linejoin="round"

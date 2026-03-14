@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, g
 
 from backend.auth_middleware import require_auth
 from backend.db import portrait_generation as generations_db
-from backend.storage import generate_presigned_url
+from backend.storage import public_url
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 
@@ -19,10 +19,7 @@ def get_generations():
         r2_key = data.get("r2_key")
         presigned_url = None
         if r2_key:
-            try:
-                presigned_url = generate_presigned_url(r2_key, expires=3600)
-            except Exception:
-                pass
+            presigned_url = public_url(r2_key)
         ts = data.get("created_at")
         results.append({
             "job_id": doc.id,

@@ -5,7 +5,7 @@ from pathlib import Path
 from flask import Blueprint, jsonify, request, g
 
 from backend.auth_middleware import require_auth
-from backend.storage.r2 import upload_object, generate_presigned_url
+from backend.storage.r2 import upload_object, public_url
 from backend.db import samples as samples_db
 
 samples_bp = Blueprint("samples", __name__)
@@ -40,10 +40,7 @@ def list_samples():
     result = []
     for doc in samples_db.list_all():
         d = doc.to_dict()
-        try:
-            url = generate_presigned_url(d["r2_key"], expires=3600)
-        except Exception:
-            url = None
+        url = public_url(d["r2_key"])
         created = d.get("created_at")
         result.append({
             "sample_id": doc.id,

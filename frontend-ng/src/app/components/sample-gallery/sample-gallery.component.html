@@ -17,7 +17,7 @@
     @for (s of samples; track s.sample_id) {
       <div class="gallery-card" (click)="sampleClicked.emit(s)">
         @if (s.presigned_url) {
-          <img class="gallery-img" [src]="s.presigned_url" alt="Sample portrait" />
+          <img class="gallery-img" [src]="s.presigned_url" alt="Sample portrait" loading="lazy" />
         }
         <div class="gallery-hover">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
