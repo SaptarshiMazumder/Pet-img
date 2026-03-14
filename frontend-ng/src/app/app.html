@@ -1,26 +1,42 @@
 <!-- ── Header ─────────────────────────────────────────────── -->
 <header>
   <div class="header-inner">
+    <div class="header-left">
+      @if (currentUser) {
+        <div class="auth-avatar" [title]="currentUser.displayName || currentUser.email || ''">
+          {{ (currentUser.displayName || currentUser.email || '?')[0].toUpperCase() }}
+        </div>
+      } @else {
+        <div class="header-placeholder"></div>
+      }
+    </div>
+
     <div class="header-brand">
       <span class="logo-mark">墓</span>
       <span class="brand-name">Pet Generator</span>
     </div>
 
-    <nav class="header-tabs">
-      <button class="htab" [class.htab--active]="activeTab === 'samples'" (click)="switchTab('samples')">Gallery</button>
-      <button class="htab" [class.htab--active]="activeTab === 'generate'" (click)="switchTab('generate')">Create</button>
-      <button class="htab htab--upload" [class.htab--active]="activeTab === 'upload'" (click)="switchTab('upload')">Upload</button>
-    </nav>
+    <div class="header-right">
+      <button class="menu-trigger" (click)="headerMenuOpen = !headerMenuOpen" [class.menu-trigger--open]="headerMenuOpen" aria-label="Menu">
+        <span class="menu-line"></span>
+        <span class="menu-line"></span>
+        <span class="menu-line"></span>
+      </button>
+    </div>
+  </div>
 
-    <div class="header-auth">
+  @if (headerMenuOpen) {
+    <div class="header-backdrop" (click)="headerMenuOpen = false"></div>
+    <nav class="header-menu">
+      <button class="menu-item" [class.menu-item--active]="activeTab === 'samples'" (click)="switchTab('samples'); headerMenuOpen = false">Gallery</button>
+      <button class="menu-item" [class.menu-item--active]="activeTab === 'generate'" (click)="switchTab('generate'); headerMenuOpen = false">Generations</button>
+      <button class="menu-item" [class.menu-item--active]="activeTab === 'upload'" (click)="switchTab('upload'); headerMenuOpen = false">Upload</button>
+      <div class="menu-divider"></div>
       @if (currentUser) {
-        <div class="auth-avatar" [title]="currentUser.displayName || currentUser.email || ''">
-          {{ (currentUser.displayName || currentUser.email || '?')[0].toUpperCase() }}
-        </div>
-        <button class="btn-auth" (click)="signOut()">Sign out</button>
+        <button class="menu-item" (click)="signOut(); headerMenuOpen = false">Sign out</button>
       } @else {
-        <button class="btn-auth btn-auth--signin" (click)="signIn()">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
+        <button class="menu-item menu-item--signin" (click)="signIn(); headerMenuOpen = false">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
@@ -29,8 +45,8 @@
           Sign in
         </button>
       }
-    </div>
-  </div>
+    </nav>
+  }
 </header>
 
 <!-- ── Main ──────────────────────────────────────────────── -->
@@ -50,7 +66,18 @@
         </button>
       </section>
 
+      <section class="styles-carousel-section">
+        <app-template-selector
+          [templates]="templates"
+          [templateKeys]="templateKeys"
+          [selectedTemplate]="selectedTemplate"
+          [previewOnly]="true"
+          (templateSelected)="onGalleryStyleSelected($event)"
+        />
+      </section>
+
       <section class="samples-section">
+        <h3 class="section-heading">Community</h3>
         <app-sample-gallery
           [samples]="samples"
           [loading]="samplesLoading"
@@ -76,42 +103,47 @@
           </div>
 
           <div class="sidebar-block">
-            <p class="sidebar-label">2 · Choose a style</p>
+            <p class="sidebar-label">2 · Select style</p>
             <app-template-selector
               [templates]="templates"
               [templateKeys]="templateKeys"
               [selectedTemplate]="selectedTemplate"
               (templateSelected)="selectTemplate($event)"
+              sectionTitle="Select Style"
             />
           </div>
 
-        </div>
+          <div class="sidebar-block">
+            <label class="toggle-label">
+              <input type="checkbox" [(ngModel)]="dryRun" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <span class="toggle-text">Dry run <span class="toggle-hint">(print prompt, skip RunPod)</span></span>
+            </label>
 
-        <div class="sidebar-footer">
-          <label class="toggle-label">
-            <input type="checkbox" [(ngModel)]="dryRun" />
-            <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            <span class="toggle-text">Dry run <span class="toggle-hint">(print prompt, skip RunPod)</span></span>
-          </label>
-
-          <button class="generate-btn" [disabled]="!canGenerate" (click)="generate()">
-            @if (!submitting) {
+            <button class="generate-btn" [disabled]="!canGenerate" (click)="generate()">
+              @if (!submitting) {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m9.813 15.904 1.075-4.267m1.075-4.267.427-1.708a.25.25 0 0 1 .305-.188l1.432.358a1 1 0 0 1 .75 1.037l-.196 1.307m-3.793 3.461.196-1.308M12 8.25l-3 .75m6 6-3 .75m-6.75 3.75L3 20.25m18 0-3.75-1.5M21 3l-1.5 3.75M3 3l1.5 3.75" />
               </svg>
               {{ dryRun ? 'Generate (Dry Run)' : 'Generate Portrait' }}
-            } @else {
-              <span class="btn-spinner"></span>
-              Submitting…
-            }
-          </button>
+              } @else {
+                <span class="btn-spinner"></span>
+                Submitting…
+              }
+            </button>
 
-          @if (errorMsg) {
-            <div class="error-msg">{{ errorMsg }}</div>
-          }
+            <button class="order-print-btn" [disabled]="!canOrderPrint" (click)="openOrderFromLatest()">
+              Order Print
+            </button>
+
+            @if (errorMsg) {
+              <div class="error-msg">{{ errorMsg }}</div>
+            }
+          </div>
         </div>
       </aside>
 
+      @if (jobs.length > 0) {
       <!-- Right: job results -->
       <section class="gen-results">
         <div class="gen-results-header">
@@ -124,7 +156,21 @@
           (jobRemoved)="removeJob($event)"
         />
       </section>
+      }
 
+      @if (currentUser) {
+      <section class="past-section">
+        <div class="past-section-inner">
+          <app-past-gallery
+            [gallery]="gallery"
+            [loading]="galleryLoading"
+            [templates]="templates"
+            (itemClicked)="openExpandFromGallery($event)"
+            (refresh)="loadGallery()"
+          />
+        </div>
+      </section>
+      }
     </div>
   }
 
@@ -171,21 +217,6 @@
   }
 
 </main>
-
-<!-- ── Past gallery (logged-in users) ────────────────────── -->
-@if (currentUser) {
-  <section class="past-section">
-    <div class="past-section-inner">
-      <app-past-gallery
-        [gallery]="gallery"
-        [loading]="galleryLoading"
-        [templates]="templates"
-        (itemClicked)="openExpandFromGallery($event)"
-        (refresh)="loadGallery()"
-      />
-    </div>
-  </section>
-}
 
 <!-- ── Cat menu backdrop ──────────────────────────────────── -->
 @if (catMenuOpen) {

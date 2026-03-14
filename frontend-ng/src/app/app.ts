@@ -80,6 +80,7 @@ export class App implements OnInit, OnDestroy {
   characterAnimation: 'idle' | 'happy' = 'idle';
   fabRotating = false;
   catMenuOpen = false;
+  headerMenuOpen = false;
   private happyTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
@@ -152,8 +153,39 @@ export class App implements OnInit, OnDestroy {
     this.selectedTemplate = key;
   }
 
+  onGalleryStyleSelected(key: string) {
+    this.selectTemplate(key);
+    this.switchTab('generate');
+  }
+
   get canGenerate(): boolean {
     return !!(this.uploadedFile && this.selectedTemplate && !this.submitting);
+  }
+
+  get canOrderPrint(): boolean {
+    const completed = this.jobs.find((j) => j.status === 'completed' && j.presigned_url);
+    if (completed) return true;
+    const fromGallery = this.gallery.find((g) => g.presigned_url);
+    return !!fromGallery;
+  }
+
+  openOrderFromLatest() {
+    const completed = this.jobs.find((j) => j.status === 'completed' && j.presigned_url);
+    if (completed) {
+      this.openOrderModal({
+        job_id: completed.job_id,
+        template_key: completed.template_key,
+        style_key: completed.style_key,
+        status: 'completed',
+        presigned_url: completed.presigned_url ?? undefined,
+        submitted_at: completed.submitted_at ?? new Date(),
+      });
+      return;
+    }
+    const fromGallery = this.gallery.find((g) => g.presigned_url);
+    if (fromGallery) {
+      this.openOrderFromGallery(fromGallery);
+    }
   }
 
   // ── Generate ───────────────────────────────────────────────

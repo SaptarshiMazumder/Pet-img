@@ -1,11 +1,10 @@
-<div class="carousel-wrap">
-  <button class="carousel-arrow carousel-arrow--prev" (click)="scroll(-1)" aria-label="Previous">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-    </svg>
-  </button>
+<section class="explore-styles">
+  <div class="explore-header">
+    <h3 class="explore-title">{{ sectionTitle }}</h3>
+    <button type="button" class="explore-see-all" (click)="showAllModal = true">See All</button>
+  </div>
 
-  <div class="carousel-track" #track>
+  <div class="carousel-track" #carouselTrack>
     @for (key of templateKeys; track key; let i = $index) {
       <button
         class="carousel-card"
@@ -13,18 +12,53 @@
         (click)="templateSelected.emit(key)"
       >
         @if (templates[key]?.preview_url) {
-          <img class="carousel-img" [src]="templates[key].preview_url" [alt]="templates[key]?.name" />
+          <img class="carousel-img" [src]="templates[key].preview_url" [alt]="templates[key]?.name" loading="lazy" />
         } @else {
           <div class="carousel-placeholder">{{ getIcon(i) }}</div>
         }
-        <span class="carousel-label">{{ templates[key]?.name }}</span>
       </button>
     }
   </div>
+</section>
 
-  <button class="carousel-arrow carousel-arrow--next" (click)="scroll(1)" aria-label="Next">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-    </svg>
-  </button>
-</div>
+@if (showAllModal) {
+  <div class="styles-modal-backdrop" (click)="showAllModal = false"></div>
+  <div class="styles-modal">
+    <div class="styles-modal-header">
+      <h3 class="styles-modal-title">{{ sectionTitle }}</h3>
+      <button type="button" class="styles-modal-close" (click)="showAllModal = false" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="styles-modal-grid">
+      @for (key of templateKeys; track key; let i = $index) {
+        <button
+          type="button"
+          class="styles-modal-card"
+          [class.styles-modal-card--selected]="!previewOnly && selectedTemplate === key"
+          (click)="selectFromModal(key)"
+        >
+          @if (templates[key]?.preview_url) {
+            <img class="styles-modal-img" [src]="templates[key].preview_url" [alt]="templates[key]?.name" loading="lazy" />
+          } @else {
+            <div class="styles-modal-placeholder">{{ getIcon(i) }}</div>
+          }
+        </button>
+      }
+    </div>
+  </div>
+}
+
+@if (previewImage) {
+  <div class="style-preview-backdrop" (click)="closePreview()"></div>
+  <div class="style-preview" (click)="closePreview()">
+    <img [src]="previewImage" alt="Style preview" class="style-preview-img" (click)="$event.stopPropagation()" />
+    <button type="button" class="style-preview-close" (click)="closePreview(); $event.stopPropagation()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+}
