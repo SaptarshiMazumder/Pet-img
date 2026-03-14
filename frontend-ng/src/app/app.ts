@@ -51,12 +51,9 @@ interface JobEntry {
   styleUrl: './app.css'
 })
 export class App implements OnInit, OnDestroy {
-  styles: Record<string, any> = {};
   templates: Record<string, any> = {};
-  styleKeys: string[] = [];
   templateKeys: string[] = [];
 
-  selectedStyle = '';
   selectedTemplate = '';
   uploadedFile: File | null = null;
   previewUrl: string | null = null;
@@ -89,11 +86,6 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.api.warm();
-    this.api.getStyles().subscribe(s => {
-      this.styles = s;
-      this.styleKeys = Object.keys(s);
-      this.selectedStyle = this.styleKeys[0] || '';
-    });
     this.api.getTemplates().subscribe(t => {
       for (const key of Object.keys(t)) {
         if (t[key].preview_url && !t[key].preview_url.startsWith('http')) {
@@ -181,11 +173,10 @@ export class App implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  selectStyle(key: string) { this.selectedStyle = key; }
   selectTemplate(key: string) { this.selectedTemplate = key; }
 
   get canGenerate(): boolean {
-    return !!(this.uploadedFile && this.selectedTemplate && this.selectedStyle && !this.submitting);
+    return !!(this.uploadedFile && this.selectedTemplate && !this.submitting);
   }
 
   generate() {
@@ -196,7 +187,7 @@ export class App implements OnInit, OnDestroy {
     const form = new FormData();
     form.append('image', this.uploadedFile!);
     form.append('template_key', this.selectedTemplate);
-    form.append('style_key', this.selectedStyle);
+    form.append('style_key', 'inkwash');
     form.append('dry_run', String(this.dryRun));
 
     this.api.submitGenerate(form).subscribe({
@@ -206,7 +197,7 @@ export class App implements OnInit, OnDestroy {
         this.jobs = [{
           job_id,
           template_key: this.selectedTemplate,
-          style_key: this.selectedStyle,
+          style_key: 'inkwash',
           status: 'pending',
           submitted_at: new Date(),
         }, ...this.jobs];
@@ -362,7 +353,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   templateName(key: string): string { return this.templates[key]?.name ?? key; }
-  styleName(key: string): string { return this.styles[key]?.name ?? key; }
+  styleName(_key: string): string { return 'Ink Wash'; }
   templateIcon(i: number): string {
     return ['⛩', '🌸', '🗡', '🏯', '🌊', '🌙', '📜', '🏮'][i % 8];
   }

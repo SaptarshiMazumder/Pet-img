@@ -36,19 +36,7 @@
         <img *ngIf="previewUrl" [src]="previewUrl" class="image-preview" alt="Preview" />
       </div>
 
-      <div class="section-label" style="margin-top:24px">2. Choose a style</div>
-      <div class="style-selector">
-        <div *ngFor="let key of styleKeys"
-             class="style-option"
-             [class.selected]="selectedStyle === key"
-             (click)="selectStyle(key)">
-          <div class="style-dot"></div>
-          <span class="style-name">{{ styles[key].name }}</span>
-          <span class="style-trigger">{{ styles[key].trigger_word }}</span>
-        </div>
-      </div>
-
-      <div class="section-label" style="margin-top:24px">3. Choose a template</div>
+      <div class="section-label" style="margin-top:24px">2. Choose a template</div>
       <div class="template-grid-small">
         <div *ngFor="let key of templateKeys; let i = index"
              class="template-card-small"
