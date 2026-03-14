@@ -20,6 +20,24 @@ query {
 }
 """
 
+_QUERY_HEALTH = """
+query {
+    myself {
+        endpoints {
+            id
+            workersMin
+            workersMax
+            workersStandby
+            workerState(input: {}) {
+                idle
+                running
+                throttled
+            }
+        }
+    }
+}
+"""
+
 
 def _gql(query: str) -> dict:
     api_key = os.environ.get("RUNPOD_API_KEY", "")
@@ -39,6 +57,28 @@ def _gql(query: str) -> dict:
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
         raise RuntimeError(f"RunPod GraphQL {e.code}: {body}") from e
+
+
+def get_endpoint_health(endpoint_id: str) -> dict:
+    """Returns current worker health for the endpoint.
+
+    Returns: { healthy: int, throttled: int, workers_max: int }
+    healthy = RUNNING + IDLE workers (able to accept jobs)
+    throttled = workers in the penalty box (failing to start)
+    """
+    result = _gql(_QUERY_HEALTH)
+    endpoints = result["data"]["myself"]["endpoints"]
+    ep = next((e for e in endpoints if e["id"] == endpoint_id), None)
+    if ep is None:
+        return {"healthy": 0, "throttled": 0, "workers_max": 0}
+    states = ep.get("workerState") or []
+    healthy   = sum(s.get("idle", 0) + s.get("running", 0) for s in states)
+    throttled = sum(s.get("throttled", 0) for s in states)
+    return {
+        "healthy": healthy,
+        "throttled": throttled,
+        "workers_max": ep.get("workersMax", 0),
+    }
 
 
 def set_workers(min_n: int, max_n: int) -> None:

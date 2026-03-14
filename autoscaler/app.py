@@ -33,17 +33,34 @@ def route_job_finish():
 
 @app.route("/status", methods=["GET"])
 def route_status():
+    import os
     import time
-    from autoscaler.scaling import _lock, _active_count, _queue_empty_since, _has_had_activity
+    from autoscaler.scaling import _lock, _active_count, _queue_empty_since, _has_had_activity, _stuck_checks
+    from autoscaler.runpod import get_endpoint_health
+
     with _lock:
         count = _active_count
         empty_since = _queue_empty_since
         activity = _has_had_activity
+        stuck = _stuck_checks
+
     idle = int(time.time() - empty_since) if empty_since else 0
+
+    try:
+        health = get_endpoint_health(os.environ.get("RUNPOD_ENDPOINT_ID", ""))
+    except Exception:
+        health = {"healthy": None, "throttled": None, "workers_max": None}
+
     return jsonify({
         "active_jobs": count,
         "idle_seconds": idle,
         "has_had_activity": activity,
+        "stuck_checks": stuck,
+        "workers": {
+            "healthy": health["healthy"],
+            "throttled": health["throttled"],
+            "max": health["workers_max"],
+        },
     })
 
 

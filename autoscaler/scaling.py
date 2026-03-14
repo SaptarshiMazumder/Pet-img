@@ -14,18 +14,20 @@ Stays dormant on startup until warm() is called or a job runs.
 import threading
 import time
 
-from autoscaler.runpod import set_workers
+from autoscaler.runpod import set_workers, get_endpoint_health
 
-_POLL_INTERVAL = 60    # seconds between periodic checks
-_SCALE_DOWN    = 60    # idle seconds before dropping to 1/1
-_SCALE_ZERO    = 300   # idle seconds before full shutdown to 0/0
-_WARM_MAX      = 2     # max workers in the normal warm state
-_MAX_WORKERS   = 3     # hard cap on concurrent workers
+_POLL_INTERVAL   = 60   # seconds between periodic checks
+_SCALE_DOWN      = 60   # idle seconds before dropping to 1/1
+_SCALE_ZERO      = 300  # idle seconds before full shutdown to 0/0
+_WARM_MAX        = 2    # max workers in the normal warm state
+_MAX_WORKERS     = 3    # hard cap on concurrent workers
+_STUCK_THRESHOLD = 2    # consecutive stuck checks before recovery action
 
 _lock              = threading.Lock()
 _active_count      = 0
 _queue_empty_since: float | None = None
 _has_had_activity  = False
+_stuck_checks      = 0   # consecutive checks: jobs in flight but zero healthy workers
 
 
 def _increment() -> int:
@@ -80,6 +82,50 @@ def _ensure_capacity(desired_max: int) -> None:
         print(f"[autoscaler] capacity update failed: {exc}")
 
 
+def _maybe_recover_stuck_workers() -> None:
+    """Called when jobs are in flight. Detects all-throttled state and recovers."""
+    global _stuck_checks
+    import os
+    endpoint_id = os.environ.get("RUNPOD_ENDPOINT_ID", "")
+    try:
+        health = get_endpoint_health(endpoint_id)
+    except Exception as exc:
+        print(f"[autoscaler] health check failed: {exc}")
+        _stuck_checks = 0
+        return
+
+    if health["healthy"] > 0 or health["throttled"] == 0:
+        _stuck_checks = 0
+        return  # workers are healthy or nothing is throttled — all good
+
+    _stuck_checks += 1
+    print(f"[autoscaler] stuck check {_stuck_checks}/{_STUCK_THRESHOLD}: "
+          f"throttled={health['throttled']}, healthy=0")
+
+    if _stuck_checks < _STUCK_THRESHOLD:
+        return  # wait one more cycle before acting
+
+    _stuck_checks = 0
+    current_max = health["workers_max"]
+
+    if current_max < _MAX_WORKERS:
+        # Bump max by 1 — forces RunPod to spawn a fresh healthy worker
+        try:
+            set_workers(min_n=1, max_n=current_max + 1)
+            print(f"[autoscaler] recovery: bumped max to {current_max + 1}")
+        except Exception as exc:
+            print(f"[autoscaler] recovery bump failed: {exc}")
+    else:
+        # Already at hard cap — bounce to flush all throttled workers
+        try:
+            set_workers(min_n=0, max_n=0)
+            time.sleep(2)
+            set_workers(min_n=1, max_n=_WARM_MAX)
+            print("[autoscaler] recovery: bounced workers (was at max cap)")
+        except Exception as exc:
+            print(f"[autoscaler] recovery bounce failed: {exc}")
+
+
 def _check() -> None:
     global _queue_empty_since
     if not _has_had_activity:
@@ -88,9 +134,14 @@ def _check() -> None:
     now = time.time()
     with _lock:
         count = _active_count
-        if count > 0:
+
+    if count > 0:
+        with _lock:
             _queue_empty_since = None
-            return
+        _maybe_recover_stuck_workers()
+        return
+
+    with _lock:
         if _queue_empty_since is None:
             _queue_empty_since = now
         idle = now - _queue_empty_since
