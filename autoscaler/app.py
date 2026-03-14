@@ -6,9 +6,11 @@ from flask_cors import CORS
 
 import autoscaler.jobs as jobs
 import autoscaler.scaling as scaling
+from autoscaler.dashboard import dashboard_bp
 
 app = Flask(__name__)
 CORS(app)
+app.register_blueprint(dashboard_bp)
 
 
 # -- Scaling routes ----------------------------------------------------------
@@ -49,7 +51,7 @@ def route_status():
     try:
         health = get_endpoint_health(os.environ.get("RUNPOD_ENDPOINT_ID", ""))
     except Exception:
-        health = {"healthy": None, "throttled": None, "workers_max": None}
+        health = {"standby": None, "workers_min": None, "workers_max": None}
 
     return jsonify({
         "active_jobs": count,
@@ -57,9 +59,9 @@ def route_status():
         "has_had_activity": activity,
         "stuck_checks": stuck,
         "workers": {
-            "healthy": health["healthy"],
-            "throttled": health["throttled"],
-            "max": health["workers_max"],
+            "standby":  health["standby"],
+            "min":      health["workers_min"],
+            "max":      health["workers_max"],
         },
     })
 
@@ -90,3 +92,10 @@ def route_update_job(job_id: str):
     if not jobs.update(job_id, data):
         return jsonify({"error": "Job not found"}), 404
     return jsonify({"ok": True})
+
+
+@app.route("/jobs", methods=["GET"])
+def route_list_jobs():
+    with jobs._lock:
+        all_jobs = list(jobs._jobs.values())
+    return jsonify(all_jobs)

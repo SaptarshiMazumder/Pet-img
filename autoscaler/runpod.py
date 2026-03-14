@@ -28,11 +28,6 @@ query {
             workersMin
             workersMax
             workersStandby
-            workerState(input: {}) {
-                idle
-                running
-                throttled
-            }
         }
     }
 }
@@ -62,21 +57,17 @@ def _gql(query: str) -> dict:
 def get_endpoint_health(endpoint_id: str) -> dict:
     """Returns current worker health for the endpoint.
 
-    Returns: { healthy: int, throttled: int, workers_max: int }
-    healthy = RUNNING + IDLE workers (able to accept jobs)
-    throttled = workers in the penalty box (failing to start)
+    Returns: { standby: int, workers_min: int, workers_max: int }
+    standby = workers currently up and ready (reliable real-time count from RunPod)
     """
     result = _gql(_QUERY_HEALTH)
     endpoints = result["data"]["myself"]["endpoints"]
     ep = next((e for e in endpoints if e["id"] == endpoint_id), None)
     if ep is None:
-        return {"healthy": 0, "throttled": 0, "workers_max": 0}
-    states = ep.get("workerState") or []
-    healthy   = sum(s.get("idle", 0) + s.get("running", 0) for s in states)
-    throttled = sum(s.get("throttled", 0) for s in states)
+        return {"standby": 0, "workers_min": 0, "workers_max": 0}
     return {
-        "healthy": healthy,
-        "throttled": throttled,
+        "standby":     ep.get("workersStandby", 0),
+        "workers_min": ep.get("workersMin", 0),
         "workers_max": ep.get("workersMax", 0),
     }
 

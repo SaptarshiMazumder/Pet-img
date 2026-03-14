@@ -94,19 +94,19 @@ def _maybe_recover_stuck_workers() -> None:
         _stuck_checks = 0
         return
 
-    if health["healthy"] > 0 or health["throttled"] == 0:
+    if health["standby"] > 0:
         _stuck_checks = 0
-        return  # workers are healthy or nothing is throttled — all good
+        return  # at least one worker is up and ready — all good
 
     _stuck_checks += 1
     print(f"[autoscaler] stuck check {_stuck_checks}/{_STUCK_THRESHOLD}: "
-          f"throttled={health['throttled']}, healthy=0")
+          f"standby=0, workers_max={health['workers_max']}")
 
     if _stuck_checks < _STUCK_THRESHOLD:
         return  # wait one more cycle before acting
 
     _stuck_checks = 0
-    current_max = health["workers_max"]
+    current_max = health["workers_max"] or _WARM_MAX
 
     if current_max < _MAX_WORKERS:
         # Bump max by 1 — forces RunPod to spawn a fresh healthy worker
