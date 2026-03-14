@@ -79,6 +79,7 @@ export class App implements OnInit, OnDestroy {
   activeTab: 'generate' | 'samples' | 'upload' = 'samples';
   characterAnimation: 'idle' | 'happy' = 'idle';
   fabRotating = false;
+  catMenuOpen = false;
   private happyTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
@@ -469,7 +470,7 @@ export class App implements OnInit, OnDestroy {
     this.happyTimeout = setTimeout(() => {
       this.characterAnimation = 'idle';
       this.happyTimeout = null;
-    }, 1640);
+    }, 2100);
     setTimeout(() => {
       this.fabRotating = false;
     }, 400);
@@ -477,6 +478,18 @@ export class App implements OnInit, OnDestroy {
   }
 
   onCharacterTap() {
-    this.goToGenerate();
+    this.catMenuOpen = !this.catMenuOpen;
+    if (this.catMenuOpen) {
+      this.characterAnimation = 'happy';
+      if (this.happyTimeout) clearTimeout(this.happyTimeout);
+      this.happyTimeout = setTimeout(() => {
+        this.characterAnimation = 'idle';
+        this.happyTimeout = null;
+      }, 1640);
+    }
+  }
+
+  closeCatMenu() {
+    this.catMenuOpen = false;
   }
 }

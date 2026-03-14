@@ -623,64 +623,76 @@ main {
 }
 
 /* ══════════════════════════════════════════════════════════
-   FAB
+   BOTTOM BAR
    ══════════════════════════════════════════════════════════ */
-.fab-wrapper {
+.bottom-bar-backdrop {
   position: fixed;
-  bottom: calc(var(--space-xl) + 100px + env(safe-area-inset-bottom, 0px));
-  right: calc(var(--space-xl) + env(safe-area-inset-right, 0px));
+  inset: 0;
+  z-index: 59;
+}
+
+.bottom-bar-wrapper {
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 60;
-  width: 80px;
-  height: 140px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
   pointer-events: none;
-  overflow: visible;
 }
 
-.fab-wrapper > * { pointer-events: auto; }
+.bottom-bar-wrapper > * { pointer-events: auto; }
 
-.fab {
-  position: relative;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+.bottom-bar {
+  background: rgba(10, 10, 10, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  height: 72px;
+  width: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-top: -78px; /* overlap so cat sits on top of bar */
+  backdrop-filter: blur(12px);
+  transition: width 0.4s cubic-bezier(0.34, 1.15, 0.64, 1);
+}
+
+.bottom-bar--open {
+  width: 240px;
+}
+
+/* Space reserved for the cat in the centre of the bar */
+.bar-cat-gap {
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.bar-btn {
+  flex: 1;
+  height: 100%;
   border: none;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
-  color: #fff;
+  background: transparent;
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 24px var(--accent-glow-strong), 0 2px 8px rgba(0, 0, 0, 0.35);
-  transition: transform 0.2s, box-shadow 0.2s;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
-.fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 32px var(--accent-glow-strong), 0 4px 12px rgba(0, 0, 0, 0.45);
+.bottom-bar--open .bar-btn {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.fab:active { transform: scale(0.96); }
+.bar-btn:hover { color: var(--accent); }
 
-.fab-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fab--rotating .fab-icon {
-  animation: fab-spin 0.4s ease-out forwards;
-}
-
-@keyframes fab-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(180deg); }
-}
-
-/* Give panels breathing room so FAB doesn't overlap */
+/* Give pages breathing room so bar doesn't overlap content */
 .page-generate .gen-sidebar,
 .page-generate .gen-results {
   padding-bottom: 96px;

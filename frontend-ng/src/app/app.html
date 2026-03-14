@@ -40,8 +40,7 @@
   @if (activeTab === 'samples') {
     <div class="page-samples">
       <section class="hero">
-        <div class="hero-eyebrow">AI-Powered Art</div>
-        <h2 class="hero-title">Transform your pet into<br><span class="hero-accent">Edo-era art</span></h2>
+<h2 class="hero-title">Transform your pet into<br><span class="hero-accent">Edo-era art</span></h2>
         <p class="hero-sub">Upload any photo and choose from our curated portrait styles inspired by Ukiyo-e masters.</p>
         <button class="hero-cta" (click)="switchTab('generate')">
           Create Portrait
@@ -188,15 +187,17 @@
   </section>
 }
 
-<!-- ── FAB ───────────────────────────────────────────────── -->
-<div class="fab-wrapper">
-  <button
-    class="fab"
-    [class.fab--rotating]="fabRotating"
-    (click)="goToGenerate()"
-    [attr.aria-label]="activeTab === 'generate' ? 'Back to gallery' : 'Create portrait'"
-  >
-    <span class="fab-icon">
+<!-- ── Cat menu backdrop ──────────────────────────────────── -->
+@if (catMenuOpen) {
+  <div class="bottom-bar-backdrop" (click)="closeCatMenu()"></div>
+}
+
+<!-- ── Bottom bar ────────────────────────────────────────── -->
+<div class="bottom-bar-wrapper">
+  <app-character [animation]="characterAnimation" (tapped)="onCharacterTap()" />
+  <div class="bottom-bar" [class.bottom-bar--open]="catMenuOpen">
+    <button class="bar-btn bar-btn--left" (click)="goToGenerate(); closeCatMenu()"
+      [attr.aria-label]="activeTab === 'generate' ? 'Back to gallery' : 'Create portrait'">
       @if (activeTab === 'generate') {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
@@ -206,9 +207,10 @@
           <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
         </svg>
       }
-    </span>
-  </button>
-  <app-character [animation]="characterAnimation" (tapped)="onCharacterTap()" />
+    </button>
+    <div class="bar-cat-gap"></div>
+    <button class="bar-btn bar-btn--right"></button>
+  </div>
 </div>
 
 <!-- ── Lightbox ──────────────────────────────────────────── -->

@@ -1,4 +1,4 @@
-name: Build Pet Generator Worker
+name: Build and Push Docker Images
 
 on:
   workflow_dispatch:
@@ -11,6 +11,25 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: worker
+            context: ./runpod
+            dockerfile: ./runpod/Dockerfile
+            image: raj1145/pet-generator-worker
+          - name: autoscaler
+            context: .
+            dockerfile: ./autoscaler/Dockerfile
+            image: raj1145/pet-generator-autoscaler
+          - name: backend
+            context: .
+            dockerfile: ./backend/Dockerfile
+            image: raj1145/pet-generator-backend
+          - name: frontend
+            context: ./frontend-ng
+            dockerfile: ./frontend-ng/Dockerfile
+            image: raj1145/pet-generator-frontend
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +42,7 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          context: ./runpod
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
           push: true
-          tags: raj1145/pet-generator-worker:${{ github.event.inputs.tag }}
+          tags: ${{ matrix.image }}:${{ github.event.inputs.tag }}

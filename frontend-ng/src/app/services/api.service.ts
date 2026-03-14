@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private base = 'http://localhost:5000';
+  private base = (window as any).__CONFIG__?.apiBase ?? 'http://localhost:5000';
 
   constructor(private http: HttpClient) {}
 
