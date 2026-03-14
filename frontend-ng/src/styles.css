@@ -1,1 +1,18 @@
-html, body { margin: 0; padding: 0; background: #0c0c0c; }
+/* Global reset & base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #0d0d0d;
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #e8e4de;
+  overflow-x: hidden;
+}

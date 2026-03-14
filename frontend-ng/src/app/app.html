@@ -14,9 +14,14 @@
   </div>
 </header>
 
+<nav class="tab-bar">
+  <button class="tab-btn" [class.tab-btn--active]="activeTab === 'samples'" (click)="switchTab('samples')">Samples</button>
+  <button class="tab-btn" [class.tab-btn--active]="activeTab === 'upload'" (click)="switchTab('upload')">Upload</button>
+</nav>
+
 <main>
-  <!-- LEFT: Upload + Controls -->
-  <section class="panel panel-left">
+  <!-- GENERATE SCREEN (upload + templates) -->
+  <section class="panel panel-left" *ngIf="activeTab === 'generate'">
 
     <div class="panel-left-scroll">
 
@@ -36,7 +41,7 @@
         <img *ngIf="previewUrl" [src]="previewUrl" class="image-preview" alt="Preview" />
       </div>
 
-      <div class="section-label" style="margin-top:24px">2. Choose a template</div>
+      <div class="section-label section-label--spaced">2. Choose a template</div>
       <div class="template-grid-small">
         <div *ngFor="let key of templateKeys; let i = index"
              class="template-card-small"
@@ -76,12 +81,13 @@
   </section>
 
   <!-- RIGHT: Generations queue -->
-  <section class="panel panel-right">
+  <section class="panel panel-right" *ngIf="activeTab === 'generate'">
     <div class="section-label">Generations</div>
 
     <div class="queue-empty" *ngIf="jobs.length === 0">
       <div class="queue-empty-icon">🎨</div>
-      <div>Submit a generation to see it here</div>
+      <div class="queue-empty-title">Your portraits will appear here</div>
+      <div class="queue-empty-sub">Upload a photo, pick a style, and tap Generate</div>
     </div>
 
     <div class="gen-grid" *ngIf="jobs.length > 0">
@@ -130,6 +136,88 @@
       </div>
     </div>
   </section>
+
+  <!-- SAMPLES GALLERY -->
+  <section class="samples-gallery" *ngIf="activeTab === 'samples'">
+    <div class="samples-gallery-inner">
+      @if (samplesLoading) {
+        <div class="samples-loading">
+          <div class="gen-spinner"></div>
+          <span>Loading samples…</span>
+        </div>
+      } @else if (samples.length === 0) {
+        <div class="samples-empty">
+          <div class="samples-empty-icon">🎨</div>
+          <p>No samples yet</p>
+          <p class="samples-empty-sub">Check back soon for Edo-era portrait examples</p>
+        </div>
+      } @else {
+        <div class="samples-scroll">
+          @for (s of samples; track s.sample_id) {
+            <div class="sample-card" (click)="openExpandFromSample(s)">
+              @if (s.presigned_url) {
+                <img class="sample-card-img" [src]="s.presigned_url" alt="Sample portrait" />
+              }
+              <button class="sample-card-delete" (click)="$event.stopPropagation(); deleteSample(s.sample_id)" title="Delete">✕</button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- UPLOAD TAB (admin - gate later) -->
+  <section class="panel panel-upload" *ngIf="activeTab === 'upload'">
+    <div class="section-label">Upload sample image</div>
+    <div class="sample-upload-area"
+         [class.drag-over]="sampleDragOver"
+         (click)="sampleFileInput.click()"
+         (drop)="onSampleDrop($event)"
+         (dragover)="onSampleDragOver($event)"
+         (dragleave)="onSampleDragLeave()">
+      <input type="file" accept="image/png,image/jpeg,image/webp" #sampleFileInput hidden (change)="onSampleFileChange($event)" />
+      @if (!sampleUploadFile) {
+        <div class="sample-upload-placeholder">
+          <span class="sample-upload-icon">📤</span>
+          <span>Click or drag image here</span>
+          <span class="sample-upload-hint">PNG, JPG, WEBP</span>
+        </div>
+      } @else {
+        <div class="sample-upload-preview">
+          <img [src]="samplePreviewUrl" alt="Preview" />
+          <span class="sample-upload-filename">{{ sampleUploadFile.name }}</span>
+        </div>
+      }
+    </div>
+    <div class="sample-upload-actions">
+      <button class="generate-btn sample-upload-btn" [disabled]="!sampleUploadFile || sampleUploading" (click)="uploadSample()">
+        <span *ngIf="!sampleUploading">Upload sample</span>
+        <span *ngIf="sampleUploading" class="btn-loading"><span class="spinner"></span> Uploading…</span>
+      </button>
+      <button class="gallery-refresh" (click)="loadSamples()" [disabled]="samplesLoading">↻ Refresh</button>
+    </div>
+    <div class="error-msg" *ngIf="sampleError">{{ sampleError }}</div>
+  </section>
+
+  <!-- FAB with character overlay -->
+  <div class="fab-wrapper">
+    <button class="fab" [class.fab--rotating]="fabRotating" (click)="goToGenerate()" [attr.aria-label]="activeTab === 'generate' ? 'Back to gallery' : 'Create portrait'">
+      <span class="fab-icon">
+        @if (activeTab === 'generate') {
+          <svg class="fab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        } @else {
+          <svg class="fab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        }
+      </span>
+    </button>
+    <app-character [animation]="characterAnimation" (tapped)="onCharacterTap()" />
+  </div>
+
 </main>
 
 <!-- Order Modal -->
@@ -198,7 +286,7 @@
             <span class="field-hint">Could not load catalog — enter UID manually</span>
           }
         </div>
-        <div class="dry-run-row" style="margin-top:12px">
+        <div class="dry-run-row dry-run-row--modal">
           <label class="toggle-label">
             <input type="checkbox" name="order_type_toggle"
               [checked]="orderForm.order_type === 'order'"
@@ -268,12 +356,14 @@
   <div class="lightbox">
     <button class="lightbox-close" (click)="closeExpand()">✕</button>
     <img class="lightbox-img" [src]="expandedItem.presigned_url" alt="Generated portrait" />
-    <div class="lightbox-meta">
-      <div class="lightbox-title">{{ templateName(expandedItem.template_key) }} · {{ styleName(expandedItem.style_key) }}</div>
-      @if (expandedItem.positive_prompt) {
-        <p class="lightbox-prompt">{{ expandedItem.positive_prompt }}</p>
-      }
-      <button class="order-btn" (click)="orderFromExpand()">Order Print</button>
-    </div>
+    @if (!expandedItem.isSample) {
+      <div class="lightbox-meta">
+        <div class="lightbox-title">{{ templateName(expandedItem.template_key) }} · {{ styleName(expandedItem.style_key) }}</div>
+        @if (expandedItem.positive_prompt) {
+          <p class="lightbox-prompt">{{ expandedItem.positive_prompt }}</p>
+        }
+        <button class="order-btn" (click)="orderFromExpand()">Order Print</button>
+      </div>
+    }
   </div>
 }

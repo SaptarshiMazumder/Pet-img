@@ -17,6 +17,7 @@ from backend.routes.catalog import catalog_bp
 from backend.routes.generation import generation_bp
 from backend.routes.print_orders import print_orders_bp
 from backend.routes.user import user_bp
+from backend.routes.samples import samples_bp
 
 
 def create_app() -> Flask:
@@ -27,6 +28,7 @@ def create_app() -> Flask:
     app.register_blueprint(generation_bp)
     app.register_blueprint(print_orders_bp)
     app.register_blueprint(user_bp)
+    app.register_blueprint(samples_bp)
     return app
 
 

@@ -43,4 +43,16 @@ export class ApiService {
   warm(): void {
     this.http.post(`${this.base}/warm`, {}).subscribe({ error: () => {} });
   }
+
+  getSamples(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/samples`);
+  }
+
+  uploadSample(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.base}/samples`, formData);
+  }
+
+  deleteSample(sampleId: string): Observable<any> {
+    return this.http.delete<any>(`${this.base}/samples/${sampleId}`);
+  }
 }
