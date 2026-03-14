@@ -10,7 +10,7 @@ from backend.services.prompt_builder import build_animal_edo_prompt
 from backend.runpod import submit_job, poll_job
 from backend.job_store import job_store
 from backend.storage import generate_presigned_url, download_object, upload_object
-from backend.scaling import scaler
+from backend.autoscaler_client import autoscaler
 from backend.db import active_jobs as active_jobs_db
 from backend.db import portrait_generation as portrait_generation_db
 
@@ -118,7 +118,7 @@ def run_job_background(
     dry_run: bool = False,
     uid: str | None = None,
 ) -> None:
-    scaler.on_job_start()
+    autoscaler.on_job_start()
     active_jobs_db.persist(job_id, style_key, template_key, uid)
     try:
         job_store.update(job_id, status="processing")
@@ -189,4 +189,4 @@ def run_job_background(
     finally:
         Path(tmp_path).unlink(missing_ok=True)
         active_jobs_db.remove(job_id)
-        scaler.on_job_finish()
+        autoscaler.on_job_finish()

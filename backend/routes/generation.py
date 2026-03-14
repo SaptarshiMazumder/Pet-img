@@ -9,7 +9,7 @@ from backend.services.prompt_builder import load_style, load_template
 from backend.job_store import job_store
 from backend.services.generation import run_job_background
 from backend.auth_middleware import get_optional_uid
-from backend.scaling import scaler
+from backend.autoscaler_client import autoscaler
 
 generation_bp = Blueprint("generation", __name__)
 
@@ -25,7 +25,7 @@ _OVERRIDE_FIELDS: list[tuple[str, type]] = [
 @generation_bp.post("/warm")
 def warm():
     """Called when a user visits the site — spins up a worker preemptively."""
-    threading.Thread(target=scaler.warm, daemon=True).start()
+    threading.Thread(target=autoscaler.warm, daemon=True).start()
     return jsonify({"ok": True}), 200
 
 

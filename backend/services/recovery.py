@@ -5,7 +5,7 @@ server last restarted.  Called once at startup from app.py.
 import threading
 
 from backend.job_store import job_store
-from backend.scaling import scaler
+from backend.autoscaler_client import autoscaler
 from backend.db import active_jobs as active_jobs_db
 from backend.services.generation import process_runpod_result, _review_and_fix_if_needed
 from backend.runpod import poll_job
@@ -44,7 +44,7 @@ def recover_active_jobs() -> None:
 
 
 def _recover_job(job_id: str, runpod_job_id: str, style_key: str, template_key: str, uid: str | None) -> None:
-    scaler.on_job_start()
+    autoscaler.on_job_start()
     try:
         runpod_result = poll_job(runpod_job_id)
         runpod_result = _review_and_fix_if_needed(job_id, runpod_result)
@@ -59,4 +59,4 @@ def _recover_job(job_id: str, runpod_job_id: str, style_key: str, template_key: 
         job_store.update(job_id, status="failed", error=str(exc))
     finally:
         active_jobs_db.remove(job_id)
-        scaler.on_job_finish()
+        autoscaler.on_job_finish()

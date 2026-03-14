@@ -44,8 +44,6 @@ def _startup_recovery():
 import threading as _threading
 _threading.Thread(target=_startup_recovery, daemon=True).start()
 
-from backend.scaling import scaler as _scaler
-_scaler.start()
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
