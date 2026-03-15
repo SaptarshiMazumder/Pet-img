@@ -1,52 +1,55 @@
 .lb-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.88);
   z-index: 200;
   backdrop-filter: blur(8px);
   cursor: pointer;
 }
 
+/* Fullscreen overlay — clicking empty space closes the lightbox */
 .lb-panel {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
   z-index: 201;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  max-width: min(92vw, 820px);
-  max-height: 92dvh;
-  padding: 20px;
+  justify-content: center;
+  padding: 24px;
+  gap: 16px;
+  overflow-y: auto;
+  cursor: pointer;
 }
 
+/* Close button — pinned to top-right like the template preview */
 .lb-close {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 36px;
-  height: 36px;
+  top: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+  color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
-  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  transition: background 0.15s;
 }
 
 .lb-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: rgba(0, 0, 0, 0.7);
 }
 
+/* Image wrapper grows to fill remaining vertical space */
 .lb-img-wrap {
-  max-height: 72dvh;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,18 +57,22 @@
 
 .lb-img {
   max-width: 100%;
-  max-height: 72dvh;
+  max-height: 100%;
   border-radius: 16px;
   object-fit: contain;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  cursor: default;
 }
 
 .lb-info {
+  flex-shrink: 0;
   width: 100%;
+  max-width: 560px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   align-items: flex-start;
+  cursor: default;
 }
 
 .lb-meta-row {

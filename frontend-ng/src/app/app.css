@@ -171,19 +171,29 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.header-left:hover .auth-avatar {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.auth-avatar--guest {
+  opacity: 0.45;
 }
 
 /* Dropdown menu */
 .header-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 51;
+  z-index: 49;
 }
 
 .header-menu {
   position: absolute;
   top: 100%;
-  right: var(--space-md);
+  left: var(--space-md);
   margin-top: 4px;
   min-width: 160px;
   padding: var(--space-sm);
@@ -721,8 +731,7 @@ main {
 .bottom-bar-wrapper {
   position: fixed;
   bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
+  right: 20px;
   z-index: 60;
   /* height driven by cat (100px); bar is absolutely positioned so it never shifts the cat */
   display: block;
@@ -733,9 +742,9 @@ main {
 
 .bottom-bar {
   position: absolute;
-  left: 50%;
+  right: 0;
   top: 50%; /* always centred on the cat */
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
   background: rgba(10, 10, 10, 0.92);
   border: 1px solid var(--border);
   border-radius: 999px;

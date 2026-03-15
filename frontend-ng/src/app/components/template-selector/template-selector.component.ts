@@ -35,6 +35,15 @@ export class TemplateSelectorComponent {
     return this.icons[i % this.icons.length];
   }
 
+  onCarouselCardClick(key: string) {
+    if (this.previewOnly) {
+      const url = this.templates[key]?.preview_url;
+      if (url) this.previewImage = url;
+    } else {
+      this.templateSelected.emit(key);
+    }
+  }
+
   selectFromModal(key: string) {
     if (this.previewOnly) {
       const url = this.templates[key]?.preview_url;

@@ -1,18 +1,19 @@
 @if (item) {
-  <div class="lb-backdrop" (click)="closed.emit()"></div>
-  <div class="lb-panel">
-    <button class="lb-close" (click)="closed.emit()">
+  <div class="lb-backdrop"></div>
+
+  <div class="lb-panel" (click)="closed.emit()">
+    <button class="lb-close" (click)="$event.stopPropagation(); closed.emit()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
       </svg>
     </button>
 
     <div class="lb-img-wrap">
-      <img class="lb-img" [src]="item.presigned_url" alt="Portrait" />
+      <img class="lb-img" [src]="item.presigned_url" alt="Portrait" (click)="$event.stopPropagation()" />
     </div>
 
     @if (!item.isSample) {
-      <div class="lb-info">
+      <div class="lb-info" (click)="$event.stopPropagation()">
         <div class="lb-meta-row">
           <span class="lb-template-name">{{ templateName(item.template_key) }}</span>
           <span class="lb-style-badge">Ink Wash</span>

@@ -8,8 +8,8 @@
     @for (key of templateKeys; track key; let i = $index) {
       <button
         class="carousel-card"
-        [class.carousel-card--selected]="selectedTemplate === key"
-        (click)="templateSelected.emit(key)"
+        [class.carousel-card--selected]="!previewOnly && selectedTemplate === key"
+        (click)="onCarouselCardClick(key)"
       >
         @if (templates[key]?.preview_url) {
           <img class="carousel-img" [src]="templates[key].preview_url" [alt]="templates[key]?.name" loading="lazy" />
