@@ -375,7 +375,7 @@ main {
   padding: var(--space-lg) var(--space-lg) 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
   min-height: 0;
 }
 
@@ -485,6 +485,61 @@ main {
   box-shadow: none;
 }
 
+/* ── Ratio picker ────────────────────────────────────────── */
+.ratio-picker {
+  display: flex;
+  gap: 8px;
+}
+
+.ratio-chip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.ratio-chip:hover {
+  border-color: var(--accent-dim);
+}
+
+.ratio-chip--active {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.ratio-thumb {
+  display: block;
+  height: 22px;
+  width: auto;
+  max-width: 40px;
+  background: var(--text-dim);
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+
+.ratio-chip--active .ratio-thumb {
+  background: var(--accent);
+}
+
+.ratio-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.ratio-chip--active .ratio-label {
+  color: var(--accent);
+}
+
 .order-print-btn {
   width: 100%;
   min-height: 44px;
@@ -581,6 +636,14 @@ main {
 /* ══════════════════════════════════════════════════════════
    UPLOAD TAB (admin)
    ══════════════════════════════════════════════════════════ */
+.page-orders {
+  flex: 1;
+  padding: var(--space-2xl) var(--space-lg);
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+}
+
 .page-upload {
   flex: 1;
   display: flex;
@@ -762,7 +825,7 @@ main {
 }
 
 .bottom-bar--open {
-  width: 280px;
+  width: 330px;
   height: 64px;
 }
 
@@ -797,10 +860,11 @@ main {
 
 .bar-btn:hover { filter: brightness(1.15); }
 
-/* Give pages breathing room so bar doesn't overlap content */
+/* Give pages breathing room so bar doesn't overlap content.
+   Bar is bottom-right corner only, so minimal clearance needed. */
 .page-generate .gen-sidebar,
 .page-generate .gen-results {
-  padding-bottom: 96px;
+  padding-bottom: 24px;
 }
 
 /* ══════════════════════════════════════════════════════════

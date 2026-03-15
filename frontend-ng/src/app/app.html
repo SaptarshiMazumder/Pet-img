@@ -47,6 +47,11 @@
       >
         Upload
       </button>
+      @if (currentUser) {
+        <button class="menu-item" [class.menu-item--active]="activeTab === 'orders'" (click)="switchTab('orders'); headerMenuOpen = false">
+          Orders
+        </button>
+      }
       <div class="menu-divider"></div>
       @if (currentUser) {
         <button class="menu-item" (click)="signOut(); headerMenuOpen = false">Sign out</button>
@@ -158,6 +163,22 @@
           </div>
 
           <div class="sidebar-block">
+            <p class="sidebar-label">3 · Aspect ratio</p>
+            <div class="ratio-picker">
+              @for (opt of ratioOptions; track opt.label) {
+                <button
+                  class="ratio-chip"
+                  [class.ratio-chip--active]="selectedRatio === opt"
+                  (click)="selectedRatio = opt"
+                >
+                  <span class="ratio-thumb" [style.aspect-ratio]="opt.w + '/' + opt.h"></span>
+                  <span class="ratio-label">{{ opt.label }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="sidebar-block">
             <label class="toggle-label">
               <input type="checkbox" [(ngModel)]="dryRun" />
               <span class="toggle-track"><span class="toggle-thumb"></span></span>
@@ -226,6 +247,7 @@
               [gallery]="gallery"
               [loading]="galleryLoading"
               [templates]="templates"
+              (orderSelected)="openOrderFlow($event)"
               (itemClicked)="openExpandFromGallery($event)"
               (refresh)="loadGallery()"
             />
@@ -292,6 +314,17 @@
       </div>
     </div>
   }
+
+  <!-- ORDERS TAB ───────────────────────────────────────────── -->
+  @if (activeTab === 'orders') {
+    <div class="page-orders">
+      <app-orders-page
+        [orders]="orders"
+        [loading]="ordersLoading"
+        (refresh)="loadOrders()"
+      />
+    </div>
+  }
 </main>
 
 <!-- ── Cat menu backdrop ──────────────────────────────────── -->
@@ -303,42 +336,36 @@
 <div class="bottom-bar-wrapper">
   <app-character [animation]="characterAnimation" (tapped)="onCharacterTap()" />
   <div class="bottom-bar" [class.bottom-bar--open]="catMenuOpen">
-    <button
-      class="bar-btn bar-btn--left"
-      (click)="
-        switchTab(activeTab === 'generate' ? 'samples' : 'generate'); $event.stopPropagation()
-      "
-      [attr.aria-label]="activeTab === 'generate' ? 'Back to gallery' : 'Create portrait'"
-    >
-      @if (activeTab === 'generate') {
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          width="20"
-          height="20"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
-      } @else {
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          width="20"
-          height="20"
-        >
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-      }
+    <!-- Home -->
+    <button class="bar-btn" aria-label="Home" (click)="switchTab('samples'); catMenuOpen = false; $event.stopPropagation()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12L12 3l9 9M4.5 10.5V20a.5.5 0 0 0 .5.5h5v-5h4v5h5a.5.5 0 0 0 .5-.5v-9.5" />
+      </svg>
     </button>
-    <button class="bar-btn bar-btn--right" (click)="$event.stopPropagation()"></button>
+    <!-- Orders -->
+    <button class="bar-btn" aria-label="Orders" (click)="switchTab('orders'); catMenuOpen = false; $event.stopPropagation()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" />
+      </svg>
+    </button>
+    <!-- My Generations -->
+    <button class="bar-btn" aria-label="My generations" (click)="goToMyGenerations(); $event.stopPropagation()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+        <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    </button>
     <div class="bar-cat-gap"></div>
   </div>
 </div>
+
+<!-- ── Order flow modal ──────────────────────────────────── -->
+<app-order-flow
+  [items]="orderFlowItems"
+  (closed)="closeOrderFlow()"
+  (orderPlaced)="onOrderPlaced()"
+  (viewOrders)="closeOrderFlow(); switchTab('orders')"
+/>
 
 <!-- ── Lightbox ──────────────────────────────────────────── -->
 <app-lightbox

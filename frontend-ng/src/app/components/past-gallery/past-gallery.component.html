@@ -1,12 +1,19 @@
 <div class="past-header">
   <h3 class="past-title">Select to order for print</h3>
-  <button class="refresh-btn" (click)="refresh.emit()" [disabled]="loading">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-      <path stroke-linecap="round" stroke-linejoin="round"
-        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-    </svg>
-    Refresh
-  </button>
+  <div class="past-header-actions">
+    @if (selectedCount > 0) {
+      <button class="order-selected-btn" (click)="openOrder()">
+        Order {{ selectedCount }} portrait{{ selectedCount > 1 ? 's' : '' }}
+      </button>
+    }
+    <button class="refresh-btn" (click)="refresh.emit()" [disabled]="loading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      Refresh
+    </button>
+  </div>
 </div>
 
 @if (loading) {
@@ -21,10 +28,26 @@
       <div
         class="past-card"
         [class.clickable]="!!item.presigned_url"
+        [class.past-card--selected]="isSelected(item.job_id)"
         (click)="item.presigned_url ? itemClicked.emit(item) : null"
       >
         @if (item.presigned_url) {
           <img class="past-img" [src]="item.presigned_url" [alt]="templateName(item.template_key)" loading="lazy" />
+
+          <!-- Checkbox toggle -->
+          <button
+            class="select-check"
+            [class.select-check--on]="isSelected(item.job_id)"
+            (click)="toggleSelect(item, $event)"
+            [attr.aria-label]="isSelected(item.job_id) ? 'Deselect' : 'Select for order'"
+          >
+            @if (isSelected(item.job_id)) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            }
+          </button>
+
           <div class="past-hover">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
               <path stroke-linecap="round" stroke-linejoin="round"

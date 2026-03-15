@@ -5,7 +5,31 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+  gap: 8px;
 }
+
+.past-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.order-selected-btn {
+  height: 32px;
+  padding: 0 14px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+  border: none;
+  border-radius: 8px;
+  color: #0d0d0d;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.order-selected-btn:hover { opacity: 0.88; }
 
 .past-title {
   font-family: 'DM Serif Display', serif;
@@ -85,6 +109,37 @@
   background: var(--surface);
   border: 1px solid var(--border);
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.past-card--selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 16px var(--accent-glow);
+}
+
+/* ── Select checkbox ───────────────────────────── */
+.select-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  z-index: 2;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.select-check--on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0d0d0d;
 }
 
 .past-card.clickable { cursor: pointer; }

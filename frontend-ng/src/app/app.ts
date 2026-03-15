@@ -12,7 +12,9 @@ import { SampleGalleryComponent } from './components/sample-gallery/sample-galle
 import { PastGalleryComponent } from './components/past-gallery/past-gallery.component';
 import { LightboxComponent } from './components/lightbox/lightbox.component';
 import { OrderModalComponent } from './components/order-modal/order-modal.component';
-import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry } from './models';
+import { OrderFlowComponent } from './components/order-flow/order-flow.component';
+import { OrdersPageComponent } from './components/orders-page/orders-page.component';
+import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order } from './models';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +29,8 @@ import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry } from './
     PastGalleryComponent,
     LightboxComponent,
     OrderModalComponent,
+    OrderFlowComponent,
+    OrdersPageComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -40,6 +44,15 @@ export class App implements OnInit, OnDestroy {
   // ── Upload ─────────────────────────────────────────────────
   uploadedFile: File | null = null;
   previewUrl: string | null = null;
+
+  // ── Aspect ratio ───────────────────────────────────────────
+  readonly ratioOptions = [
+    { label: '1:1',  w: 1024, h: 1024 },
+    { label: '3:4',  w: 832,  h: 1216 },
+    { label: '4:3',  w: 1216, h: 832  },
+    { label: '16:9', w: 1344, h: 768  },
+  ];
+  selectedRatio = this.ratioOptions[1]; // default: portrait 3:4
 
   // ── Generate ───────────────────────────────────────────────
   submitting = false;
@@ -67,6 +80,34 @@ export class App implements OnInit, OnDestroy {
   // ── Lightbox ───────────────────────────────────────────────
   expandedItem: ExpandedItem | null = null;
 
+  // ── Order flow ─────────────────────────────────────────────
+  orderFlowItems: GalleryEntry[] = [];
+
+  openOrderFlow(items: GalleryEntry[]) {
+    this.orderFlowItems = items;
+  }
+
+  closeOrderFlow() {
+    this.orderFlowItems = [];
+  }
+
+  onOrderPlaced() {
+    this.orderFlowItems = [];
+    if (this.activeTab === 'orders') this.loadOrders();
+  }
+
+  // ── Orders page ─────────────────────────────────────────────
+  orders: Order[] = [];
+  ordersLoading = false;
+
+  loadOrders() {
+    this.ordersLoading = true;
+    this.api.getOrders().subscribe({
+      next: (resp) => { this.orders = resp.orders; this.ordersLoading = false; },
+      error: () => { this.ordersLoading = false; },
+    });
+  }
+
   // ── Order modal ────────────────────────────────────────────
   orderModalJob: JobEntry | null = null;
   orderSubmitting = false;
@@ -76,7 +117,7 @@ export class App implements OnInit, OnDestroy {
   productsLoading = false;
 
   // ── Navigation ─────────────────────────────────────────────
-  activeTab: 'generate' | 'samples' | 'upload' = 'samples';
+  activeTab: 'generate' | 'samples' | 'upload' | 'orders' = 'samples';
   characterAnimation: 'idle' | 'happy' = 'idle';
   fabRotating = false;
   catMenuOpen = false;
@@ -199,6 +240,8 @@ export class App implements OnInit, OnDestroy {
     form.append('template_key', this.selectedTemplate);
     form.append('style_key', 'inkwash');
     form.append('dry_run', String(this.dryRun));
+    form.append('width', String(this.selectedRatio.w));
+    form.append('height', String(this.selectedRatio.h));
 
     this.api.submitGenerate(form).subscribe({
       next: (resp: any) => {
@@ -483,7 +526,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   // ── Navigation ─────────────────────────────────────────────
-  switchTab(tab: 'generate' | 'samples' | 'upload') {
+  switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders') {
     this.activeTab = tab;
     if (
       (tab === 'samples' || tab === 'upload') &&
@@ -492,6 +535,17 @@ export class App implements OnInit, OnDestroy {
     ) {
       this.loadSamples();
     }
+    if (tab === 'orders' && this.currentUser && !this.ordersLoading) {
+      this.loadOrders();
+    }
+  }
+
+  goToMyGenerations() {
+    this.catMenuOpen = false;
+    this.switchTab('generate');
+    setTimeout(() => {
+      document.querySelector('.past-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
   }
 
   goToGenerate() {

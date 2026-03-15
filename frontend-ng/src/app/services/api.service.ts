@@ -32,6 +32,18 @@ export class ApiService {
     return this.http.post<any>(`${this.base}/print/order`, payload);
   }
 
+  createOrder(payload: any): Observable<{ order_id: string }> {
+    return this.http.post<any>(`${this.base}/orders`, payload);
+  }
+
+  getOrders(): Observable<{ orders: any[] }> {
+    return this.http.get<any>(`${this.base}/orders`);
+  }
+
+  updateOrder(orderId: string, payload: any): Observable<any> {
+    return this.http.patch<any>(`${this.base}/orders/${orderId}`, payload);
+  }
+
   getProducts(catalog = 'framed-posters'): Observable<any> {
     return this.http.get<any>(`${this.base}/print/products?catalog=${catalog}`);
   }

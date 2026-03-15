@@ -48,3 +48,34 @@ export interface SampleEntry {
   sample_id: string;
   presigned_url: string | null;
 }
+
+export interface OrderItem {
+  job_id: string;
+  presigned_url: string | null;
+  template_key: string;
+  size: string;
+  print_type: string;
+  quantity: number;
+}
+
+export interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  postCode: string;
+  country: string;
+}
+
+export interface Order {
+  id: string;
+  items: OrderItem[];
+  shipping: ShippingAddress;
+  notes: string;
+  payment_status: 'unpaid' | 'paid';
+  status: string;
+  created_at: string | null;
+}
