@@ -644,6 +644,33 @@ main {
   margin: 0 auto;
 }
 
+.page-order {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.page-gallery {
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+  padding-bottom: 100px;
+}
+
+.gallery-guest {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
 .page-upload {
   flex: 1;
   display: flex;
@@ -796,8 +823,10 @@ main {
   bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   right: 20px;
   z-index: 60;
-  /* height driven by cat (100px); bar is absolutely positioned so it never shifts the cat */
-  display: block;
+  width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
 }
 
@@ -819,46 +848,76 @@ main {
   padding: 0 12px;
   overflow: hidden;
   backdrop-filter: blur(12px);
-  transition: width 0.4s cubic-bezier(0.34, 1.15, 0.64, 1),
-              height 0.4s cubic-bezier(0.34, 1.15, 0.64, 1);
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;
 }
 
 .bottom-bar--open {
-  width: 330px;
-  height: 64px;
+  width: 380px;
+  height: 72px;
 }
 
 /* Space reserved for the cat in the centre of the bar */
 .bar-cat-gap {
-  width: 90px;
+  width: 120px;
   flex-shrink: 0;
 }
 
 .bar-btn {
-  width: 44px;
-  height: 44px;
   flex-shrink: 0;
   border: none;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
-  color: #fff;
+  border-radius: 8px;
+  background: none;
+  color: var(--accent);
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 16px var(--accent-glow-strong);
+  gap: 8px;
+  padding: 6px 14px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.bar-btn-label {
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.bar-btn--active .bar-btn-label {
+  font-weight: 800;
 }
 
 .bottom-bar--open .bar-btn {
   opacity: 1;
   pointer-events: auto;
+  transition: opacity 0.15s ease 0.16s;
 }
 
-.bar-btn:hover { filter: brightness(1.15); }
+.bar-btn:hover { color: var(--accent); }
+
+.bar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bar-btn--active .bar-icon {
+  background: rgba(212, 168, 83, 0.18);
+  outline: 1.5px solid var(--accent);
+  outline-offset: -1.5px;
+}
 
 /* Give pages breathing room so bar doesn't overlap content.
    Bar is bottom-right corner only, so minimal clearance needed. */

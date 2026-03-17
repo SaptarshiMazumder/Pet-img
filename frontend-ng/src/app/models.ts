@@ -3,6 +3,7 @@ export interface GalleryEntry {
   template_key: string;
   style_key: string;
   presigned_url: string | null;
+  source_url: string | null;
   seed: number | null;
   created_at: string | null;
 }
@@ -53,8 +54,10 @@ export interface OrderItem {
   job_id: string;
   presigned_url: string | null;
   template_key: string;
+  category?: string;
   size: string;
-  print_type: string;
+  color?: string;
+  orientation?: string;
   quantity: number;
 }
 

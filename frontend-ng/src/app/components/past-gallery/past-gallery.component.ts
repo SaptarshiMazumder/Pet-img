@@ -15,6 +15,7 @@ export class PastGalleryComponent {
   @Output() itemClicked = new EventEmitter<GalleryEntry>();
   @Output() orderSelected = new EventEmitter<GalleryEntry[]>();
   @Output() refresh = new EventEmitter<void>();
+  @Output() regenerateRequested = new EventEmitter<GalleryEntry>();
 
   private selectedIds = new Set<string>();
 

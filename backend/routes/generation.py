@@ -10,6 +10,7 @@ from backend.job_store import job_store
 from backend.services.generation import run_job_background
 from backend.auth_middleware import get_optional_uid
 from backend.autoscaler_client import autoscaler
+from backend.storage.r2 import upload_object
 
 generation_bp = Blueprint("generation", __name__)
 
@@ -74,10 +75,20 @@ def generate():
     job_id = str(uuid.uuid4())
     job_store.create(job_id)
 
+    # Upload source image to R2 asynchronously — used for regeneration later
+    source_r2_key = f"sources/{job_id}{suffix}"
+    def _upload_source():
+        try:
+            with open(tmp_path, "rb") as f:
+                upload_object(source_r2_key, f.read(), content_type=f"image/{suffix.lstrip('.')}")
+        except Exception as exc:
+            print(f"[R2] Source upload failed for {job_id}: {exc}")
+    threading.Thread(target=_upload_source, daemon=True).start()
+
     thread = threading.Thread(
         target=run_job_background,
         args=(job_id, tmp_path, style, style_key, template_key, overrides),
-        kwargs={"dry_run": dry_run, "uid": uid},
+        kwargs={"dry_run": dry_run, "uid": uid, "source_r2_key": source_r2_key},
         daemon=True,
     )
     thread.start()

@@ -1,156 +1,190 @@
 @if (items.length > 0) {
-  <div class="flow-backdrop" (click)="closed.emit()"></div>
 
-  <div class="flow-modal" (click)="$event.stopPropagation()">
-
-    <!-- Header -->
-    <div class="flow-header">
-      @if (step !== 'success') {
-        <div class="step-indicator">
-          <span class="step-dot" [class.step-dot--active]="step === 1" [class.step-dot--done]="step === 2">1</span>
-          <span class="step-line"></span>
-          <span class="step-dot" [class.step-dot--active]="step === 2">2</span>
-        </div>
-        <span class="step-label">{{ step === 1 ? 'Configure prints' : 'Shipping details' }}</span>
-      } @else {
-        <span class="step-label" style="color: var(--success)">Order saved!</span>
-      }
-      <button class="flow-close" (click)="closed.emit()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-        </svg>
+  <!-- ── Page header / tab nav ── -->
+  <div class="of-header">
+    <button class="of-back" (click)="closed.emit()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+    </button>
+    <div class="of-tabs">
+      <button class="of-tab" [class.of-tab--active]="step === 1" [class.of-tab--done]="step === 2 || step === 'success'"
+        (click)="step === 2 ? step = 1 : null">
+        <span class="of-tab-num">1</span> Configure prints
+      </button>
+      <span class="of-tab-sep">›</span>
+      <button class="of-tab" [class.of-tab--active]="step === 2" [class.of-tab--done]="step === 'success'" [disabled]="step === 1">
+        <span class="of-tab-num">2</span> Shipping
+      </button>
+      <span class="of-tab-sep">›</span>
+      <button class="of-tab" [class.of-tab--active]="step === 'success'" [disabled]="step !== 'success'">
+        <span class="of-tab-num">3</span> Done
       </button>
     </div>
+  </div>
 
-    <div class="flow-body">
+  <!-- ── Step 1: Configure ── -->
+  @if (step === 1) {
+    @for (cfg of itemConfigs; track cfg.item.job_id) {
+      <div class="of-body">
 
-      <!-- ── Step 1: per-image options ── -->
-      @if (step === 1) {
-        <div class="items-list">
-          @for (cfg of itemConfigs; track cfg.item.job_id) {
-            <div class="item-row">
-              <img class="item-thumb" [src]="cfg.item.presigned_url!" alt="Portrait" />
-              <div class="item-opts">
-                <p class="item-name">{{ cfg.item.template_key }}</p>
-                <div class="opt-group">
-                  <span class="opt-label">Print type</span>
-                  <div class="type-pills">
-                    @for (t of printTypes; track t) {
-                      <button
-                        class="pill"
-                        [class.pill--active]="cfg.print_type === t"
-                        (click)="cfg.print_type = t"
-                      >{{ t }}</button>
-                    }
-                  </div>
-                </div>
-                <div class="opt-row">
-                  <div class="opt-group">
-                    <span class="opt-label">Size</span>
-                    <select [(ngModel)]="cfg.size" [name]="'size_' + cfg.item.job_id">
-                      @for (s of sizeOptions; track s) {
-                        <option [value]="s">{{ s }}</option>
-                      }
-                    </select>
-                  </div>
-                  <div class="opt-group opt-group--qty">
-                    <span class="opt-label">Qty</span>
-                    <input type="number" [(ngModel)]="cfg.quantity" [name]="'qty_' + cfg.item.job_id" min="1" max="20" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
+        <!-- Left: portrait preview -->
+        <div class="of-portrait-col">
+          <img class="of-portrait-img" [src]="cfg.item.presigned_url!" alt="Your portrait" />
         </div>
 
-        <div class="flow-actions">
-          <button class="btn-secondary" (click)="closed.emit()">Cancel</button>
-          <button class="btn-primary" (click)="goToShipping()">
+        <!-- Right: frame configuration -->
+        <div class="of-config-col">
+
+          <!-- Frame selector: one card per frame category -->
+          <div class="of-section">
+            <p class="of-section-label">Select Frame</p>
+            <div class="of-variant-scroll">
+              @for (cat of categories; track cat.name) {
+                <button
+                  class="of-variant-card"
+                  [class.of-variant-card--active]="cfg.category === cat.name"
+                  (click)="selectCategory(cfg, cat.name)"
+                >
+                  <img class="of-variant-img" [src]="frameCoverImg(cfg, cat)" [alt]="cat.name" />
+                  <span class="of-variant-label">{{ cat.name.split('(')[0].trim() }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Color dropdown (only when selected frame has multiple variants) -->
+          @if ((categoryFor(cfg)?.variants?.length ?? 0) > 1) {
+            <div class="of-section">
+              <p class="of-section-label">Color</p>
+              <select class="of-color-select" [(ngModel)]="cfg.color" [name]="'color_' + cfg.item.job_id">
+                @for (v of categoryFor(cfg)!.variants; track v.color) {
+                  <option [value]="v.color">{{ v.color }}</option>
+                }
+              </select>
+            </div>
+          }
+
+          <!-- Size pills -->
+          <div class="of-section">
+            <p class="of-section-label">Size</p>
+            <div class="of-pills">
+              @for (s of sizeKeys(cfg); track s) {
+                <button class="of-pill" [class.of-pill--active]="cfg.size === s" (click)="cfg.size = s">{{ s }}</button>
+              }
+            </div>
+          </div>
+
+          <!-- Orientation + Qty -->
+          <div class="of-opts-row">
+            <div class="of-section of-section--sm">
+              <p class="of-section-label">Orientation</p>
+              <div class="of-pills">
+                <button class="of-pill" [class.of-pill--active]="cfg.orientation === 'portrait'" (click)="cfg.orientation = 'portrait'">Portrait</button>
+                <button class="of-pill" [class.of-pill--active]="cfg.orientation === 'landscape'" (click)="cfg.orientation = 'landscape'">Landscape</button>
+              </div>
+            </div>
+            <div class="of-section of-section--qty">
+              <p class="of-section-label">Qty</p>
+              <input class="of-qty-input" type="number" [(ngModel)]="cfg.quantity" [name]="'qty_' + cfg.item.job_id" min="1" max="20" />
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="of-price-block">
+            <span class="of-price-label">Total</span>
+            <span class="of-price-value">¥{{ currentPrice(cfg).toLocaleString() }}</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="of-footer">
+        <button class="btn-secondary" (click)="closed.emit()">Cancel</button>
+        <button class="btn-primary" (click)="goToShipping()" [disabled]="savingDraft">
+          @if (savingDraft) {
+            <span class="btn-spinner-sm"></span> Saving…
+          } @else {
             Shipping details
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
             </svg>
+          }
+        </button>
+      </div>
+    }
+  }
+
+  <!-- ── Step 2: Shipping ── -->
+  @if (step === 2) {
+    <div class="of-shipping-wrap">
+      <form class="shipping-form" (ngSubmit)="submit()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name <span class="req">*</span></label>
+            <input [(ngModel)]="shipping.firstName" name="firstName" required />
+          </div>
+          <div class="form-group">
+            <label>Last Name <span class="req">*</span></label>
+            <input [(ngModel)]="shipping.lastName" name="lastName" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" [(ngModel)]="shipping.email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input [(ngModel)]="shipping.phone" name="phone" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Address <span class="req">*</span></label>
+          <input [(ngModel)]="shipping.addressLine1" name="addr1" required placeholder="Street address" />
+        </div>
+        <div class="form-group">
+          <input [(ngModel)]="shipping.addressLine2" name="addr2" placeholder="Apartment, suite, etc. (optional)" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City <span class="req">*</span></label>
+            <input [(ngModel)]="shipping.city" name="city" required />
+          </div>
+          <div class="form-group">
+            <label>Post Code <span class="req">*</span></label>
+            <input [(ngModel)]="shipping.postCode" name="postCode" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <input [(ngModel)]="shipping.country" name="country" />
+        </div>
+        <label class="save-row">
+          <input type="checkbox" [(ngModel)]="saveShipping" name="saveShipping" />
+          <span>Save details for next time</span>
+        </label>
+        @if (error) { <div class="msg-error">{{ error }}</div> }
+        <div class="of-footer of-footer--inline">
+          <button type="button" class="btn-secondary" (click)="step = 1">← Back</button>
+          <button type="submit" class="btn-primary" [disabled]="submitting">
+            @if (!submitting) { Pay Now } @else { Processing… }
           </button>
         </div>
-      }
-
-      <!-- ── Step 2: shipping ── -->
-      @if (step === 2) {
-        <form class="shipping-form" (ngSubmit)="submit()">
-          <div class="form-row">
-            <div class="form-group">
-              <label>First Name <span class="req">*</span></label>
-              <input [(ngModel)]="shipping.firstName" name="firstName" required />
-            </div>
-            <div class="form-group">
-              <label>Last Name <span class="req">*</span></label>
-              <input [(ngModel)]="shipping.lastName" name="lastName" required />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Email <span class="req">*</span></label>
-              <input type="email" [(ngModel)]="shipping.email" name="email" required />
-            </div>
-            <div class="form-group">
-              <label>Phone</label>
-              <input [(ngModel)]="shipping.phone" name="phone" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Address <span class="req">*</span></label>
-            <input [(ngModel)]="shipping.addressLine1" name="addr1" required placeholder="Street address" />
-          </div>
-          <div class="form-group">
-            <input [(ngModel)]="shipping.addressLine2" name="addr2" placeholder="Apartment, suite, etc. (optional)" />
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>City <span class="req">*</span></label>
-              <input [(ngModel)]="shipping.city" name="city" required />
-            </div>
-            <div class="form-group">
-              <label>Post Code <span class="req">*</span></label>
-              <input [(ngModel)]="shipping.postCode" name="postCode" required />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Country</label>
-            <input [(ngModel)]="shipping.country" name="country" />
-          </div>
-
-          <label class="save-row">
-            <input type="checkbox" [(ngModel)]="saveShipping" name="saveShipping" />
-            <span>Save details for next time</span>
-          </label>
-
-          @if (error) { <div class="msg-error">{{ error }}</div> }
-
-          <div class="flow-actions">
-            <button type="button" class="btn-secondary" (click)="step = 1">← Back</button>
-            <button type="submit" class="btn-primary" [disabled]="submitting">
-              @if (!submitting) { Save Order } @else { Saving… }
-            </button>
-          </div>
-        </form>
-      }
-
-      <!-- ── Success ── -->
-      @if (step === 'success') {
-        <div class="success-state">
-          <div class="success-icon">✓</div>
-          <p class="success-msg">Your order has been saved.<br />We'll be in touch soon!</p>
-          <div class="flow-actions">
-            <button class="btn-secondary" (click)="closed.emit()">Close</button>
-            <button class="btn-primary" (click)="viewOrders.emit()">View Orders</button>
-          </div>
-        </div>
-      }
-
+      </form>
     </div>
-  </div>
+  }
+
+  <!-- ── Success ── -->
+  @if (step === 'success') {
+    <div class="of-success">
+      <div class="success-icon">✓</div>
+      <p class="success-msg">Your order has been placed!<br />We'll be in touch soon.</p>
+      <div class="of-footer of-footer--center">
+        <button class="btn-secondary" (click)="closed.emit()">Close</button>
+        <button class="btn-primary" (click)="viewOrders.emit()">View Orders</button>
+      </div>
+    </div>
+  }
+
 }

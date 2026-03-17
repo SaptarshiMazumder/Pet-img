@@ -1,5 +1,37 @@
 :host { display: block; }
 
+.regen-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  gap: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.regen-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.regen-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  transition: opacity 0.15s;
+}
+
+.regen-btn:hover { opacity: 0.7; }
+
 .past-header {
   display: flex;
   align-items: center;
@@ -100,18 +132,26 @@
 @media (min-width: 768px)  { .past-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
 @media (min-width: 1280px) { .past-grid { grid-template-columns: repeat(5, 1fr); } }
 
+/* ── Card wrapper (flex column so regen-strip sits below) ── */
+.past-card-wrap {
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
 /* ── Card ─────────────────────────────────────── */
 .past-card {
   position: relative;
   aspect-ratio: 3 / 4;
-  border-radius: 14px;
   overflow: hidden;
   background: var(--surface);
-  border: 1px solid var(--border);
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
-.past-card--selected {
+.past-card-wrap.past-card--selected {
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent), 0 0 16px var(--accent-glow);
 }
@@ -144,13 +184,13 @@
 
 .past-card.clickable { cursor: pointer; }
 
-.past-card.clickable:hover {
+.past-card-wrap:has(.past-card.clickable):hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
   border-color: var(--accent-dim);
 }
 
-.past-card.clickable:hover .past-hover { opacity: 1; }
+.past-card-wrap:has(.past-card.clickable):hover .past-hover { opacity: 1; }
 
 .past-img {
   width: 100%;

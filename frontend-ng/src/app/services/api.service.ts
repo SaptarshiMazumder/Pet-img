@@ -52,6 +52,14 @@ export class ApiService {
     return this.http.get<any>(`${this.base}/user/generations`);
   }
 
+  deleteGeneration(jobId: string): Observable<{ success: boolean }> {
+    return this.http.delete<any>(`${this.base}/user/generations/${jobId}`);
+  }
+
+  regenerateGeneration(jobId: string): Observable<{ job_id: string }> {
+    return this.http.post<any>(`${this.base}/user/generations/${jobId}/regenerate`, {});
+  }
+
   warm(): void {
     this.http.post(`${this.base}/warm`, {}).subscribe({ error: () => {} });
   }
@@ -66,5 +74,17 @@ export class ApiService {
 
   deleteSample(sampleId: string): Observable<any> {
     return this.http.delete<any>(`${this.base}/samples/${sampleId}`);
+  }
+
+  getFrameCatalog(): Observable<{ categories: { name: string; variants: { color: string; preview_img: string }[]; sizes: { [key: string]: { price: number } } }[] }> {
+    return this.http.get<any>(`${this.base}/orders/catalog`);
+  }
+
+  createPayment(orderId: string): Observable<{ razorpay_order_id: string; amount: number; total_jpy: number; currency: string; key_id: string }> {
+    return this.http.post<any>(`${this.base}/orders/${orderId}/payment`, {});
+  }
+
+  verifyPayment(orderId: string, payload: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }): Observable<{ success: boolean }> {
+    return this.http.post<any>(`${this.base}/orders/${orderId}/payment/verify`, payload);
   }
 }

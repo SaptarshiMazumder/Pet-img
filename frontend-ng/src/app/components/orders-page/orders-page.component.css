@@ -359,6 +359,38 @@
   font-size: 0.8125rem;
   font-weight: 600;
   font-family: inherit;
-  cursor: not-allowed;
-  opacity: 0.35;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-pay:hover:not(:disabled) { opacity: 0.88; }
+.btn-pay:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.paid-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--success);
+  background: rgba(90, 154, 110, 0.12);
+  border: 1px solid rgba(90, 154, 110, 0.3);
+}
+
+.pay-error {
+  font-size: 0.8125rem;
+  color: var(--error);
+  padding: 0 16px 8px;
+}
+
+.btn-spinner-sm {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #0d0d0d;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
 }

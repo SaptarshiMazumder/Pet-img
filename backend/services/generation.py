@@ -25,6 +25,7 @@ def process_runpod_result(
     negative_prompt: str = "",
     animal_data: dict | None = None,
     duration_seconds: float | None = None,
+    source_r2_key: str | None = None,
 ) -> None:
     """Convert a RunPod result into a presigned URL, persist to Firestore, update job store."""
     images = runpod_result.get("images", [])
@@ -41,6 +42,7 @@ def process_runpod_result(
             positive_prompt=positive_prompt,
             seed=runpod_result.get("seed"),
             duration_seconds=duration_seconds,
+            source_r2_key=source_r2_key,
         )
 
     job_store.update(
@@ -117,6 +119,7 @@ def run_job_background(
     overrides: dict,
     dry_run: bool = False,
     uid: str | None = None,
+    source_r2_key: str | None = None,
 ) -> None:
     autoscaler.on_job_start()
     active_jobs_db.persist(job_id, style_key, template_key, uid)
@@ -181,6 +184,7 @@ def run_job_background(
             negative_prompt=result["negative_prompt"],
             animal_data=result["animal_data"],
             duration_seconds=duration,
+            source_r2_key=source_r2_key,
         )
 
     except Exception as exc:

@@ -21,7 +21,6 @@
     @for (order of orders; track order.id) {
       <div class="order-card">
 
-        <!-- Top row: thumbs + meta -->
         <div class="card-top">
           <div class="card-thumbs">
             @for (item of order.items; track item.job_id) {
@@ -38,112 +37,44 @@
           </div>
         </div>
 
-        <!-- Items summary -->
         <div class="card-items">
           @for (item of order.items; track item.job_id) {
             <div class="card-item-row">
               <span class="item-key">{{ item.template_key }}</span>
-              <span class="item-detail">{{ item.print_type }} · {{ item.size }} · ×{{ item.quantity }}</span>
+              <span class="item-detail">{{ item.category }} · {{ item.size }}{{ item.color ? ' · ' + item.color : '' }} · ×{{ item.quantity }}</span>
             </div>
           }
         </div>
 
-        <!-- Shipping — view or edit -->
-        @if (editingId === order.id && editShipping && editItems) {
-          <div class="edit-shipping">
-            <p class="edit-shipping-title">Edit order</p>
+        <div class="card-shipping">
+          <span class="shipping-to">
+            {{ order.shipping.firstName }} {{ order.shipping.lastName }},
+            {{ order.shipping.addressLine1 }}, {{ order.shipping.city }},
+            {{ order.shipping.postCode }} {{ order.shipping.country }}
+          </span>
+        </div>
 
-            <!-- Per-item fields -->
-            @for (item of editItems; track item.job_id) {
-              <div class="edit-item-block">
-                <p class="edit-item-name">{{ item.template_key }}</p>
-                <div class="sform-row">
-                  <div class="sform-group">
-                    <label>Print type</label>
-                    <select [(ngModel)]="item.print_type" [name]="'pt_' + item.job_id">
-                      @for (t of printTypes; track t) { <option [value]="t">{{ t }}</option> }
-                    </select>
-                  </div>
-                  <div class="sform-group">
-                    <label>Size</label>
-                    <select [(ngModel)]="item.size" [name]="'sz_' + item.job_id">
-                      @for (s of sizeOptions; track s) { <option [value]="s">{{ s }}</option> }
-                    </select>
-                  </div>
-                  <div class="sform-group sform-group--qty">
-                    <label>Qty</label>
-                    <input type="number" [(ngModel)]="item.quantity" [name]="'qty_' + item.job_id" min="1" max="20" />
-                  </div>
-                </div>
-              </div>
-            }
-
-            <div class="edit-divider"></div>
-            <p class="edit-shipping-title">Shipping</p>
-            <div class="sform-row">
-              <div class="sform-group">
-                <label>First Name</label>
-                <input [(ngModel)]="editShipping.firstName" [name]="'fn_' + order.id" />
-              </div>
-              <div class="sform-group">
-                <label>Last Name</label>
-                <input [(ngModel)]="editShipping.lastName" [name]="'ln_' + order.id" />
-              </div>
-            </div>
-            <div class="sform-group">
-              <label>Email</label>
-              <input type="email" [(ngModel)]="editShipping.email" [name]="'em_' + order.id" />
-            </div>
-            <div class="sform-group">
-              <label>Address</label>
-              <input [(ngModel)]="editShipping.addressLine1" [name]="'a1_' + order.id" />
-            </div>
-            <div class="sform-group">
-              <input [(ngModel)]="editShipping.addressLine2" [name]="'a2_' + order.id" placeholder="Line 2 (optional)" />
-            </div>
-            <div class="sform-row">
-              <div class="sform-group">
-                <label>City</label>
-                <input [(ngModel)]="editShipping.city" [name]="'ct_' + order.id" />
-              </div>
-              <div class="sform-group">
-                <label>Post Code</label>
-                <input [(ngModel)]="editShipping.postCode" [name]="'pc_' + order.id" />
-              </div>
-            </div>
-            <div class="sform-group">
-              <label>Country</label>
-              <input [(ngModel)]="editShipping.country" [name]="'co_' + order.id" />
-            </div>
-            @if (saveError) { <p class="save-error">{{ saveError }}</p> }
-            <div class="edit-actions">
-              <button class="btn-ghost" (click)="cancelEdit()">Cancel</button>
-              <button class="btn-save" (click)="saveEdit(order)" [disabled]="savingId === order.id">
-                {{ savingId === order.id ? 'Saving…' : 'Save' }}
-              </button>
-            </div>
-          </div>
-        } @else {
-          <div class="card-shipping">
-            <span class="shipping-to">
-              {{ order.shipping.firstName }} {{ order.shipping.lastName }},
-              {{ order.shipping.addressLine1 }}, {{ order.shipping.city }},
-              {{ order.shipping.postCode }} {{ order.shipping.country }}
-            </span>
-          </div>
+        @if (payError && payingId === null) {
+          <div class="pay-error">{{ payError }}</div>
         }
-
-        <!-- Actions -->
         <div class="card-actions">
-          <button class="btn-edit" (click)="startEdit(order)" [disabled]="editingId !== null && editingId !== order.id">
-            Edit shipping
+          <button class="btn-edit" (click)="editOrder.emit(order)" [disabled]="payingId === order.id">
+            Edit
           </button>
-          <button class="btn-pay" disabled title="Payment coming soon">
-            Pay Now
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-            </svg>
-          </button>
+          @if (order.payment_status === 'paid') {
+            <span class="paid-badge">Paid</span>
+          } @else {
+            <button class="btn-pay" (click)="pay(order)" [disabled]="payingId === order.id">
+              @if (payingId === order.id) {
+                <span class="btn-spinner-sm"></span> Processing…
+              } @else {
+                Pay Now
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+              }
+            </button>
+          }
         </div>
 
       </div>

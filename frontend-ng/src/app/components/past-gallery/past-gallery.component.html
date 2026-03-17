@@ -25,40 +25,47 @@
 } @else {
   <div class="past-grid">
     @for (item of gallery; track item.job_id) {
-      <div
-        class="past-card"
-        [class.clickable]="!!item.presigned_url"
-        [class.past-card--selected]="isSelected(item.job_id)"
-        (click)="item.presigned_url ? itemClicked.emit(item) : null"
-      >
-        @if (item.presigned_url) {
-          <img class="past-img" [src]="item.presigned_url" [alt]="templateName(item.template_key)" loading="lazy" />
+      <div class="past-card-wrap" [class.past-card--selected]="isSelected(item.job_id)">
+        <div
+          class="past-card"
+          [class.clickable]="!!item.presigned_url"
+          (click)="item.presigned_url ? itemClicked.emit(item) : null"
+        >
+          @if (item.presigned_url) {
+            <img class="past-img" [src]="item.presigned_url" [alt]="templateName(item.template_key)" loading="lazy" />
 
-          <!-- Checkbox toggle -->
-          <button
-            class="select-check"
-            [class.select-check--on]="isSelected(item.job_id)"
-            (click)="toggleSelect(item, $event)"
-            [attr.aria-label]="isSelected(item.job_id) ? 'Deselect' : 'Select for order'"
-          >
-            @if (isSelected(item.job_id)) {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            <!-- Checkbox toggle -->
+            <button
+              class="select-check"
+              [class.select-check--on]="isSelected(item.job_id)"
+              (click)="toggleSelect(item, $event)"
+              [attr.aria-label]="isSelected(item.job_id) ? 'Deselect' : 'Select for order'"
+            >
+              @if (isSelected(item.job_id)) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              }
+            </button>
+
+            <div class="past-hover">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
               </svg>
-            }
-          </button>
-
-          <div class="past-hover">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-            </svg>
+            </div>
+          } @else {
+            <div class="past-missing">?</div>
+          }
+          <div class="past-footer">
+            <span class="past-name">{{ templateName(item.template_key) }}</span>
           </div>
-        } @else {
-          <div class="past-missing">?</div>
-        }
-        <div class="past-footer">
-          <span class="past-name">{{ templateName(item.template_key) }}</span>
+        </div>
+        <div class="regen-strip">
+          <span class="regen-hint">Don't like the result?</span>
+          <button class="regen-btn" (click)="regenerateRequested.emit(item)">
+            ↺ Try again
+          </button>
         </div>
       </div>
     }

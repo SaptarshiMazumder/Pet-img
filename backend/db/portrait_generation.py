@@ -20,6 +20,7 @@ def save(
     positive_prompt: str,
     seed=None,
     duration_seconds: float | None = None,
+    source_r2_key: str | None = None,
 ) -> None:
     """Persist a completed portrait generation result. No-op on Firestore errors (logged)."""
     try:
@@ -35,9 +36,16 @@ def save(
         }
         if duration_seconds is not None:
             doc["duration_seconds"] = round(duration_seconds, 1)
+        if source_r2_key:
+            doc["source_r2_key"] = source_r2_key
         _db().collection("generations").document(job_id).set(doc)
     except Exception as exc:
         print(f"[Firestore] Failed to save portrait generation {job_id}: {exc}")
+
+
+def delete(job_id: str) -> None:
+    """Delete a portrait generation document from Firestore."""
+    _db().collection("generations").document(job_id).delete()
 
 
 def get_by_uid(uid: str, limit: int = 100):

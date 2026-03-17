@@ -1,10 +1,46 @@
-from flask import Blueprint, request, jsonify, g
+import os
+from pathlib import Path
+
+from flask import Blueprint, request, jsonify, g, send_from_directory
 from google.cloud import firestore
 
 from backend.auth_middleware import require_auth
+from backend.config.prices import FRAME_CATALOG
 from backend.firebase import get_db
 
 orders_bp = Blueprint("orders", __name__)
+
+_PREVIEW_DIR = Path(__file__).parent.parent / "config" / "config_preview_images"
+
+
+@orders_bp.get("/orders/catalog/images/<path:filename>")
+def serve_catalog_image(filename: str):
+    """Serve frame preview images from the config directory."""
+    return send_from_directory(_PREVIEW_DIR, filename)
+
+
+@orders_bp.get("/orders/catalog")
+def get_catalog():
+    """Return the full frame catalog for the order flow UI (no auth required)."""
+    categories = []
+    for name, cat in FRAME_CATALOG.items():
+        variants = [
+            {
+                "color": v["color"],
+                "preview_img": f"/orders/catalog/images/{os.path.basename(v['preview_img'])}",
+            }
+            for v in cat.get("variants", [])
+        ]
+        sizes = {
+            size_key: {"price": size_data.get("price", 0)}
+            for size_key, size_data in cat.get("sizes", {}).items()
+        }
+        categories.append({
+            "name": name,
+            "variants": variants,
+            "sizes": sizes,
+        })
+    return jsonify({"categories": categories})
 
 
 @orders_bp.post("/orders")

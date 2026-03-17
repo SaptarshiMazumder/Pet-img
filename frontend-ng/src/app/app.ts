@@ -46,13 +46,12 @@ export class App implements OnInit, OnDestroy {
   previewUrl: string | null = null;
 
   // ── Aspect ratio ───────────────────────────────────────────
+  // 4:5 portrait matches F-series frames well; landscape is the same rotated.
   readonly ratioOptions = [
-    { label: '1:1',  w: 1024, h: 1024 },
-    { label: '3:4',  w: 832,  h: 1216 },
-    { label: '4:3',  w: 1216, h: 832  },
-    { label: '16:9', w: 1344, h: 768  },
+    { label: 'Portrait',  w: 832,  h: 1040 },
+    { label: 'Landscape', w: 1040, h: 832  },
   ];
-  selectedRatio = this.ratioOptions[1]; // default: portrait 3:4
+  selectedRatio = this.ratioOptions[0]; // default: portrait
 
   // ── Generate ───────────────────────────────────────────────
   submitting = false;
@@ -82,18 +81,41 @@ export class App implements OnInit, OnDestroy {
 
   // ── Order flow ─────────────────────────────────────────────
   orderFlowItems: GalleryEntry[] = [];
+  editingOrder: Order | null = null;
 
   openOrderFlow(items: GalleryEntry[]) {
+    this.editingOrder = null;
     this.orderFlowItems = items;
+    this.activeTab = 'order';
+  }
+
+  openOrderForEdit(order: Order) {
+    const item = order.items[0];
+    if (!item) return;
+    this.editingOrder = order;
+    this.orderFlowItems = [{
+      job_id: item.job_id,
+      template_key: item.template_key || '',
+      style_key: '',
+      presigned_url: item.presigned_url,
+      source_url: null,
+      seed: null,
+      created_at: order.created_at,
+    }];
+    this.activeTab = 'order';
   }
 
   closeOrderFlow() {
     this.orderFlowItems = [];
+    this.editingOrder = null;
+    this.activeTab = 'gallery';
   }
 
   onOrderPlaced() {
     this.orderFlowItems = [];
-    if (this.activeTab === 'orders') this.loadOrders();
+    this.editingOrder = null;
+    this.activeTab = 'orders';
+    this.loadOrders();
   }
 
   // ── Orders page ─────────────────────────────────────────────
@@ -117,7 +139,7 @@ export class App implements OnInit, OnDestroy {
   productsLoading = false;
 
   // ── Navigation ─────────────────────────────────────────────
-  activeTab: 'generate' | 'samples' | 'upload' | 'orders' = 'samples';
+  activeTab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' = 'samples';
   characterAnimation: 'idle' | 'happy' = 'idle';
   fabRotating = false;
   catMenuOpen = false;
@@ -213,19 +235,20 @@ export class App implements OnInit, OnDestroy {
   openOrderFromLatest() {
     const completed = this.jobs.find((j) => j.status === 'completed' && j.presigned_url);
     if (completed) {
-      this.openOrderModal({
+      this.openOrderFlow([{
         job_id: completed.job_id,
         template_key: completed.template_key,
         style_key: completed.style_key,
-        status: 'completed',
-        presigned_url: completed.presigned_url ?? undefined,
-        submitted_at: completed.submitted_at ?? new Date(),
-      });
+        presigned_url: completed.presigned_url ?? null,
+        source_url: null,
+        seed: null,
+        created_at: null,
+      }]);
       return;
     }
     const fromGallery = this.gallery.find((g) => g.presigned_url);
     if (fromGallery) {
-      this.openOrderFromGallery(fromGallery);
+      this.openOrderFlow([fromGallery]);
     }
   }
 
@@ -352,14 +375,15 @@ export class App implements OnInit, OnDestroy {
     if (!this.expandedItem) return;
     const item = this.expandedItem;
     this.closeExpand();
-    this.openOrderModal({
+    this.openOrderFlow([{
       job_id: item.job_id,
       template_key: item.template_key,
       style_key: item.style_key,
-      status: 'completed',
       presigned_url: item.presigned_url,
-      submitted_at: new Date(),
-    });
+      source_url: null,
+      seed: null,
+      created_at: null,
+    }]);
   }
 
   // ── Order modal ────────────────────────────────────────────
@@ -526,7 +550,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   // ── Navigation ─────────────────────────────────────────────
-  switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders') {
+  switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order') {
     this.activeTab = tab;
     if (
       (tab === 'samples' || tab === 'upload') &&
@@ -538,10 +562,34 @@ export class App implements OnInit, OnDestroy {
     if (tab === 'orders' && this.currentUser && !this.ordersLoading) {
       this.loadOrders();
     }
+    if (tab === 'gallery' && this.currentUser && !this.galleryLoading) {
+      this.loadGallery();
+    }
+  }
+
+  regenerateFromGallery(entry: GalleryEntry) {
+    if (!entry.source_url) {
+      // Old generation — no source stored, fall back to manual flow
+      this.selectTemplate(entry.template_key);
+      this.switchTab('generate');
+      this.errorMsg = 'Upload your pet photo to regenerate this portrait.';
+      return;
+    }
+
+    this.api.regenerateGeneration(entry.job_id).subscribe({
+      next: (resp) => {
+        this.gallery = this.gallery.filter(g => g.job_id !== entry.job_id);
+        this.jobs = [{ job_id: resp.job_id, template_key: entry.template_key, style_key: entry.style_key, status: 'pending', submitted_at: new Date() }, ...this.jobs];
+        this.schedulePoll(resp.job_id);
+        this.switchTab('generate');
+      },
+      error: (err) => {
+        this.errorMsg = err?.error?.error || 'Regeneration failed.';
+      },
+    });
   }
 
   goToMyGenerations() {
-    this.catMenuOpen = false;
     this.switchTab('generate');
     setTimeout(() => {
       document.querySelector('.past-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
