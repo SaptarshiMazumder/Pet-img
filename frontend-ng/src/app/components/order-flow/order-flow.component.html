@@ -80,8 +80,14 @@
             <div class="of-section of-section--sm">
               <p class="of-section-label">Orientation</p>
               <div class="of-pills">
-                <button class="of-pill" [class.of-pill--active]="cfg.orientation === 'portrait'" (click)="cfg.orientation = 'portrait'">Portrait</button>
-                <button class="of-pill" [class.of-pill--active]="cfg.orientation === 'landscape'" (click)="cfg.orientation = 'landscape'">Landscape</button>
+                <button class="of-pill"
+                  [class.of-pill--active]="cfg.orientation === 'portrait'"
+                  [disabled]="!!cfg.item.orientation && cfg.item.orientation !== 'portrait'"
+                  (click)="cfg.orientation = 'portrait'">Portrait</button>
+                <button class="of-pill"
+                  [class.of-pill--active]="cfg.orientation === 'landscape'"
+                  [disabled]="!!cfg.item.orientation && cfg.item.orientation !== 'landscape'"
+                  (click)="cfg.orientation = 'landscape'">Landscape</button>
               </div>
             </div>
             <div class="of-section of-section--qty">

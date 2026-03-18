@@ -16,6 +16,7 @@ export class PastGalleryComponent {
   @Output() orderSelected = new EventEmitter<GalleryEntry[]>();
   @Output() refresh = new EventEmitter<void>();
   @Output() regenerateRequested = new EventEmitter<GalleryEntry>();
+  @Output() deleteRequested = new EventEmitter<GalleryEntry>();
 
   private selectedIds = new Set<string>();
 
@@ -46,5 +47,11 @@ export class PastGalleryComponent {
 
   openOrder(): void {
     this.orderSelected.emit(this.selectedItems);
+  }
+
+  onRegen(item: GalleryEntry): void {
+    if (confirm('Regenerate this portrait? The current result will be replaced.')) {
+      this.regenerateRequested.emit(item);
+    }
   }
 }

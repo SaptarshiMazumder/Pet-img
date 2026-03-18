@@ -6,6 +6,7 @@ export interface GalleryEntry {
   source_url: string | null;
   seed: number | null;
   created_at: string | null;
+  orientation?: 'portrait' | 'landscape';
 }
 
 export interface OrderForm {

@@ -1,66 +1,74 @@
 @if (jobs.length > 0) {
   <div class="jobs-grid">
     @for (job of jobs; track job.job_id) {
-      <div
-        class="job-card"
-        [class.clickable]="job.status === 'completed' && !!job.presigned_url"
-        [class.is-failed]="job.status === 'failed'"
-        (click)="onJobClick(job)"
-      >
-        <!-- Completed: show image -->
-        @if (job.status === 'completed' && job.presigned_url) {
-          <img class="job-img" [src]="job.presigned_url" alt="Generated portrait" />
-          <div class="job-view-overlay">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-            </svg>
-            <span>View</span>
-          </div>
-        }
-
-        <!-- Loading states -->
-        @if (job.status === 'pending' || job.status === 'processing' || job.status === 'fixing') {
-          <div class="job-loading">
-            <div class="job-spinner"></div>
-            <span class="job-status-txt">{{ statusLabel(job.status) }}…</span>
-          </div>
-        }
-
-        <!-- Failed -->
-        @if (job.status === 'failed') {
-          <div class="job-failed">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="30" height="30">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-            </svg>
-            <span class="job-error-txt">{{ job.error || 'Generation failed' }}</span>
-          </div>
-        }
-
-        <!-- Status badge -->
+      <div class="job-card-wrap">
         <div
-          class="job-badge"
-          [class.badge-queued]="job.status === 'pending'"
-          [class.badge-working]="job.status === 'processing' || job.status === 'fixing'"
-          [class.badge-done]="job.status === 'completed'"
-          [class.badge-failed]="job.status === 'failed'"
-        >{{ statusLabel(job.status) }}</div>
-
-        <!-- Remove button -->
-        <button class="job-remove" (click)="onRemove($event, job.job_id)" title="Remove">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        <!-- Footer label -->
-        <div class="job-footer">
-          <span class="job-name">{{ templateName(job.template_key) }}</span>
-          @if (job.duration_seconds != null) {
-            <span class="job-dur">{{ formatDuration(job.duration_seconds) }}</span>
+          class="job-card"
+          [class.clickable]="job.status === 'completed' && !!job.presigned_url"
+          [class.is-failed]="job.status === 'failed'"
+          (click)="onJobClick(job)"
+        >
+          <!-- Completed: show image -->
+          @if (job.status === 'completed' && job.presigned_url) {
+            <img class="job-img" [src]="job.presigned_url" alt="Generated portrait" />
+            <div class="job-view-overlay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+              </svg>
+              <span>View</span>
+            </div>
           }
+
+          <!-- Loading states -->
+          @if (job.status === 'pending' || job.status === 'processing' || job.status === 'fixing') {
+            <div class="job-loading">
+              <div class="job-spinner"></div>
+              <span class="job-status-txt">{{ statusLabel(job.status) }}…</span>
+            </div>
+          }
+
+          <!-- Failed -->
+          @if (job.status === 'failed') {
+            <div class="job-failed">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="30" height="30">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+              </svg>
+              <span class="job-error-txt">{{ job.error || 'Generation failed' }}</span>
+            </div>
+          }
+
+          <!-- Status badge -->
+          <div
+            class="job-badge"
+            [class.badge-queued]="job.status === 'pending'"
+            [class.badge-working]="job.status === 'processing' || job.status === 'fixing'"
+            [class.badge-done]="job.status === 'completed'"
+            [class.badge-failed]="job.status === 'failed'"
+          >{{ statusLabel(job.status) }}</div>
+
+          <!-- Remove button -->
+          <button class="job-remove" (click)="onRemove($event, job.job_id)" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <!-- Footer label -->
+          <div class="job-footer">
+            <span class="job-name">{{ templateName(job.template_key) }}</span>
+            @if (job.duration_seconds != null) {
+              <span class="job-dur">{{ formatDuration(job.duration_seconds) }}</span>
+            }
+          </div>
         </div>
+
+        @if (job.status === 'completed' && job.presigned_url) {
+          <div class="job-regen-strip">
+            <button class="regen-btn" (click)="onRegen($event, job)">↺ Try again</button>
+          </div>
+        }
       </div>
     }
   </div>

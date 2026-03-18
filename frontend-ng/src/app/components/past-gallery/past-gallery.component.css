@@ -15,7 +15,24 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
 }
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.delete-btn:hover { color: var(--error, #c86b6b); background: rgba(200, 107, 107, 0.1); }
 
 .regen-btn {
   flex-shrink: 0;

@@ -27,11 +27,11 @@ def get_generations():
     for doc in docs:
         data = doc.to_dict()
         r2_key = data.get("r2_key")
-        presigned_url = None
-        if r2_key:
-            presigned_url = public_url(r2_key)
+        compressed_r2_key = data.get("compressed_r2_key")
         ts = data.get("created_at")
         source_r2_key = data.get("source_r2_key")
+        full_url = public_url(r2_key) if r2_key else None
+        display_url = public_url(compressed_r2_key) if compressed_r2_key else full_url
         results.append({
             "job_id": doc.id,
             "template_key": data.get("template_key"),
@@ -39,8 +39,9 @@ def get_generations():
             "positive_prompt": data.get("positive_prompt"),
             "seed": data.get("seed"),
             "r2_key": r2_key,
-            "presigned_url": presigned_url,
+            "presigned_url": display_url,
             "source_url": public_url(source_r2_key) if source_r2_key else None,
+            "orientation": data.get("orientation", "portrait"),
             "created_at": ts.isoformat() if ts else None,
         })
 
@@ -64,6 +65,8 @@ def delete_generation(job_id: str):
         keys_to_delete += [data["r2_key"], _fixed_key(data["r2_key"])]
     if data.get("source_r2_key"):
         keys_to_delete.append(data["source_r2_key"])
+    if data.get("compressed_r2_key"):
+        keys_to_delete.append(data["compressed_r2_key"])
     for key in keys_to_delete:
         try:
             delete_object(key)
@@ -134,6 +137,8 @@ def regenerate_generation(job_id: str):
     keys_to_delete = []
     if data.get("r2_key"):
         keys_to_delete += [data["r2_key"], _fixed_key(data["r2_key"])]
+    if data.get("compressed_r2_key"):
+        keys_to_delete.append(data["compressed_r2_key"])
     for key in keys_to_delete:
         try:
             delete_object(key)

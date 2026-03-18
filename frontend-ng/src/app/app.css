@@ -54,10 +54,7 @@ header {
   top: 0;
   z-index: 50;
   height: 52px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(10, 10, 10, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--bg);
   /* For dropdown positioning */
   isolation: isolate;
 }
@@ -80,8 +77,23 @@ header {
   align-items: center;
 }
 
-.header-left { justify-content: flex-start; }
+.header-left { justify-content: flex-start; gap: 8px; }
 .header-right { justify-content: flex-end; }
+
+.header-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.header-back:hover { color: var(--accent); }
 
 .header-placeholder {
   width: 32px;
@@ -90,31 +102,6 @@ header {
   background: transparent;
 }
 
-/* Brand — centered */
-.header-brand {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.logo-mark {
-  font-size: 1.125rem;
-  line-height: 1;
-  opacity: 0.85;
-}
-
-.brand-name {
-  font-family: 'DM Serif Display', serif;
-  font-size: 0.9375rem;
-  font-weight: 400;
-  color: var(--accent);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
 
 /* Hamburger */
 .menu-trigger {
@@ -267,7 +254,7 @@ main {
 
 /* ── Hero section ───────────────────────────────────────── */
 .hero {
-  padding: var(--space-2xl) var(--space-lg) var(--space-xl);
+  padding: var(--space-lg) var(--space-lg) var(--space-xl);
   max-width: 680px;
   display: flex;
   flex-direction: column;
@@ -638,7 +625,7 @@ main {
    ══════════════════════════════════════════════════════════ */
 .page-orders {
   flex: 1;
-  padding: var(--space-2xl) var(--space-lg);
+  padding: var(--space-lg) var(--space-lg);
   max-width: 720px;
   width: 100%;
   margin: 0 auto;
@@ -658,8 +645,7 @@ main {
   overflow-y: auto;
   max-width: 1440px;
   margin: 0 auto;
-  padding: var(--space-2xl) var(--space-lg);
-  padding-bottom: 100px;
+  padding: var(--space-lg) var(--space-lg) 100px;
 }
 
 .gallery-guest {

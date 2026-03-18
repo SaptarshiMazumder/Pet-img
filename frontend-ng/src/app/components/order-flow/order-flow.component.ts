@@ -115,6 +115,7 @@ export class OrderFlowComponent implements OnChanges, OnInit {
     if (!cat.variants.find(v => v.color === cfg.color)) cfg.color = cat.variants[0]?.color ?? '';
     const sizeKeys = Object.keys(cat.sizes);
     if (!sizeKeys.includes(cfg.size)) cfg.size = sizeKeys[0] ?? '';
+    if (cfg.item.orientation) cfg.orientation = cfg.item.orientation;
   }
 
   categoryFor(cfg: ItemConfig): FrameCategory | undefined {

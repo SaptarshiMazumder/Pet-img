@@ -35,7 +35,6 @@ def upload_sample():
 
 
 @samples_bp.get("/samples")
-@require_auth
 def list_samples():
     result = []
     for doc in samples_db.list_all():

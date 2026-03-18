@@ -1,24 +1,27 @@
 <!-- ── Header ─────────────────────────────────────────────── -->
 <header>
   <div class="header-inner">
-    <div
-      class="header-left"
-      (click)="headerMenuOpen = !headerMenuOpen"
-      [class.menu-trigger--open]="headerMenuOpen"
-      style="cursor: pointer"
-    >
-      @if (currentUser) {
-        <div class="auth-avatar" [title]="currentUser.displayName || currentUser.email || ''">
-          {{ (currentUser.displayName || currentUser.email || '?')[0].toUpperCase() }}
-        </div>
-      } @else {
-        <div class="auth-avatar auth-avatar--guest">?</div>
+    <div class="header-left">
+      @if (activeTab !== 'samples') {
+        <button class="header-back" (click)="switchTab('samples')" title="Back to home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+        </button>
       }
-    </div>
-
-    <div class="header-brand">
-      <span class="logo-mark">墓</span>
-      <span class="brand-name">Pet Generator</span>
+      <div
+        (click)="headerMenuOpen = !headerMenuOpen"
+        [class.menu-trigger--open]="headerMenuOpen"
+        style="cursor: pointer"
+      >
+        @if (currentUser) {
+          <div class="auth-avatar" [title]="currentUser.displayName || currentUser.email || ''">
+            {{ (currentUser.displayName || currentUser.email || '?')[0].toUpperCase() }}
+          </div>
+        } @else {
+          <div class="auth-avatar auth-avatar--guest">?</div>
+        }
+      </div>
     </div>
 
     <div class="header-right"></div>
@@ -239,6 +242,7 @@
             [templates]="templates"
             (jobClicked)="openExpandFromJob($event)"
             (jobRemoved)="removeJob($event)"
+            (jobRegenerate)="regenerateFromJob($event)"
           />
         </section>
       }
@@ -254,6 +258,7 @@
               (itemClicked)="openExpandFromGallery($event)"
               (refresh)="loadGallery()"
               (regenerateRequested)="regenerateFromGallery($event)"
+          (deleteRequested)="deleteFromGallery($event)"
             />
           </div>
         </section>
@@ -343,6 +348,7 @@
           (itemClicked)="openExpandFromGallery($event)"
           (refresh)="loadGallery()"
           (regenerateRequested)="regenerateFromGallery($event)"
+          (deleteRequested)="deleteFromGallery($event)"
         />
       } @else {
         <div class="gallery-guest">

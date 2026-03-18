@@ -55,38 +55,58 @@
   .jobs-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); }
 }
 
-/* ── Card ────────────────────────────────────────── */
-.job-card {
-  position: relative;
-  aspect-ratio: 3 / 4;
+/* ── Card wrapper ────────────────────────────────── */
+.job-card-wrap {
+  display: flex;
+  flex-direction: column;
   border-radius: 16px;
-  overflow: hidden;
-  background: var(--surface);
   border: 1.5px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
-.job-card.clickable {
-  cursor: pointer;
-}
-
-.job-card.clickable:hover {
+.job-card-wrap:hover {
   border-color: var(--accent-dim);
   transform: translateY(-3px);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
 }
 
-.job-card.clickable:hover .job-view-overlay {
-  opacity: 1;
+.job-card-wrap:hover .job-view-overlay { opacity: 1; }
+.job-card-wrap:hover .job-remove { opacity: 1; }
+
+.job-regen-strip {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 5px 8px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
-.job-card.clickable:hover .job-remove {
-  opacity: 1;
+.regen-btn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  transition: opacity 0.15s;
+  font-family: inherit;
+}
+.regen-btn:hover { opacity: 0.7; }
+
+/* ── Card ────────────────────────────────────────── */
+.job-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--surface);
 }
 
-.job-card:hover .job-remove {
-  opacity: 1;
-}
+.job-card.clickable { cursor: pointer; }
 
 /* ── Image ───────────────────────────────────────── */
 .job-img {

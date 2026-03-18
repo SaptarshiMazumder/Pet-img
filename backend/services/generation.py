@@ -3,10 +3,12 @@ Generation service — orchestrates the full portrait generation pipeline:
   build prompt → submit to RunPod → poll for result → review (Gemini) → fix if needed (Gemini) → persist + return
 """
 import os
+import threading
 import time
 from pathlib import Path
 
 from backend.services.prompt_builder import build_animal_edo_prompt
+from backend.services.compress import compress_image
 from backend.runpod import submit_job, poll_job
 from backend.job_store import job_store
 from backend.storage import public_url, download_object, upload_object
@@ -26,6 +28,7 @@ def process_runpod_result(
     animal_data: dict | None = None,
     duration_seconds: float | None = None,
     source_r2_key: str | None = None,
+    orientation: str = "portrait",
 ) -> None:
     """Convert a RunPod result into a presigned URL, persist to Firestore, update job store."""
     images = runpod_result.get("images", [])
@@ -43,8 +46,10 @@ def process_runpod_result(
             seed=runpod_result.get("seed"),
             duration_seconds=duration_seconds,
             source_r2_key=source_r2_key,
+            orientation=orientation,
         )
 
+    # Mark job complete with full-size URL immediately so the UI shows it right away
     job_store.update(
         job_id,
         status="completed",
@@ -58,6 +63,31 @@ def process_runpod_result(
         prompt_id=runpod_result.get("prompt_id"),
         duration_seconds=duration_seconds,
     )
+
+    # Compress asynchronously — Firestore gets updated with compressed_r2_key when done
+    if uid and r2_key:
+        threading.Thread(
+            target=_compress_and_persist,
+            args=(job_id, r2_key),
+            daemon=True,
+        ).start()
+
+
+def _compress_and_persist(job_id: str, r2_key: str) -> None:
+    """Download, compress, upload to R2, then patch the Firestore doc."""
+    try:
+        raw = download_object(r2_key)
+        compressed = compress_image(raw)
+        base = r2_key.rsplit(".", 1)[0] if "." in r2_key else r2_key
+        compressed_r2_key = f"compressed/{base.split('/')[-1]}.jpg"
+        upload_object(compressed_r2_key, compressed, content_type="image/jpeg")
+        print(f"[compress] saved {compressed_r2_key} ({len(compressed) // 1024}KB)")
+        from backend.firebase import get_db
+        get_db().collection("generations").document(job_id).update(
+            {"compressed_r2_key": compressed_r2_key}
+        )
+    except Exception as exc:
+        print(f"[compress] failed for {r2_key}: {exc}")
 
 
 def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:
@@ -120,6 +150,7 @@ def run_job_background(
     dry_run: bool = False,
     uid: str | None = None,
     source_r2_key: str | None = None,
+    orientation: str = "portrait",
 ) -> None:
     autoscaler.on_job_start()
     active_jobs_db.persist(job_id, style_key, template_key, uid)
@@ -185,6 +216,7 @@ def run_job_background(
             animal_data=result["animal_data"],
             duration_seconds=duration,
             source_r2_key=source_r2_key,
+            orientation=orientation,
         )
 
     except Exception as exc:

@@ -13,6 +13,7 @@ export class JobQueueComponent {
   @Input() templates: Record<string, any> = {};
   @Output() jobClicked = new EventEmitter<JobEntry>();
   @Output() jobRemoved = new EventEmitter<string>();
+  @Output() jobRegenerate = new EventEmitter<JobEntry>();
 
   onJobClick(job: JobEntry) {
     if (job.status === 'completed' && job.presigned_url) {
@@ -23,6 +24,13 @@ export class JobQueueComponent {
   onRemove(event: Event, jobId: string) {
     event.stopPropagation();
     this.jobRemoved.emit(jobId);
+  }
+
+  onRegen(event: Event, job: JobEntry) {
+    event.stopPropagation();
+    if (confirm('Regenerate this portrait? The current result will be replaced.')) {
+      this.jobRegenerate.emit(job);
+    }
   }
 
   templateName(key: string): string {

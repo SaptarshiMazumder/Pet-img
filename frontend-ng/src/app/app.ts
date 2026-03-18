@@ -265,6 +265,7 @@ export class App implements OnInit, OnDestroy {
     form.append('dry_run', String(this.dryRun));
     form.append('width', String(this.selectedRatio.w));
     form.append('height', String(this.selectedRatio.h));
+    form.append('orientation', this.selectedRatio.label.toLowerCase() as 'portrait' | 'landscape');
 
     this.api.submitGenerate(form).subscribe({
       next: (resp: any) => {
@@ -567,6 +568,17 @@ export class App implements OnInit, OnDestroy {
     }
   }
 
+  regenerateFromJob(job: JobEntry) {
+    this.api.regenerateGeneration(job.job_id).subscribe({
+      next: (resp) => {
+        this.jobs = this.jobs.filter(j => j.job_id !== job.job_id);
+        this.jobs = [{ job_id: resp.job_id, template_key: job.template_key, style_key: job.style_key, status: 'pending', submitted_at: new Date() }, ...this.jobs];
+        this.schedulePoll(resp.job_id);
+      },
+      error: (err) => { this.errorMsg = err?.error?.error || 'Regeneration failed.'; },
+    });
+  }
+
   regenerateFromGallery(entry: GalleryEntry) {
     if (!entry.source_url) {
       // Old generation — no source stored, fall back to manual flow
@@ -586,6 +598,13 @@ export class App implements OnInit, OnDestroy {
       error: (err) => {
         this.errorMsg = err?.error?.error || 'Regeneration failed.';
       },
+    });
+  }
+
+  deleteFromGallery(entry: GalleryEntry) {
+    this.api.deleteGeneration(entry.job_id).subscribe({
+      next: () => { this.gallery = this.gallery.filter(g => g.job_id !== entry.job_id); },
+      error: () => {},
     });
   }
 

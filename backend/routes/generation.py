@@ -57,6 +57,7 @@ def generate():
         return jsonify({"error": str(e)}), 400
 
     dry_run = request.form.get("dry_run", "false").lower() == "true"
+    orientation = request.form.get("orientation", "portrait")
     uid = get_optional_uid()
 
     overrides = {}
@@ -88,7 +89,7 @@ def generate():
     thread = threading.Thread(
         target=run_job_background,
         args=(job_id, tmp_path, style, style_key, template_key, overrides),
-        kwargs={"dry_run": dry_run, "uid": uid, "source_r2_key": source_r2_key},
+        kwargs={"dry_run": dry_run, "uid": uid, "source_r2_key": source_r2_key, "orientation": orientation},
         daemon=True,
     )
     thread.start()

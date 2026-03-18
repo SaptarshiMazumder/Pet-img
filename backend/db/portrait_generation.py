@@ -21,6 +21,8 @@ def save(
     seed=None,
     duration_seconds: float | None = None,
     source_r2_key: str | None = None,
+    compressed_r2_key: str | None = None,
+    orientation: str = "portrait",
 ) -> None:
     """Persist a completed portrait generation result. No-op on Firestore errors (logged)."""
     try:
@@ -32,12 +34,15 @@ def save(
             "style_key": style_key,
             "positive_prompt": positive_prompt,
             "seed": seed,
+            "orientation": orientation,
             "created_at": fb_firestore.SERVER_TIMESTAMP,
         }
         if duration_seconds is not None:
             doc["duration_seconds"] = round(duration_seconds, 1)
         if source_r2_key:
             doc["source_r2_key"] = source_r2_key
+        if compressed_r2_key:
+            doc["compressed_r2_key"] = compressed_r2_key
         _db().collection("generations").document(job_id).set(doc)
     except Exception as exc:
         print(f"[Firestore] Failed to save portrait generation {job_id}: {exc}")
