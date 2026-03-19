@@ -65,7 +65,7 @@ resource "google_cloud_run_v2_service" "autoscaler" {
     service_account = google_service_account.autoscaler.email
 
     scaling {
-      min_instance_count = 1
+      min_instance_count = 0
       max_instance_count = 1
     }
 
@@ -73,7 +73,7 @@ resource "google_cloud_run_v2_service" "autoscaler" {
       image = "${local.image_base}/autoscaler:${var.image_tag}"
 
       resources {
-        cpu_idle = false
+        cpu_idle = true
         limits = {
           cpu    = "1"
           memory = "512Mi"
@@ -87,6 +87,10 @@ resource "google_cloud_run_v2_service" "autoscaler" {
       env {
         name  = "RUNPOD_API_KEY"
         value = var.runpod_api_key
+      }
+      env {
+        name  = "FIREBASE_SERVICE_ACCOUNT_KEY"
+        value = var.firebase_sa_path
       }
     }
   }
@@ -104,7 +108,7 @@ resource "google_cloud_run_v2_service" "backend" {
     service_account = google_service_account.backend.email
 
     scaling {
-      min_instance_count = 1
+      min_instance_count = 0
       max_instance_count = var.max_instances
     }
 

@@ -11,6 +11,7 @@ COPY autoscaler/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY autoscaler/ ./autoscaler/
+COPY backend/*.json ./backend/
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app

@@ -108,22 +108,12 @@ def _maybe_recover_stuck_workers() -> None:
     _stuck_checks = 0
     current_max = health["workers_max"] or _WARM_MAX
 
-    if current_max < _MAX_WORKERS:
-        # Bump max by 1 — forces RunPod to spawn a fresh healthy worker
-        try:
-            set_workers(min_n=1, max_n=current_max + 1)
-            print(f"[autoscaler] recovery: bumped max to {current_max + 1}")
-        except Exception as exc:
-            print(f"[autoscaler] recovery bump failed: {exc}")
-    else:
-        # Already at hard cap — bounce to flush all throttled workers
-        try:
-            set_workers(min_n=0, max_n=0)
-            time.sleep(2)
-            set_workers(min_n=1, max_n=_WARM_MAX)
-            print("[autoscaler] recovery: bounced workers (was at max cap)")
-        except Exception as exc:
-            print(f"[autoscaler] recovery bounce failed: {exc}")
+    desired = min(current_max + 1, _MAX_WORKERS) if current_max < _MAX_WORKERS else _MAX_WORKERS
+    try:
+        set_workers(min_n=1, max_n=desired)
+        print(f"[autoscaler] recovery: re-asserted workers 1/{desired}")
+    except Exception as exc:
+        print(f"[autoscaler] recovery failed: {exc}")
 
 
 def _check() -> None:
@@ -169,5 +159,35 @@ def _loop() -> None:
             print(f"[autoscaler] check error: {exc}")
 
 
+def _recover_from_firestore() -> None:
+    """On startup, restore _active_count from Firestore processing jobs."""
+    global _active_count, _has_had_activity, _queue_empty_since
+    try:
+        import os
+        import firebase_admin
+        from firebase_admin import credentials, firestore as fb_firestore
+
+        sa_path = os.environ.get("FIREBASE_SERVICE_ACCOUNT_KEY")
+        if not sa_path:
+            return
+
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(credentials.Certificate(sa_path))
+
+        db = fb_firestore.client()
+        processing = db.collection("jobs").where("status", "in", ["pending", "processing", "fixing"]).stream()
+        count = sum(1 for _ in processing)
+
+        if count > 0:
+            with _lock:
+                _active_count = count
+                _has_had_activity = True
+                _queue_empty_since = None
+            print(f"[autoscaler] recovered {count} in-flight jobs from Firestore")
+    except Exception as exc:
+        print(f"[autoscaler] Firestore recovery failed: {exc}")
+
+
 def start() -> None:
+    _recover_from_firestore()
     threading.Thread(target=_loop, daemon=True).start()

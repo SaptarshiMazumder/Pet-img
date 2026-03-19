@@ -53,7 +53,7 @@
   },
   "boat_sakura": {
     "name": "Boat on Lake with Sakura",
-    "preview_url": "assets/templates/catStoic.png",
+    "preview_url": "assets/templates/boatHusky.png",
     "role_title": "a serene figure on the water",
     "attire_verb": "wears",
     "wardrobe": "a traditional kimono with subtle stripes or patterns, wide sleeves, suitable for being in a boat",
@@ -62,7 +62,24 @@
     "environment": "Cinematic photo taken from the shore: the edge of the water is visible in the foreground, with the boat on the lake beyond. The shore and the sakura trees are clearly visible—lush sakura (cherry blossoms) in full bloom along the water's edge, green foliage, and perhaps a traditional bridge or pavilion. Calm lake with clear water, subtle wave patterns, and sakura leaves and petals floating on the surface. Serene and peaceful.",
     "lighting": "Soft natural daylight over the water, gentle reflections on the surface, a light blue sky with soft clouds.",
     "mood": "serene, peaceful, contemplative, poetic, and atmospheric",
-    "not_suitable_for": ["shiba", "akita", "husky", "malamute", "samoyed", "hokkaido", "kishu", "kai", "shikoku", "jindo", "chow chow", "pomeranian", "keeshond", "finnish spitz", "norwegian elkhound", "american eskimo"]
+    "not_suitable_for": [
+      "shiba",
+      "akita",
+      "husky",
+      "malamute",
+      "samoyed",
+      "hokkaido",
+      "kishu",
+      "kai",
+      "shikoku",
+      "jindo",
+      "chow chow",
+      "pomeranian",
+      "keeshond",
+      "finnish spitz",
+      "norwegian elkhound",
+      "american eskimo"
+    ]
   },
   "battle_lord": {
     "name": "Battle Lord",
@@ -88,6 +105,23 @@
     "environment": "A large, ancient cherry blossom tree with thick gnarled dark branches and a lush canopy of vibrant bright pink or magenta blossoms. Numerous cherry petals falling through the air. Dark uneven ground with scattered pink petals and sparse foliage. A very large, soft pale pink or cream moon glowing in the background. Sky dark muted purplish-black. Traditional Japanese aesthetic with strong contrast between dark tones and vivid pinks.",
     "lighting": "Strong backlight from the large pale disc; the figure is silhouetted against the glow. No direct front light; details read through dark tones and edges against the backlight.",
     "mood": "dramatic, serene, contemplative, atmospheric, and traditionally Japanese",
-    "not_suitable_for": ["shiba", "akita", "husky", "malamute", "samoyed", "hokkaido", "kishu", "kai", "shikoku", "jindo", "chow chow", "pomeranian", "keeshond", "finnish spitz", "norwegian elkhound", "american eskimo"]
+    "not_suitable_for": [
+      "shiba",
+      "akita",
+      "husky",
+      "malamute",
+      "samoyed",
+      "hokkaido",
+      "kishu",
+      "kai",
+      "shikoku",
+      "jindo",
+      "chow chow",
+      "pomeranian",
+      "keeshond",
+      "finnish spitz",
+      "norwegian elkhound",
+      "american eskimo"
+    ]
   }
 }

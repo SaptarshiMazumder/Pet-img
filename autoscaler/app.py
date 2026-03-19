@@ -96,6 +96,19 @@ def route_update_job(job_id: str):
 
 @app.route("/jobs", methods=["GET"])
 def route_list_jobs():
-    with jobs._lock:
-        all_jobs = list(jobs._jobs.values())
-    return jsonify(all_jobs)
+    try:
+        import os
+        import firebase_admin
+        from firebase_admin import credentials, firestore as fb_firestore
+
+        sa_path = os.environ.get("FIREBASE_SERVICE_ACCOUNT_KEY")
+        if sa_path and not firebase_admin._apps:
+            firebase_admin.initialize_app(credentials.Certificate(sa_path))
+
+        db = fb_firestore.client()
+        docs = db.collection("jobs").order_by("job_id").limit(50).stream()
+        return jsonify([d.to_dict() for d in docs])
+    except Exception as exc:
+        print(f"[dashboard] Firestore jobs fetch failed: {exc}")
+        with jobs._lock:
+            return jsonify(list(jobs._jobs.values()))
