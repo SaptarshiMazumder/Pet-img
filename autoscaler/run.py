@@ -10,5 +10,6 @@ from autoscaler.scaling import start as start_scaling_loop
 from autoscaler.app import app
 
 if __name__ == "__main__":
+    import os
     start_scaling_loop()
-    app.run(host="0.0.0.0", port=5001, debug=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5001)), debug=False)

@@ -13,11 +13,12 @@ def _scaler_url(path: str) -> str:
 
 
 def _req(method: str, path: str, body: dict | None = None) -> dict | None:
-    data = json.dumps(body).encode() if body is not None else b"{}"
+    data = json.dumps(body).encode() if body is not None else None
+    headers = {"Content-Type": "application/json"} if data is not None else {}
     req = urllib.request.Request(
         _scaler_url(path),
         data=data,
-        headers={"Content-Type": "application/json"},
+        headers=headers,
         method=method,
     )
     try:

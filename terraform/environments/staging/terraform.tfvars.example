@@ -1,0 +1,16 @@
+project_id         = "pet-gen-staging"
+region             = "asia-northeast1"
+image_tag          = "latest"
+
+r2_bucket_name     = "pets-staging"
+r2_account_id      = "CLOUDFLARE_ACCOUNT_ID"
+runpod_endpoint_id = "RUNPOD_ENDPOINT_ID"
+
+r2_access_key_id     = "R2_ACCESS_KEY_ID"
+r2_secret_access_key = "R2_SECRET_ACCESS_KEY"
+firebase_sa_json     = "PASTE_FIREBASE_SA_JSON_HERE"
+runpod_api_key       = "RUNPOD_API_KEY"
+gemini_api_key       = "GEMINI_API_KEY"
+razorpay_key_id      = "rzp_test_..."
+razorpay_key_secret  = "RAZORPAY_KEY_SECRET"
+gelato_api_key       = "GELATO_API_KEY"

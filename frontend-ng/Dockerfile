@@ -17,8 +17,10 @@ RUN npm run build
 # Stage 2: Serve
 FROM nginx:alpine
 
+RUN apk add --no-cache gettext
+
 COPY --from=build /app/dist/frontend-ng/browser /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf.template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN sed -i 's/\r$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
