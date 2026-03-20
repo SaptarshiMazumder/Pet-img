@@ -70,7 +70,7 @@ def create_payment(order_id: str):
 
     return jsonify({
         "session_id": session["id"],
-        "session_url": session["payment_url"],
+        "session_url": session["session_url"],
         "amount": total_jpy,
         "total_jpy": total_jpy,
         "currency": "JPY",

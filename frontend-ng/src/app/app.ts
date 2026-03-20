@@ -139,7 +139,7 @@ export class App implements OnInit, OnDestroy {
   productsLoading = false;
 
   // ── Navigation ─────────────────────────────────────────────
-  activeTab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' | 'terms' | 'support' | 'privacy' = 'samples';
+  activeTab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' | 'terms' | 'support' | 'privacy' | 'scta' = 'samples';
   characterAnimation: 'idle' | 'happy' = 'idle';
   fabRotating = false;
   catMenuOpen = false;
@@ -560,7 +560,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   // ── Navigation ─────────────────────────────────────────────
-  switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' | 'terms' | 'support' | 'privacy') {
+  switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' | 'terms' | 'support' | 'privacy' | 'scta') {
     this.activeTab = tab;
     if (
       (tab === 'samples' || tab === 'upload') &&

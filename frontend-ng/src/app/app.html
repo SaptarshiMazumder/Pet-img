@@ -80,6 +80,13 @@
       >
         Terms &amp; Conditions
       </button>
+      <button
+        class="menu-item"
+        [class.menu-item--active]="activeTab === 'scta'"
+        (click)="switchTab('scta'); headerMenuOpen = false"
+      >
+        特定商取引法に基づく表記
+      </button>
       <div class="menu-divider"></div>
       @if (currentUser) {
         <button class="menu-item" (click)="signOut(); headerMenuOpen = false">Sign out</button>
@@ -172,6 +179,8 @@
         <button class="footer-link" (click)="switchTab('privacy')">Privacy Policy</button>
         <span class="footer-sep">·</span>
         <button class="footer-link" (click)="switchTab('terms')">Terms &amp; Conditions</button>
+        <span class="footer-sep">·</span>
+        <button class="footer-link" (click)="switchTab('scta')">特定商取引法に基づく表記</button>
         <span class="footer-sep">·</span>
         <span class="footer-brand">A product of <a href="https://nakamaai.co" target="_blank" rel="noopener" class="footer-link-a">Nakama AI</a></span>
       </footer>
@@ -517,31 +526,34 @@
     <div class="page-static">
       <div class="static-card">
         <h2 class="static-title">Terms &amp; Conditions</h2>
-        <p class="static-lead">Effective date: March 19, 2026</p>
+        <p class="static-lead">Last Updated: March 20, 2026</p>
 
         <div class="static-section">
-          <h3 class="static-section-title">1. Agreement to Terms</h3>
-          <p>By accessing or using Pet-to AI, a product of Nakama AI ("Service"), you agree to be bound by these Terms &amp; Conditions ("Terms"). If you do not agree, do not use the Service.</p>
+          <h3 class="static-section-title">1. Service Overview</h3>
+          <p>The website <a href="https://pet-to.com/" target="_blank" rel="noopener" class="support-email">https://pet-to.com/</a> (the "Service") is an AI-powered platform operated by Nakama AI. We provide tools for users to generate custom artwork of pets by uploading images. Users can then choose to order physical prints of their generated designs.</p>
         </div>
 
         <div class="static-section">
-          <h3 class="static-section-title">2. Using the Service</h3>
-          <p>You agree to use the Service only for lawful purposes and in accordance with these Terms. You must not misuse, attempt to disrupt, or use the Service in any way that could harm Nakama AI or other users. You may not attempt to reverse-engineer, scrape, or abuse the Service's APIs or infrastructure. You are responsible for all content you upload — do not upload images without the subject's consent or any illegal or harmful material.</p>
+          <h3 class="static-section-title">2. User-Uploaded Content</h3>
+          <p>By uploading photos to pet-to.com, you represent that you own the rights to such content. You grant us a limited license to process these images solely to provide the AI generation service.</p>
         </div>
 
         <div class="static-section">
-          <h3 class="static-section-title">3. Eligibility</h3>
-          <p>You must be at least 18 years of age to use the Service. By using it, you confirm that you meet this requirement. If you are using the Service on behalf of a business, you confirm that you have the authority to agree to these Terms on that business's behalf.</p>
+          <h3 class="static-section-title">3. AI Generation and Order Process</h3>
+          <p><strong>Instant Previews:</strong> AI generation occurs instantly. Users are encouraged to use the unlimited free preview feature to ensure they are satisfied with the artistic style before purchasing.</p>
+          <p style="margin-top:0.5rem"><strong>Fulfillment:</strong> Once a physical print is ordered, the data is transmitted to our Japanese partner, Gakubuti.net (Nagano), for printing and framing.</p>
         </div>
 
         <div class="static-section">
-          <h3 class="static-section-title">4. Payments and Billing</h3>
-          <p>Some features require payment. Billing is managed through our third-party payment processor (Razorpay) — we do not collect or store your card details directly. All applicable fees are shown before purchase. We reserve the right to update pricing, but changes will not apply to your current billing period.</p>
+          <h3 class="static-section-title">4. Payment and Delivery</h3>
+          <p>Full payment in JPY is required at checkout. Payment is processed securely via KOMOJU — we do not collect or store your card details directly.</p>
+          <p style="margin-top:0.5rem">Estimated delivery for physical prints within Japan is 10–14 days.</p>
         </div>
 
         <div class="static-section">
-          <h3 class="static-section-title">5. Refunds</h3>
-          <p>Because the Service is digital and access is granted upon payment, refunds are not offered as a standard practice. Refunds for defective or damaged print orders are considered on a case-by-case basis — contact us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>. Once a print order enters production it cannot be cancelled.</p>
+          <h3 class="static-section-title">5. Refunds and Cancellations</h3>
+          <p>Since AI generation is instant and orders are transmitted immediately to our fulfillment partner, cancellations are not accepted after order confirmation. Returns for customer convenience are not accepted.</p>
+          <p style="margin-top:0.5rem">In the case of damage during shipping or a manufacturing defect, please contact us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a> within 7 days of receiving your order. After confirmation with the carrier and fulfillment partner, we will provide a full refund or send a replacement.</p>
         </div>
 
         <div class="static-section">
@@ -550,34 +562,100 @@
         </div>
 
         <div class="static-section">
-          <h3 class="static-section-title">7. Intellectual Property</h3>
-          <p>All Nakama AI software, branding, designs, and underlying models are owned by Nakama AI and protected under applicable intellectual property laws. You may not copy, reproduce, or redistribute any part of the Service without prior written permission.</p>
-          <p style="margin-top: 0.5rem">You retain ownership of the photos you upload. By uploading, you grant us a limited licence to process them solely for generating your portraits. AI-generated outputs are provided to you for personal use; commercial resale requires our prior written consent.</p>
+          <h3 class="static-section-title">7. Proprietary Rights</h3>
+          <p>All AI-generation technology and website content on pet-to.com are the property of Nakama AI and protected under applicable intellectual property laws. You may not copy, reproduce, or redistribute any part of the Service without prior written permission.</p>
+          <p style="margin-top:0.5rem">You retain ownership of the photos you upload. By uploading, you grant us a limited licence to process them solely for generating your portraits.</p>
         </div>
 
         <div class="static-section">
           <h3 class="static-section-title">8. Limitation of Liability</h3>
-          <p>The Service is provided "as is" without warranties of any kind. To the fullest extent permitted by law, Nakama AI shall not be liable for any indirect, incidental, or consequential damages — including loss of data, revenue, or business — arising from your use of or inability to use the Service.</p>
+          <p>The Service is provided "as is" without warranties of any kind. To the fullest extent permitted by law, Nakama AI shall not be liable for any indirect, incidental, or consequential damages arising from your use of or inability to use the Service.</p>
         </div>
 
         <div class="static-section">
-          <h3 class="static-section-title">9. Termination</h3>
-          <p>You may stop using the Service at any time. We reserve the right to suspend or terminate your access if you violate these Terms or engage in conduct that is harmful to other users or to Nakama AI.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">10. Changes to These Terms</h3>
-          <p>We may update these Terms from time to time. When we do, we will update the effective date at the top of this page. Continued use of the Service after changes are posted means you accept the revised Terms.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">11. Governing Law</h3>
+          <h3 class="static-section-title">9. Governing Law</h3>
           <p>These Terms are governed by the laws of India. Any disputes arising from your use of the Service will be subject to the jurisdiction of courts in West Bengal, India.</p>
         </div>
 
         <div class="static-section">
-          <h3 class="static-section-title">12. Contact</h3>
+          <h3 class="static-section-title">10. Contact</h3>
           <p>Questions about these Terms? Reach out to us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>.</p>
+        </div>
+
+        <button class="static-back-btn" (click)="switchTab('samples')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          Back to Gallery
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- SCTA PAGE ────────────────────────────────────────────── -->
+  @if (activeTab === 'scta') {
+    <div class="page-static">
+      <div class="static-card">
+        <h2 class="static-title">特定商取引法に基づく表記</h2>
+        <p class="static-lead">Notation based on the Specified Commercial Transactions Act</p>
+
+        <div class="scta-table-wrap">
+          <table class="scta-table">
+            <tbody>
+              <tr>
+                <th>販売業者<br><span class="scta-th-sub">Seller Name</span></th>
+                <td>Nakama AI</td>
+              </tr>
+              <tr>
+                <th>運営責任者<br><span class="scta-th-sub">Representative</span></th>
+                <td>Purabi Mazumder</td>
+              </tr>
+              <tr>
+                <th>所在地<br><span class="scta-th-sub">Address</span></th>
+                <td>258, Ward no 12, Indrakanan, Sripalli, Kanainatsal, Barddhaman, West Bengal, 713103, India</td>
+              </tr>
+              <tr>
+                <th>電話番号<br><span class="scta-th-sub">Phone Number</span></th>
+                <td>+91 7209167772</td>
+              </tr>
+              <tr>
+                <th>メールアドレス<br><span class="scta-th-sub">Email</span></th>
+                <td><a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a></td>
+              </tr>
+              <tr>
+                <th>サイトURL<br><span class="scta-th-sub">Site URL</span></th>
+                <td><a href="https://pet-to.com/" target="_blank" rel="noopener" class="support-email">https://pet-to.com/</a></td>
+              </tr>
+              <tr>
+                <th>販売価格<br><span class="scta-th-sub">Sales Price</span></th>
+                <td>各商品ページに表示された価格に基づきます<br><span class="scta-td-sub">Based on prices displayed on each product page</span></td>
+              </tr>
+              <tr>
+                <th>商品代金以外に必要な料金<br><span class="scta-th-sub">Additional Fees</span></th>
+                <td>配送料（チェックアウト時に表示されます）<br><span class="scta-td-sub">Shipping fees, if applicable, are displayed at checkout</span></td>
+              </tr>
+              <tr>
+                <th>お支払方法<br><span class="scta-th-sub">Payment Methods</span></th>
+                <td>クレジットカード、コンビニ決済等（KOMOJU経由）<br><span class="scta-td-sub">Credit Card, Konbini, etc. via KOMOJU</span></td>
+              </tr>
+              <tr>
+                <th>代金の支払時期<br><span class="scta-th-sub">Payment Timing</span></th>
+                <td>商品注文時にお支払いいただきます<br><span class="scta-td-sub">Payment is due at the time of order</span></td>
+              </tr>
+              <tr>
+                <th>商品の引渡時期<br><span class="scta-th-sub">Delivery Time</span></th>
+                <td>AI生成は即時に行われます。印刷および配送は、注文確定後10〜14日以内に完了します<br><span class="scta-td-sub">AI generation is instant. Printing and delivery are completed within 10–14 days of order confirmation</span></td>
+              </tr>
+              <tr>
+                <th>返品・交換・キャンセル<br><span class="scta-th-sub">Returns / Exchanges / Cancellations</span></th>
+                <td>
+                  AI生成は即時であり、注文は直ちに日本国内の提携先（Gakubuti.net）へ送信されるため、注文確定後のキャンセルは受け付けておりません。お客様都合による返品は不可となります。<br>
+                  配送中の破損や初期不良がある場合は、商品到着後7日以内にご連絡ください。配送業者および提携先との確認後、全額返金または代替品の再発送をいたします。<br>
+                  <span class="scta-td-sub">Since AI generation is instant and orders are sent immediately to Gakubuti.net, cancellations are not accepted. No returns for customer convenience. For damage or defects, notify us within 7 days of receipt for a full refund or replacement.</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <button class="static-back-btn" (click)="switchTab('samples')">

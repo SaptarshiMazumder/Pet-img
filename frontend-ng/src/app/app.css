@@ -1078,3 +1078,58 @@ main {
   border-color: var(--accent-dim);
   color: var(--text);
 }
+
+/* ── SCTA table ───────────────────────────────────────────── */
+.scta-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.scta-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.scta-table th,
+.scta-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.scta-table tr:last-child th,
+.scta-table tr:last-child td {
+  border-bottom: none;
+}
+
+.scta-table th {
+  width: 38%;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.scta-table td {
+  color: var(--text-muted);
+}
+
+.scta-th-sub {
+  display: block;
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
+}
+
+.scta-td-sub {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  opacity: 0.75;
+  margin-top: 0.35rem;
+}

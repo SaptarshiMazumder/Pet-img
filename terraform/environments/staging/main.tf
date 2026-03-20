@@ -35,8 +35,9 @@ module "app" {
   r2_secret_access_key = var.r2_secret_access_key
   runpod_api_key       = var.runpod_api_key
   gemini_api_key       = var.gemini_api_key
-  razorpay_key_id      = var.razorpay_key_id
-  razorpay_key_secret  = var.razorpay_key_secret
+  komoju_secret_key      = var.komoju_secret_key
+  komoju_publishable_key = var.komoju_publishable_key
+  komoju_merchant_id     = var.komoju_merchant_id
   gelato_api_key       = var.gelato_api_key
 }
 
