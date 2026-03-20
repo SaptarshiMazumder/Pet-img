@@ -38,6 +38,7 @@ def get_catalog():
         }
         categories.append({
             "name": name,
+            "overlay_inset": cat.get("overlay_inset", 10),
             "variants": variants,
             "sizes": sizes,
         })

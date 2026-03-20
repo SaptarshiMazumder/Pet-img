@@ -1,5 +1,6 @@
 FRAME_CATALOG: dict[str, dict[str, any]] = {
     "油絵額縁 8235(Oil painting frame 8235)": {
+        "overlay_inset": 3,   # % of image dimensions the frame extends beyond each edge
         "variants": [
             {"color": "ホワイト",  "preview_img_landscape": "backend/config/config_preview_images/8235_white_landscape.png",  "preview_img_portrait": "backend/config/config_preview_images/8235_white_portrait.png"},
             {"color": "ブラック",  "preview_img_landscape": "backend/config/config_preview_images/8235_black_landscape.png",  "preview_img_portrait": "backend/config/config_preview_images/8235_black_portrait.png"},
@@ -15,6 +16,7 @@ FRAME_CATALOG: dict[str, dict[str, any]] = {
         },
     },
     "油絵額縁 8117(Oil painting frame 8117)": {
+        "overlay_inset": 19,
         "variants": [
             {"color": "ストーングレー", "preview_img_landscape": "backend/config/config_preview_images/8117_stone_landscape.png", "preview_img_portrait": "backend/config/config_preview_images/8117_stone_portrait.png"},
         ],
@@ -29,6 +31,7 @@ FRAME_CATALOG: dict[str, dict[str, any]] = {
         },
     },
     "油絵額縁 レインボー(Oil painting frame, Rainbow)": {
+        "overlay_inset": 18,
         "variants": [
             {"color": "金 (Gold)",    "preview_img_landscape": "backend/config/config_preview_images/rainbow_gold_landscape.png",   "preview_img_portrait": "backend/config/config_preview_images/rainbow_gold_portrait.png"},
             {"color": "銀 (Silver)",  "preview_img_landscape": "backend/config/config_preview_images/rainbow_silver_landscape.png", "preview_img_portrait": "backend/config/config_preview_images/rainbow_silver_portrait.png"},

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GalleryEntry, Order, ShippingAddress } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -11,6 +12,7 @@ export interface FrameVariant {
 
 export interface FrameCategory {
   name: string;
+  overlay_inset: number;
   variants: FrameVariant[];
   sizes: { [key: string]: { price: number } };
 }
@@ -29,7 +31,7 @@ const SHIPPING_KEY = 'pg_shipping';
 @Component({
   selector: 'app-order-flow',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, NgStyle],
   templateUrl: './order-flow.component.html',
   styleUrl: './order-flow.component.css',
 })
@@ -140,6 +142,16 @@ export class OrderFlowComponent implements OnChanges, OnInit {
     if (!variant) return '';
     const img = cfg.orientation === 'landscape' ? variant.preview_img_landscape : variant.preview_img_portrait;
     return img ? this.api.assetUrl(img) : '';
+  }
+
+  frameOverlayStyle(cfg: ItemConfig): { [key: string]: string } {
+    const inset = this.categoryFor(cfg)?.overlay_inset ?? 10;
+    return {
+      top: `-${inset}%`,
+      left: `-${inset}%`,
+      width: `${100 + inset * 2}%`,
+      height: `${100 + inset * 2}%`,
+    };
   }
 
   selectedFrameImg(cfg: ItemConfig): string {

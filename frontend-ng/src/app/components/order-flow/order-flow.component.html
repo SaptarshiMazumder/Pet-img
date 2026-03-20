@@ -33,7 +33,7 @@
           <div class="of-frame-composite">
             <img class="of-portrait-img" [src]="cfg.item.presigned_url!" alt="Your portrait" />
             @if (selectedFrameImg(cfg)) {
-              <img class="of-frame-overlay" [src]="selectedFrameImg(cfg)" alt="" />
+              <img class="of-frame-overlay" [src]="selectedFrameImg(cfg)" [ngStyle]="frameOverlayStyle(cfg)" alt="" />
             }
           </div>
         </div>
