@@ -27,7 +27,8 @@ def get_catalog():
         variants = [
             {
                 "color": v["color"],
-                "preview_img": f"/orders/catalog/images/{os.path.basename(v['preview_img'])}",
+                "preview_img_landscape": f"/orders/catalog/images/{os.path.basename(v['preview_img_landscape'])}",
+                "preview_img_portrait": f"/orders/catalog/images/{os.path.basename(v['preview_img_portrait'])}",
             }
             for v in cat.get("variants", [])
         ]

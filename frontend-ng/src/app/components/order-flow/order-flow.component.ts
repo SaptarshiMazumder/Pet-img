@@ -5,7 +5,8 @@ import { ApiService } from '../../services/api.service';
 
 export interface FrameVariant {
   color: string;
-  preview_img: string;
+  preview_img_landscape: string;
+  preview_img_portrait: string;
 }
 
 export interface FrameCategory {
@@ -136,7 +137,18 @@ export class OrderFlowComponent implements OnChanges, OnInit {
     const variant = cfg.category === cat.name
       ? (cat.variants.find(v => v.color === cfg.color) ?? cat.variants[0])
       : cat.variants[0];
-    return variant ? this.api.assetUrl(variant.preview_img) : '';
+    if (!variant) return '';
+    const img = cfg.orientation === 'landscape' ? variant.preview_img_landscape : variant.preview_img_portrait;
+    return img ? this.api.assetUrl(img) : '';
+  }
+
+  selectedFrameImg(cfg: ItemConfig): string {
+    const cat = this.categoryFor(cfg);
+    if (!cat) return '';
+    const variant = cat.variants.find(v => v.color === cfg.color) ?? cat.variants[0];
+    if (!variant) return '';
+    const img = cfg.orientation === 'landscape' ? variant.preview_img_landscape : variant.preview_img_portrait;
+    return img ? this.api.assetUrl(img) : '';
   }
 
   sizeKeys(cfg: ItemConfig): string[] {
