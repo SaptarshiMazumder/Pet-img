@@ -35,6 +35,7 @@ export interface JobEntry {
   error?: string;
   duration_seconds?: number;
   submitted_at: Date;
+  orientation?: 'portrait' | 'landscape';
 }
 
 export interface ExpandedItem {
@@ -44,6 +45,7 @@ export interface ExpandedItem {
   template_key: string;
   style_key: string;
   isSample?: boolean;
+  orientation?: 'portrait' | 'landscape';
 }
 
 export interface SampleEntry {

@@ -87,11 +87,11 @@
               <div class="of-pills">
                 <button class="of-pill"
                   [class.of-pill--active]="cfg.orientation === 'portrait'"
-                  [disabled]="!!cfg.item.orientation && cfg.item.orientation !== 'portrait'"
+                  [disabled]="cfg.lockedOrientation === 'landscape'"
                   (click)="cfg.orientation = 'portrait'">Portrait</button>
                 <button class="of-pill"
                   [class.of-pill--active]="cfg.orientation === 'landscape'"
-                  [disabled]="!!cfg.item.orientation && cfg.item.orientation !== 'landscape'"
+                  [disabled]="cfg.lockedOrientation === 'portrait'"
                   (click)="cfg.orientation = 'landscape'">Landscape</button>
               </div>
             </div>

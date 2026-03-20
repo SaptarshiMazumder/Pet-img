@@ -62,6 +62,7 @@ def process_runpod_result(
         seed=runpod_result.get("seed"),
         prompt_id=runpod_result.get("prompt_id"),
         duration_seconds=duration_seconds,
+        orientation=orientation,
     )
 
     # Compress asynchronously — Firestore gets updated with compressed_r2_key when done

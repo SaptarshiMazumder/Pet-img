@@ -23,6 +23,7 @@ export interface ItemConfig {
   color: string;
   size: string;
   orientation: 'portrait' | 'landscape';
+  lockedOrientation?: 'portrait' | 'landscape';
   quantity: number;
 }
 
@@ -86,12 +87,14 @@ export class OrderFlowComponent implements OnChanges, OnInit {
         .filter(i => i.presigned_url)
         .map((item, idx) => {
           const oi = this.editOrder!.items[idx];
+          const locked = (item.orientation ?? oi?.orientation) as 'portrait' | 'landscape' | undefined;
           const cfg: ItemConfig = {
             item,
             category: oi?.category ?? '',
             color: oi?.color ?? '',
             size: oi?.size ?? '',
-            orientation: (oi?.orientation as any) ?? 'portrait',
+            orientation: locked ?? (oi?.orientation as any) ?? 'portrait',
+            lockedOrientation: locked,
             quantity: oi?.quantity ?? 1,
           };
           this.applyDefaults(cfg);
@@ -102,7 +105,8 @@ export class OrderFlowComponent implements OnChanges, OnInit {
       this.itemConfigs = this.items
         .filter(i => i.presigned_url)
         .map(item => {
-          const cfg: ItemConfig = { item, category: '', color: '', size: '', orientation: 'portrait', quantity: 1 };
+          const locked = item.orientation;
+          const cfg: ItemConfig = { item, category: '', color: '', size: '', orientation: locked ?? 'portrait', lockedOrientation: locked, quantity: 1 };
           this.applyDefaults(cfg);
           return cfg;
         });

@@ -238,7 +238,8 @@
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
-.of-pill:hover { border-color: var(--accent-dim); color: var(--text); }
+.of-pill:hover:not(:disabled) { border-color: var(--accent-dim); color: var(--text); }
+.of-pill:disabled { opacity: 0.3; cursor: not-allowed; }
 .of-pill--active {
   border-color: var(--accent);
   background: var(--accent-glow);

@@ -101,6 +101,7 @@ export class App implements OnInit, OnDestroy {
       source_url: null,
       seed: null,
       created_at: order.created_at,
+      orientation: (item.orientation as 'portrait' | 'landscape') ?? undefined,
     }];
     this.activeTab = 'order';
   }
@@ -252,6 +253,7 @@ export class App implements OnInit, OnDestroy {
         source_url: null,
         seed: null,
         created_at: null,
+        orientation: completed.orientation,
       }]);
       return;
     }
@@ -287,6 +289,7 @@ export class App implements OnInit, OnDestroy {
             style_key: 'inkwash',
             status: 'pending',
             submitted_at: new Date(),
+            orientation: this.selectedRatio.label.toLowerCase() as 'portrait' | 'landscape',
           },
           ...this.jobs,
         ];
@@ -320,6 +323,7 @@ export class App implements OnInit, OnDestroy {
               seed: job.seed ?? undefined,
               error: job.error ?? undefined,
               duration_seconds: job.duration_seconds ?? undefined,
+              orientation: job.orientation ?? this.jobs[idx].orientation,
             },
             ...this.jobs.slice(idx + 1),
           ];
@@ -353,6 +357,7 @@ export class App implements OnInit, OnDestroy {
       positive_prompt: job.positive_prompt,
       template_key: job.template_key,
       style_key: job.style_key,
+      orientation: job.orientation,
     };
   }
 
@@ -363,6 +368,7 @@ export class App implements OnInit, OnDestroy {
       presigned_url: item.presigned_url,
       template_key: item.template_key,
       style_key: item.style_key,
+      orientation: item.orientation,
     };
   }
 
@@ -393,6 +399,7 @@ export class App implements OnInit, OnDestroy {
       source_url: null,
       seed: null,
       created_at: null,
+      orientation: item.orientation,
     }]);
   }
 
