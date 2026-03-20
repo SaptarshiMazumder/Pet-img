@@ -23,34 +23,21 @@ export class OrdersPageComponent {
   pay(order: Order) {
     this.payingId = order.id;
     this.payError = '';
-    this.api.createPayment(order.id).subscribe({
+    const returnUrl = `${window.location.origin}/?payment_return=1`;
+    this.api.createPayment(order.id, returnUrl).subscribe({
       next: (data) => {
-        const options = {
-          key: data.key_id,
-          amount: data.amount,
-          currency: data.currency,
-          name: 'Pet Generator',
-          description: 'ポートレート印刷注文',
-          order_id: data.razorpay_order_id,
-          language: 'ja',
-          prefill: {
-            name: `${order.shipping.firstName} ${order.shipping.lastName}`,
-            email: order.shipping.email,
-            contact: order.shipping.phone || '',
-          },
-          handler: (response: any) => {
-            this.api.verifyPayment(order.id, {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            }).subscribe({
+        window.open(data.session_url, 'komoju-payment', 'width=620,height=720,scrollbars=yes');
+        const handler = (event: MessageEvent) => {
+          if (event.origin !== window.location.origin) return;
+          if (event.data?.type === 'komoju_return') {
+            window.removeEventListener('message', handler);
+            this.api.verifyPayment(order.id).subscribe({
               next: () => { this.payingId = null; this.refresh.emit(); },
               error: () => { this.payingId = null; this.payError = 'Payment verification failed.'; },
             });
-          },
-          modal: { hide_topbar: true, ondismiss: () => { this.payingId = null; } },
+          }
         };
-        new (window as any).Razorpay(options).open();
+        window.addEventListener('message', handler);
       },
       error: (err: any) => {
         this.payingId = null;

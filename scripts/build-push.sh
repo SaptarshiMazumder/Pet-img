@@ -2,7 +2,7 @@
 set -e
 
 ENV=${1:-dev}
-TAG=${2:-latest}
+TAG=${2:-$(git rev-parse --short HEAD)}
 
 case $ENV in
   dev)     PROJECT=pet-gen-dev ;;
@@ -25,7 +25,7 @@ docker push $REGISTRY/backend:$TAG
 docker build -t $REGISTRY/autoscaler:$TAG -f autoscaler/Dockerfile .
 docker push $REGISTRY/autoscaler:$TAG
 
-docker build -t $REGISTRY/frontend:$TAG ./frontend-ng
+docker build --no-cache -t $REGISTRY/frontend:$TAG ./frontend-ng
 docker push $REGISTRY/frontend:$TAG
 
 echo "==> Done. Run: cd terraform/environments/$ENV && terraform apply -var=\"image_tag=$TAG\""

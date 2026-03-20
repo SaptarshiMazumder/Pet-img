@@ -139,7 +139,7 @@ export class App implements OnInit, OnDestroy {
   productsLoading = false;
 
   // ── Navigation ─────────────────────────────────────────────
-  activeTab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' = 'samples';
+  activeTab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' | 'terms' | 'support' | 'privacy' = 'samples';
   characterAnimation: 'idle' | 'happy' = 'idle';
   fabRotating = false;
   catMenuOpen = false;
@@ -152,6 +152,15 @@ export class App implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Handle Komoju payment popup return — close popup and notify parent window
+    if (window.opener && new URLSearchParams(window.location.search).get('payment_return') === '1') {
+      try {
+        window.opener.postMessage({ type: 'komoju_return' }, window.location.origin);
+      } catch {}
+      window.close();
+      return;
+    }
+
     this.api.warm();
     this.api.getTemplates().subscribe((t) => {
       for (const key of Object.keys(t)) {
@@ -551,7 +560,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   // ── Navigation ─────────────────────────────────────────────
-  switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order') {
+  switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' | 'terms' | 'support' | 'privacy') {
     this.activeTab = tab;
     if (
       (tab === 'samples' || tab === 'upload') &&

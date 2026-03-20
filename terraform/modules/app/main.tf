@@ -159,13 +159,26 @@ resource "google_cloud_run_v2_service" "backend" {
         name  = "GEMINI_API_KEY"
         value = var.gemini_api_key
       }
+      # Razorpay (disabled — kept for reference)
+      # env {
+      #   name  = "RAZORPAY_KEY_ID"
+      #   value = var.razorpay_key_id
+      # }
+      # env {
+      #   name  = "RAZORPAY_KEY_SECRET"
+      #   value = var.razorpay_key_secret
+      # }
       env {
-        name  = "RAZORPAY_KEY_ID"
-        value = var.razorpay_key_id
+        name  = "KOMOJU_SECRET_KEY"
+        value = var.komoju_secret_key
       }
       env {
-        name  = "RAZORPAY_KEY_SECRET"
-        value = var.razorpay_key_secret
+        name  = "KOMOJU_PUBLISHABLE_KEY"
+        value = var.komoju_publishable_key
+      }
+      env {
+        name  = "KOMOJU_MERCHANT_ID"
+        value = var.komoju_merchant_id
       }
       env {
         name  = "GELATO_API_KEY"

@@ -229,35 +229,22 @@ export class OrderFlowComponent implements OnChanges, OnInit {
   }
 
   private openPayment(orderId: string) {
-    this.api.createPayment(orderId).subscribe({
+    const returnUrl = `${window.location.origin}/?payment_return=1`;
+    this.api.createPayment(orderId, returnUrl).subscribe({
       next: (data) => {
         this.submitting = false;
-        const options = {
-          key: data.key_id,
-          amount: data.amount,
-          currency: data.currency,
-          name: 'Pet Generator',
-          description: 'ポートレート印刷注文',
-          order_id: data.razorpay_order_id,
-          language: 'ja',
-          prefill: {
-            name: `${this.shipping.firstName} ${this.shipping.lastName}`,
-            email: this.shipping.email,
-            contact: this.shipping.phone || '',
-          },
-          handler: (response: any) => {
-            this.api.verifyPayment(orderId, {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            }).subscribe({
+        window.open(data.session_url, 'komoju-payment', 'width=620,height=720,scrollbars=yes');
+        const handler = (event: MessageEvent) => {
+          if (event.origin !== window.location.origin) return;
+          if (event.data?.type === 'komoju_return') {
+            window.removeEventListener('message', handler);
+            this.api.verifyPayment(orderId).subscribe({
               next: () => { this.step = 'success'; this.orderPlaced.emit(); },
               error: () => { this.error = 'Payment verification failed. Contact support.'; },
             });
-          },
-          modal: { hide_topbar: true, ondismiss: () => {} },
+          }
         };
-        new (window as any).Razorpay(options).open();
+        window.addEventListener('message', handler);
       },
       error: (err: any) => { this.submitting = false; this.error = err?.error?.error || 'Failed to initiate payment.'; },
     });

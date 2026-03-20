@@ -59,6 +59,28 @@
         </button>
       }
       <div class="menu-divider"></div>
+      <button
+        class="menu-item"
+        [class.menu-item--active]="activeTab === 'support'"
+        (click)="switchTab('support'); headerMenuOpen = false"
+      >
+        Support
+      </button>
+      <button
+        class="menu-item"
+        [class.menu-item--active]="activeTab === 'privacy'"
+        (click)="switchTab('privacy'); headerMenuOpen = false"
+      >
+        Privacy Policy
+      </button>
+      <button
+        class="menu-item"
+        [class.menu-item--active]="activeTab === 'terms'"
+        (click)="switchTab('terms'); headerMenuOpen = false"
+      >
+        Terms &amp; Conditions
+      </button>
+      <div class="menu-divider"></div>
       @if (currentUser) {
         <button class="menu-item" (click)="signOut(); headerMenuOpen = false">Sign out</button>
       } @else {
@@ -143,6 +165,16 @@
           (sampleDeleted)="deleteSample($event)"
         />
       </section>
+
+      <footer class="page-footer">
+        <button class="footer-link" (click)="switchTab('support')">Support</button>
+        <span class="footer-sep">·</span>
+        <button class="footer-link" (click)="switchTab('privacy')">Privacy Policy</button>
+        <span class="footer-sep">·</span>
+        <button class="footer-link" (click)="switchTab('terms')">Terms &amp; Conditions</button>
+        <span class="footer-sep">·</span>
+        <span class="footer-brand">A product of <a href="https://nakamaai.co" target="_blank" rel="noopener" class="footer-link-a">Nakama AI</a></span>
+      </footer>
     </div>
   }
 
@@ -355,6 +387,206 @@
           <p>Sign in to see your generations.</p>
         </div>
       }
+    </div>
+  }
+
+  <!-- SUPPORT PAGE ─────────────────────────────────────────── -->
+  @if (activeTab === 'support') {
+    <div class="page-static">
+      <div class="static-card">
+        <h2 class="static-title">Support</h2>
+        <p class="static-lead">
+          We're here to help. If you have any questions, issues, or feedback about your portraits or orders, reach out to us directly.
+        </p>
+
+        <div class="support-contact">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+          </svg>
+          <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">Common Topics</h3>
+          <ul class="static-list">
+            <li><strong>Generation issues</strong> — If your portrait failed or looks unexpected, email us with your job ID (visible in the Generations panel).</li>
+            <li><strong>Orders &amp; shipping</strong> — For questions about print orders, tracking, or delivery, include your order ID in your message.</li>
+            <li><strong>Billing</strong> — Payment queries or refund requests are handled within 2 business days.</li>
+            <li><strong>Feedback</strong> — We love hearing what you think. Style suggestions are always welcome.</li>
+          </ul>
+        </div>
+
+        <p class="static-note">We typically respond within 24 hours on business days.</p>
+
+        <button class="static-back-btn" (click)="switchTab('samples')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          Back to Gallery
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- PRIVACY PAGE ──────────────────────────────────────────────── -->
+  @if (activeTab === 'privacy') {
+    <div class="page-static">
+      <div class="static-card">
+        <h2 class="static-title">Privacy Policy</h2>
+        <p class="static-lead">Effective date: March 19, 2026</p>
+
+        <div class="static-section">
+          <h3 class="static-section-title">1. Introduction</h3>
+          <p>Pet-to AI is a product of Nakama AI. This Privacy Policy explains how we collect, use, and protect your personal information when you use Pet-to AI ("Service"). By using the Service, you agree to the practices described here.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">2. Information We Collect</h3>
+          <ul class="static-list">
+            <li><strong>Account information</strong> — When you sign in via Google, we receive your name, email address, and profile picture from Firebase Authentication.</li>
+            <li><strong>Uploaded images</strong> — Photos of pets you upload to generate portraits.</li>
+            <li><strong>Order information</strong> — Shipping address and contact details you provide when placing a print order.</li>
+            <li><strong>Usage data</strong> — Basic information about how you interact with the Service (e.g. generations requested, styles selected).</li>
+          </ul>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">3. How We Use Your Information</h3>
+          <ul class="static-list">
+            <li>To generate AI portraits from your uploaded images.</li>
+            <li>To process and fulfil print orders.</li>
+            <li>To authenticate you and manage your account.</li>
+            <li>To respond to support requests.</li>
+            <li>To improve the Service.</li>
+          </ul>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">4. Third-Party Services</h3>
+          <p>We use the following third-party providers to operate the Service. Each is governed by their own privacy policy:</p>
+          <ul class="static-list">
+            <li><strong>Google Firebase</strong> — Authentication and data storage.</li>
+            <li><strong>Razorpay</strong> — Payment processing. We do not store your card details.</li>
+            <li><strong>RunPod</strong> — AI image generation infrastructure. Uploaded images are transmitted to RunPod solely to generate your portrait and are not retained by them beyond processing.</li>
+            <li><strong>Google Cloud</strong> — Hosting and infrastructure.</li>
+          </ul>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">5. Data Retention</h3>
+          <p>Uploaded images are stored temporarily and used only to generate your portrait. Generated portraits are retained in your account gallery until you delete them. Order information is retained as long as necessary to fulfil and support your order. You may request deletion of your data at any time by contacting us.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">6. Data Sharing</h3>
+          <p>We do not sell or share your personal information with third parties for marketing purposes. Information is shared only as necessary to deliver the Service (e.g. shipping address with our print fulfilment partner when you place a print order).</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">7. Your Rights</h3>
+          <p>You have the right to access, correct, or request deletion of your personal data. To exercise these rights, contact us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>. We will respond within a reasonable timeframe.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">8. Security</h3>
+          <p>We take reasonable measures to protect your information. However, no internet transmission is completely secure and we cannot guarantee absolute security.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">9. Changes to This Policy</h3>
+          <p>We may update this Privacy Policy from time to time. When we do, we will update the effective date at the top of this page. Continued use of the Service after changes are posted means you accept the revised policy.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">10. Contact</h3>
+          <p>Questions about this Privacy Policy? Reach out to us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>.</p>
+        </div>
+
+        <button class="static-back-btn" (click)="switchTab('samples')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          Back to Gallery
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- TERMS PAGE ────────────────────────────────────────────────── -->
+  @if (activeTab === 'terms') {
+    <div class="page-static">
+      <div class="static-card">
+        <h2 class="static-title">Terms &amp; Conditions</h2>
+        <p class="static-lead">Effective date: March 19, 2026</p>
+
+        <div class="static-section">
+          <h3 class="static-section-title">1. Agreement to Terms</h3>
+          <p>By accessing or using Pet-to AI, a product of Nakama AI ("Service"), you agree to be bound by these Terms &amp; Conditions ("Terms"). If you do not agree, do not use the Service.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">2. Using the Service</h3>
+          <p>You agree to use the Service only for lawful purposes and in accordance with these Terms. You must not misuse, attempt to disrupt, or use the Service in any way that could harm Nakama AI or other users. You may not attempt to reverse-engineer, scrape, or abuse the Service's APIs or infrastructure. You are responsible for all content you upload — do not upload images without the subject's consent or any illegal or harmful material.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">3. Eligibility</h3>
+          <p>You must be at least 18 years of age to use the Service. By using it, you confirm that you meet this requirement. If you are using the Service on behalf of a business, you confirm that you have the authority to agree to these Terms on that business's behalf.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">4. Payments and Billing</h3>
+          <p>Some features require payment. Billing is managed through our third-party payment processor (Razorpay) — we do not collect or store your card details directly. All applicable fees are shown before purchase. We reserve the right to update pricing, but changes will not apply to your current billing period.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">5. Refunds</h3>
+          <p>Because the Service is digital and access is granted upon payment, refunds are not offered as a standard practice. Refunds for defective or damaged print orders are considered on a case-by-case basis — contact us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>. Once a print order enters production it cannot be cancelled.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">6. Privacy</h3>
+          <p>Your privacy matters to us. Uploaded images are stored temporarily to generate your portrait and are not shared with third parties except as required to fulfil print orders. We use Firebase for authentication; please refer to Google's privacy policy for details on how authentication data is handled.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">7. Intellectual Property</h3>
+          <p>All Nakama AI software, branding, designs, and underlying models are owned by Nakama AI and protected under applicable intellectual property laws. You may not copy, reproduce, or redistribute any part of the Service without prior written permission.</p>
+          <p style="margin-top: 0.5rem">You retain ownership of the photos you upload. By uploading, you grant us a limited licence to process them solely for generating your portraits. AI-generated outputs are provided to you for personal use; commercial resale requires our prior written consent.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">8. Limitation of Liability</h3>
+          <p>The Service is provided "as is" without warranties of any kind. To the fullest extent permitted by law, Nakama AI shall not be liable for any indirect, incidental, or consequential damages — including loss of data, revenue, or business — arising from your use of or inability to use the Service.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">9. Termination</h3>
+          <p>You may stop using the Service at any time. We reserve the right to suspend or terminate your access if you violate these Terms or engage in conduct that is harmful to other users or to Nakama AI.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">10. Changes to These Terms</h3>
+          <p>We may update these Terms from time to time. When we do, we will update the effective date at the top of this page. Continued use of the Service after changes are posted means you accept the revised Terms.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">11. Governing Law</h3>
+          <p>These Terms are governed by the laws of India. Any disputes arising from your use of the Service will be subject to the jurisdiction of courts in West Bengal, India.</p>
+        </div>
+
+        <div class="static-section">
+          <h3 class="static-section-title">12. Contact</h3>
+          <p>Questions about these Terms? Reach out to us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>.</p>
+        </div>
+
+        <button class="static-back-btn" (click)="switchTab('samples')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          Back to Gallery
+        </button>
+      </div>
     </div>
   }
 

@@ -80,11 +80,11 @@ export class ApiService {
     return this.http.get<any>(`${this.base}/orders/catalog`);
   }
 
-  createPayment(orderId: string): Observable<{ razorpay_order_id: string; amount: number; total_jpy: number; currency: string; key_id: string }> {
-    return this.http.post<any>(`${this.base}/orders/${orderId}/payment`, {});
+  createPayment(orderId: string, returnUrl: string): Observable<{ session_id: string; session_url: string; amount: number; total_jpy: number; currency: string }> {
+    return this.http.post<any>(`${this.base}/orders/${orderId}/payment`, { return_url: returnUrl });
   }
 
-  verifyPayment(orderId: string, payload: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }): Observable<{ success: boolean }> {
-    return this.http.post<any>(`${this.base}/orders/${orderId}/payment/verify`, payload);
+  verifyPayment(orderId: string): Observable<{ success: boolean }> {
+    return this.http.post<any>(`${this.base}/orders/${orderId}/payment/verify`, {});
   }
 }
