@@ -26,6 +26,11 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB
     CORS(app)
+
+    @app.get("/health")
+    def health():
+        return {"ok": True}
+
     app.register_blueprint(catalog_bp)
     app.register_blueprint(generation_bp)
     app.register_blueprint(print_orders_bp)

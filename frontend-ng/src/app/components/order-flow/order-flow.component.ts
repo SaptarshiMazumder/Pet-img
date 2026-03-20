@@ -154,6 +154,15 @@ export class OrderFlowComponent implements OnChanges, OnInit {
     };
   }
 
+  frameCompositeStyle(cfg: ItemConfig): { [key: string]: string } {
+    const inset = this.categoryFor(cfg)?.overlay_inset ?? 10;
+    const pct = (100 / (1 + (2 * inset) / 100)).toFixed(2);
+    return {
+      'max-width': `${pct}%`,
+      'margin': `${inset}% auto`,
+    };
+  }
+
   selectedFrameImg(cfg: ItemConfig): string {
     const cat = this.categoryFor(cfg);
     if (!cat) return '';
