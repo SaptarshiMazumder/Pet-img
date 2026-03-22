@@ -80,6 +80,9 @@ export interface T {
     edit: string;
     payNow: string;
     processing: string;
+    paidOn: string;
+    deliveryMsg: string;
+    emailSentTo: string;
   };
   orderFlow: {
     configurePrints: string;
@@ -228,6 +231,9 @@ export const TRANSLATIONS: Record<Lang, T> = {
       edit: 'Edit',
       payNow: 'Pay Now',
       processing: 'Processing…',
+      paidOn: 'Paid on',
+      deliveryMsg: 'Your order has been placed and will be delivered within 10–14 days after payment confirmation.',
+      emailSentTo: 'A confirmation email has been sent to',
     },
     orderFlow: {
       configurePrints: 'Configure prints',
@@ -375,6 +381,9 @@ export const TRANSLATIONS: Record<Lang, T> = {
       edit: '編集',
       payNow: '今すぐ支払う',
       processing: '処理中…',
+      paidOn: 'お支払い日',
+      deliveryMsg: 'ご注文を承りました。お支払い確認後、10〜14営業日以内にお届けいたします。',
+      emailSentTo: '確認メールを送信しました：',
     },
     orderFlow: {
       configurePrints: 'プリントを設定',

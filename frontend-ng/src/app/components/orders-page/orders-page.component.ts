@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { Order } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { LanguageService } from '../../services/language.service';
 
 @Component({
@@ -12,6 +13,7 @@ import { LanguageService } from '../../services/language.service';
 })
 export class OrdersPageComponent {
   protected readonly lang = inject(LanguageService);
+  protected readonly auth = inject(AuthService);
   @Input() orders: Order[] = [];
   @Input() loading = false;
   @Output() refresh = new EventEmitter<void>();

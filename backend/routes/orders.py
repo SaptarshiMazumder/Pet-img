@@ -89,15 +89,18 @@ def get_orders():
     for doc in docs:
         data = doc.to_dict()
         created_at = data.get("created_at")
+        updated_at = data.get("updated_at")
+        payment_status = data.get("payment_status", "unpaid")
         results.append(
             {
                 "id": doc.id,
                 "items": data.get("items", []),
                 "shipping": data.get("shipping", {}),
                 "notes": data.get("notes", ""),
-                "payment_status": data.get("payment_status", "unpaid"),
+                "payment_status": payment_status,
                 "status": data.get("status", "draft"),
                 "created_at": created_at.isoformat() if created_at else None,
+                "paid_at": updated_at.isoformat() if (payment_status == "paid" and updated_at) else None,
             }
         )
 

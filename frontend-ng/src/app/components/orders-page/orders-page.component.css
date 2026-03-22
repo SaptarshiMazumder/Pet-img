@@ -379,6 +379,29 @@
   border: 1px solid rgba(90, 154, 110, 0.3);
 }
 
+.card-paid-date {
+  font-size: 0.75rem;
+  color: var(--success);
+  padding: 0 16px 10px;
+  text-align: right;
+}
+
+.card-delivery-msg {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-email-notice {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
 .pay-error {
   font-size: 0.8125rem;
   color: var(--error);

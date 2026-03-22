@@ -84,4 +84,5 @@ export interface Order {
   payment_status: 'unpaid' | 'paid';
   status: string;
   created_at: string | null;
+  paid_at: string | null;
 }

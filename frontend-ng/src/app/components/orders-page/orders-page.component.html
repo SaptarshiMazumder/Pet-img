@@ -35,6 +35,9 @@
               {{ order.payment_status === 'paid' ? lang.t().orders.paid : lang.t().orders.unpaid }}
             </span>
           </div>
+          @if (order.payment_status === 'paid' && order.paid_at) {
+            <div class="card-paid-date">{{ lang.t().orders.paidOn }}: {{ formatDate(order.paid_at) }}</div>
+          }
         </div>
 
         <div class="card-items">
@@ -53,6 +56,13 @@
             {{ order.shipping.postCode }} {{ order.shipping.country }}
           </span>
         </div>
+
+        @if (order.payment_status === 'paid') {
+          <div class="card-delivery-msg">
+            {{ lang.t().orders.deliveryMsg }}
+            <span class="card-email-notice">{{ lang.t().orders.emailSentTo }} <strong>{{ auth.user$.value?.email }}</strong></span>
+          </div>
+        }
 
         @if (payError && payingId === null) {
           <div class="pay-error">{{ payError }}</div>
