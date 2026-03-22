@@ -16,6 +16,7 @@
         } @else {
           <div class="carousel-placeholder">{{ getIcon(i) }}</div>
         }
+        <span class="carousel-label">{{ templates[key]?.name || key }}</span>
       </button>
     }
   </div>

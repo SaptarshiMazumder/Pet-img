@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, jsonify, send_from_directory
 
 from backend.config import STYLES_FILE, TEMPLATES_FILE, ASSETS_DIR
+from backend.storage.r2 import public_url as r2_public_url
 
 catalog_bp = Blueprint("catalog", __name__)
 
@@ -22,7 +23,7 @@ def list_templates():
     return jsonify({
         key: {
             "name": v["name"],
-            "preview_url": v.get("preview_url", ""),
+            "preview_url": r2_public_url(v["preview_url"]) if v.get("preview_url") else "",
             "mood": v.get("mood", ""),
             "environment": v["environment"][:80],
         }

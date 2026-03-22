@@ -72,13 +72,50 @@ header {
 
 .header-left,
 .header-right {
-  flex: 0 0 44px;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
 }
 
 .header-left { justify-content: flex-start; gap: 8px; }
-.header-right { justify-content: flex-end; }
+.header-right { justify-content: flex-end; min-width: 44px; }
+
+/* Desktop nav */
+.header-nav {
+  display: none;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.nav-link {
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.nav-link--active {
+  color: var(--accent);
+}
+
+@media (min-width: 768px) {
+  .header-nav { display: flex; }
+  .menu-item--mobile-only { display: none !important; }
+}
 
 .header-back {
   display: flex;
@@ -171,6 +208,10 @@ header {
 }
 
 /* Dropdown menu */
+.avatar-menu-wrapper {
+  position: relative;
+}
+
 .header-backdrop {
   position: fixed;
   inset: 0;
@@ -179,10 +220,11 @@ header {
 
 .header-menu {
   position: absolute;
-  top: 100%;
-  left: var(--space-md);
-  margin-top: 4px;
+  top: calc(100% + 8px);
+  left: 0;
   min-width: 160px;
+  max-height: calc(100dvh - 80px);
+  overflow-y: auto;
   padding: var(--space-sm);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
@@ -192,6 +234,11 @@ header {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.menu-item--signout {
+  margin-top: 8px;
+  color: var(--text-dim);
 }
 
 .menu-item {
@@ -321,7 +368,7 @@ main {
 
 /* ── Explore Styles carousel (Gallery page) ───────────────── */
 .styles-carousel-section {
-  padding: 0 var(--space-lg) var(--space-xl);
+  padding: var(--space-lg) var(--space-lg) var(--space-xl);
 }
 
 /* ── Samples grid section ───────────────────────────────── */
@@ -382,6 +429,13 @@ main {
 }
 
 
+/* ── Right column ───────────────────────────────────────── */
+.gen-right {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 /* ── Results panel ──────────────────────────────────────── */
 .gen-results {
   flex: 1;
@@ -411,26 +465,38 @@ main {
 @media (min-width: 1024px) {
   .page-generate {
     flex-direction: row;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    min-height: auto;
-  }
-
-  .page-generate .past-section {
-    flex: 1 1 100%;
-    order: 3;
+    align-items: flex-start;
+    min-height: calc(100vh - 52px);
   }
 
   .gen-sidebar {
     width: 360px;
     flex-shrink: 0;
-    align-self: flex-start;
     border-bottom: none;
     border-right: 1px solid var(--border);
+    position: sticky;
+    top: 52px;
+    max-height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+
+  .gen-right {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gen-right .past-section {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .gen-right .past-section-inner {
+    padding-bottom: var(--space-2xl);
   }
 
   .gen-results {
-    flex: 1;
     min-height: auto;
   }
 }

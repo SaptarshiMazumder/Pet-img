@@ -569,6 +569,7 @@ export class App implements OnInit, OnDestroy {
   // ── Navigation ─────────────────────────────────────────────
   switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' | 'terms' | 'support' | 'privacy' | 'scta') {
     this.activeTab = tab;
+    window.scrollTo({ top: 0 });
     if (
       (tab === 'samples' || tab === 'upload') &&
       this.samples.length === 0 &&

@@ -9,112 +9,61 @@
           </svg>
         </button>
       }
-      <div
-        (click)="headerMenuOpen = !headerMenuOpen"
-        [class.menu-trigger--open]="headerMenuOpen"
-        style="cursor: pointer"
-      >
-        @if (currentUser) {
-          <div class="auth-avatar" [title]="currentUser.displayName || currentUser.email || ''">
-            {{ (currentUser.displayName || currentUser.email || '?')[0].toUpperCase() }}
-          </div>
-        } @else {
-          <div class="auth-avatar auth-avatar--guest">?</div>
+      <div class="avatar-menu-wrapper">
+        <div
+          (click)="headerMenuOpen = !headerMenuOpen"
+          [class.menu-trigger--open]="headerMenuOpen"
+          style="cursor: pointer"
+        >
+          @if (currentUser) {
+            <div class="auth-avatar" [title]="currentUser.displayName || currentUser.email || ''">
+              {{ (currentUser.displayName || currentUser.email || '?')[0].toUpperCase() }}
+            </div>
+          } @else {
+            <div class="auth-avatar auth-avatar--guest">?</div>
+          }
+        </div>
+        @if (headerMenuOpen) {
+          <nav class="header-menu">
+            <!-- Mobile-only nav items -->
+            <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'samples'" (click)="switchTab('samples'); headerMenuOpen = false">Home</button>
+            <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'generate'" (click)="switchTab('generate'); headerMenuOpen = false">Create Portrait</button>
+            @if (currentUser) {
+              <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'orders'" (click)="switchTab('orders'); headerMenuOpen = false">Orders</button>
+              <button class="menu-item menu-item--mobile-only" (click)="goToMyGenerations(); headerMenuOpen = false">My Generations</button>
+            }
+            <div class="menu-divider menu-item--mobile-only"></div>
+            <!-- Sign in/out always in dropdown -->
+            @if (currentUser) {
+              <button class="menu-item menu-item--signout" (click)="signOut(); headerMenuOpen = false">Sign out</button>
+            } @else {
+              <button class="menu-item menu-item--signin" (click)="signIn(); headerMenuOpen = false">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                Sign in
+              </button>
+            }
+          </nav>
         }
       </div>
     </div>
 
-    <div class="header-right"></div>
-  </div>
-
-  @if (headerMenuOpen) {
-    <nav class="header-menu">
-      <button
-        class="menu-item"
-        [class.menu-item--active]="activeTab === 'samples'"
-        (click)="switchTab('samples'); headerMenuOpen = false"
-      >
-        Gallery
-      </button>
-      <button
-        class="menu-item"
-        [class.menu-item--active]="activeTab === 'generate'"
-        (click)="switchTab('generate'); headerMenuOpen = false"
-      >
-        Create Portrait
-      </button>
-      <button
-        class="menu-item"
-        [class.menu-item--active]="activeTab === 'upload'"
-        (click)="switchTab('upload'); headerMenuOpen = false"
-      >
-        Upload
-      </button>
+    <!-- Desktop nav links -->
+    <nav class="header-nav">
+      <button class="nav-link" [class.nav-link--active]="activeTab === 'samples'" (click)="switchTab('samples')">Home</button>
+      <button class="nav-link" [class.nav-link--active]="activeTab === 'generate'" (click)="switchTab('generate')">Create Portrait</button>
       @if (currentUser) {
-        <button class="menu-item" [class.menu-item--active]="activeTab === 'orders'" (click)="switchTab('orders'); headerMenuOpen = false">
-          Orders
-        </button>
-        <button class="menu-item" (click)="goToMyGenerations(); headerMenuOpen = false">
-          My Generations
-        </button>
-      }
-      <div class="menu-divider"></div>
-      <button
-        class="menu-item"
-        [class.menu-item--active]="activeTab === 'support'"
-        (click)="switchTab('support'); headerMenuOpen = false"
-      >
-        Support
-      </button>
-      <button
-        class="menu-item"
-        [class.menu-item--active]="activeTab === 'privacy'"
-        (click)="switchTab('privacy'); headerMenuOpen = false"
-      >
-        Privacy Policy
-      </button>
-      <button
-        class="menu-item"
-        [class.menu-item--active]="activeTab === 'terms'"
-        (click)="switchTab('terms'); headerMenuOpen = false"
-      >
-        Terms &amp; Conditions
-      </button>
-      <button
-        class="menu-item"
-        [class.menu-item--active]="activeTab === 'scta'"
-        (click)="switchTab('scta'); headerMenuOpen = false"
-      >
-        特定商取引法に基づく表記
-      </button>
-      <div class="menu-divider"></div>
-      @if (currentUser) {
-        <button class="menu-item" (click)="signOut(); headerMenuOpen = false">Sign out</button>
-      } @else {
-        <button class="menu-item menu-item--signin" (click)="signIn(); headerMenuOpen = false">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
-            <path
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              fill="#4285F4"
-            />
-            <path
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              fill="#34A853"
-            />
-            <path
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
-              fill="#FBBC05"
-            />
-            <path
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              fill="#EA4335"
-            />
-          </svg>
-          Sign in
-        </button>
+        <button class="nav-link" [class.nav-link--active]="activeTab === 'orders'" (click)="switchTab('orders')">Orders</button>
+        <button class="nav-link" (click)="goToMyGenerations()">My Generations</button>
       }
     </nav>
-  }
+
+    <div class="header-right"></div>
+  </div>
 </header>
 
 @if (headerMenuOpen) {
@@ -126,6 +75,16 @@
   <!-- GALLERY TAB ──────────────────────────────────────────── -->
   @if (activeTab === 'samples') {
     <div class="page-samples">
+      <section class="styles-carousel-section">
+        <app-template-selector
+          [templates]="templates"
+          [templateKeys]="templateKeys"
+          [selectedTemplate]="selectedTemplate"
+          [previewOnly]="true"
+          (templateSelected)="onGalleryStyleSelected($event)"
+        />
+      </section>
+
       <section class="hero">
         <h2 class="hero-title">
           Transform your pet into<br /><span class="hero-accent">Edo-era art</span>
@@ -135,31 +94,10 @@
         </p>
         <button class="hero-cta" (click)="switchTab('generate')">
           Create Portrait
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            width="16"
-            height="16"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-            />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
           </svg>
         </button>
-      </section>
-
-      <section class="styles-carousel-section">
-        <app-template-selector
-          [templates]="templates"
-          [templateKeys]="templateKeys"
-          [selectedTemplate]="selectedTemplate"
-          [previewOnly]="true"
-          (templateSelected)="onGalleryStyleSelected($event)"
-        />
       </section>
 
       <section class="samples-section">
@@ -272,38 +210,40 @@
         </div>
       </aside>
 
-      @if (jobs.length > 0) {
-        <!-- Right: job results -->
-        <section class="gen-results">
-          <div class="gen-results-header">
-            <h3 class="gen-results-title">Generations</h3>
-          </div>
-          <app-job-queue
-            [jobs]="jobs"
-            [templates]="templates"
-            (jobClicked)="openExpandFromJob($event)"
-            (jobRemoved)="removeJob($event)"
-            (jobRegenerate)="regenerateFromJob($event)"
-          />
-        </section>
-      }
-
-      @if (currentUser) {
-        <section class="past-section">
-          <div class="past-section-inner">
-            <app-past-gallery
-              [gallery]="gallery"
-              [loading]="galleryLoading"
+      <!-- Right column -->
+      <div class="gen-right">
+        @if (jobs.length > 0) {
+          <section class="gen-results">
+            <div class="gen-results-header">
+              <h3 class="gen-results-title">Generating</h3>
+            </div>
+            <app-job-queue
+              [jobs]="jobs"
               [templates]="templates"
-              (orderSelected)="openOrderFlow($event)"
-              (itemClicked)="openExpandFromGallery($event)"
-              (refresh)="loadGallery()"
-              (regenerateRequested)="regenerateFromGallery($event)"
-          (deleteRequested)="deleteFromGallery($event)"
+              (jobClicked)="openExpandFromJob($event)"
+              (jobRemoved)="removeJob($event)"
+              (jobRegenerate)="regenerateFromJob($event)"
             />
-          </div>
-        </section>
-      }
+          </section>
+        }
+
+        @if (currentUser) {
+          <section class="past-section">
+            <div class="past-section-inner">
+              <app-past-gallery
+                [gallery]="gallery"
+                [loading]="galleryLoading"
+                [templates]="templates"
+                (orderSelected)="openOrderFlow($event)"
+                (itemClicked)="openExpandFromGallery($event)"
+                (refresh)="loadGallery()"
+                (regenerateRequested)="regenerateFromGallery($event)"
+                (deleteRequested)="deleteFromGallery($event)"
+              />
+            </div>
+          </section>
+        }
+      </div>
     </div>
   }
 
@@ -684,11 +624,11 @@
 
 <!-- ── Cat menu backdrop ──────────────────────────────────── -->
 @if (catMenuOpen) {
-  <div class="bottom-bar-backdrop" (click)="closeCatMenu()"></div>
+  <div class="bottom-bar-backdrop" [hidden]="activeTab === 'orders'" (click)="closeCatMenu()"></div>
 }
 
 <!-- ── Bottom bar ────────────────────────────────────────── -->
-<div class="bottom-bar-wrapper">
+<div class="bottom-bar-wrapper" [hidden]="activeTab === 'orders'">
   <app-character [animation]="characterAnimation" (tapped)="onCharacterTap()" />
   <div class="bottom-bar" [class.bottom-bar--open]="catMenuOpen">
     <!-- Home -->
