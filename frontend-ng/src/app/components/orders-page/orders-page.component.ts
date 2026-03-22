@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { Order } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-orders-page',
@@ -10,6 +11,7 @@ import { ApiService } from '../../services/api.service';
   styleUrl: './orders-page.component.css',
 })
 export class OrdersPageComponent {
+  protected readonly lang = inject(LanguageService);
   @Input() orders: Order[] = [];
   @Input() loading = false;
   @Output() refresh = new EventEmitter<void>();

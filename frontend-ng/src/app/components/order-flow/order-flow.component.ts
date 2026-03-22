@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GalleryEntry, Order, ShippingAddress } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { LanguageService } from '../../services/language.service';
 
 export interface FrameVariant {
   color: string;
@@ -36,6 +37,7 @@ const SHIPPING_KEY = 'pg_shipping';
   styleUrl: './order-flow.component.css',
 })
 export class OrderFlowComponent implements OnChanges, OnInit {
+  protected readonly lang = inject(LanguageService);
   @Input() items: GalleryEntry[] = [];
   @Input() editOrder: Order | null = null;
   @Output() closed = new EventEmitter<void>();

@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { User } from 'firebase/auth';
 import { ApiService } from './services/api.service';
 import { AuthService } from './services/auth.service';
+import { LanguageService } from './services/language.service';
 import { CharacterComponent } from './components/character/character.component';
 import { UploadAreaComponent } from './components/upload-area/upload-area.component';
 import { TemplateSelectorComponent } from './components/template-selector/template-selector.component';
@@ -21,6 +23,7 @@ import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order } f
   standalone: true,
   imports: [
     FormsModule,
+    RouterLink,
     CharacterComponent,
     UploadAreaComponent,
     TemplateSelectorComponent,
@@ -140,7 +143,7 @@ export class App implements OnInit, OnDestroy {
   productsLoading = false;
 
   // ── Navigation ─────────────────────────────────────────────
-  activeTab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' | 'terms' | 'support' | 'privacy' | 'scta' = 'samples';
+  activeTab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' = 'samples';
   characterAnimation: 'idle' | 'happy' = 'idle';
   fabRotating = false;
   catMenuOpen = false;
@@ -150,6 +153,7 @@ export class App implements OnInit, OnDestroy {
   constructor(
     private api: ApiService,
     private auth: AuthService,
+    readonly lang: LanguageService,
   ) {}
 
   ngOnInit() {
@@ -567,7 +571,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   // ── Navigation ─────────────────────────────────────────────
-  switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order' | 'terms' | 'support' | 'privacy' | 'scta') {
+  switchTab(tab: 'generate' | 'samples' | 'upload' | 'orders' | 'gallery' | 'order') {
     this.activeTab = tab;
     window.scrollTo({ top: 0 });
     if (

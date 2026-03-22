@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-upload-area',
@@ -8,6 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrl: './upload-area.component.css',
 })
 export class UploadAreaComponent {
+  protected readonly lang = inject(LanguageService);
   @Input() previewUrl: string | null = null;
   @Output() fileSelected = new EventEmitter<File>();
 

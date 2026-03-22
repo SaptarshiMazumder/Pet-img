@@ -10,15 +10,15 @@
     <div class="of-tabs">
       <button class="of-tab" [class.of-tab--active]="step === 1" [class.of-tab--done]="step === 2 || step === 'success'"
         (click)="step === 2 ? step = 1 : null">
-        <span class="of-tab-num">1</span> Configure prints
+        <span class="of-tab-num">1</span> {{ lang.t().orderFlow.configurePrints }}
       </button>
       <span class="of-tab-sep">›</span>
       <button class="of-tab" [class.of-tab--active]="step === 2" [class.of-tab--done]="step === 'success'" [disabled]="step === 1">
-        <span class="of-tab-num">2</span> Shipping
+        <span class="of-tab-num">2</span> {{ lang.t().orderFlow.shipping }}
       </button>
       <span class="of-tab-sep">›</span>
       <button class="of-tab" [class.of-tab--active]="step === 'success'" [disabled]="step !== 'success'">
-        <span class="of-tab-num">3</span> Done
+        <span class="of-tab-num">3</span> {{ lang.t().orderFlow.done }}
       </button>
     </div>
   </div>
@@ -43,7 +43,7 @@
 
           <!-- Frame selector: one card per frame category -->
           <div class="of-section">
-            <p class="of-section-label">Select Frame</p>
+            <p class="of-section-label">{{ lang.t().orderFlow.selectFrame }}</p>
             <div class="of-variant-scroll">
               @for (cat of categories; track cat.name) {
                 <button
@@ -61,7 +61,7 @@
           <!-- Color dropdown (only when selected frame has multiple variants) -->
           @if ((categoryFor(cfg)?.variants?.length ?? 0) > 1) {
             <div class="of-section">
-              <p class="of-section-label">Color</p>
+              <p class="of-section-label">{{ lang.t().orderFlow.color }}</p>
               <select class="of-color-select" [(ngModel)]="cfg.color" [name]="'color_' + cfg.item.job_id" (change)="onColorChange(cfg)">
                 @for (v of categoryFor(cfg)!.variants; track v.color) {
                   <option [value]="v.color">{{ v.color }}</option>
@@ -72,7 +72,7 @@
 
           <!-- Size pills -->
           <div class="of-section">
-            <p class="of-section-label">Size</p>
+            <p class="of-section-label">{{ lang.t().orderFlow.size }}</p>
             <div class="of-pills">
               @for (s of sizeKeys(cfg); track s) {
                 <button class="of-pill" [class.of-pill--active]="cfg.size === s" (click)="cfg.size = s">{{ s }}</button>
@@ -83,27 +83,27 @@
           <!-- Orientation + Qty -->
           <div class="of-opts-row">
             <div class="of-section of-section--sm">
-              <p class="of-section-label">Orientation</p>
+              <p class="of-section-label">{{ lang.t().orderFlow.orientation }}</p>
               <div class="of-pills">
                 <button class="of-pill"
                   [class.of-pill--active]="cfg.orientation === 'portrait'"
                   [disabled]="cfg.lockedOrientation === 'landscape'"
-                  (click)="onOrientationChange(cfg, 'portrait')">Portrait</button>
+                  (click)="onOrientationChange(cfg, 'portrait')">{{ lang.t().orderFlow.portrait }}</button>
                 <button class="of-pill"
                   [class.of-pill--active]="cfg.orientation === 'landscape'"
                   [disabled]="cfg.lockedOrientation === 'portrait'"
-                  (click)="onOrientationChange(cfg, 'landscape')">Landscape</button>
+                  (click)="onOrientationChange(cfg, 'landscape')">{{ lang.t().orderFlow.landscape }}</button>
               </div>
             </div>
             <div class="of-section of-section--qty">
-              <p class="of-section-label">Qty</p>
+              <p class="of-section-label">{{ lang.t().orderFlow.qty }}</p>
               <input class="of-qty-input" type="number" [(ngModel)]="cfg.quantity" [name]="'qty_' + cfg.item.job_id" min="1" max="20" />
             </div>
           </div>
 
           <!-- Price -->
           <div class="of-price-block">
-            <span class="of-price-label">Total</span>
+            <span class="of-price-label">{{ lang.t().orderFlow.total }}</span>
             <span class="of-price-value">¥{{ currentPrice(cfg).toLocaleString() }}</span>
           </div>
 
@@ -111,12 +111,12 @@
       </div>
 
       <div class="of-footer">
-        <button class="btn-secondary" (click)="closed.emit()">Cancel</button>
+        <button class="btn-secondary" (click)="closed.emit()">{{ lang.t().orderFlow.cancel }}</button>
         <button class="btn-primary" (click)="goToShipping()" [disabled]="savingDraft">
           @if (savingDraft) {
-            <span class="btn-spinner-sm"></span> Saving…
+            <span class="btn-spinner-sm"></span> {{ lang.t().orderFlow.saving }}
           } @else {
-            Shipping details
+            {{ lang.t().orderFlow.shippingDetails }}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
             </svg>
@@ -132,54 +132,54 @@
       <form class="shipping-form" (ngSubmit)="submit()">
         <div class="form-row">
           <div class="form-group">
-            <label>First Name <span class="req">*</span></label>
+            <label>{{ lang.t().shipping.firstName }} <span class="req">*</span></label>
             <input [(ngModel)]="shipping.firstName" name="firstName" required />
           </div>
           <div class="form-group">
-            <label>Last Name <span class="req">*</span></label>
+            <label>{{ lang.t().shipping.lastName }} <span class="req">*</span></label>
             <input [(ngModel)]="shipping.lastName" name="lastName" required />
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Email <span class="req">*</span></label>
+            <label>{{ lang.t().shipping.email }} <span class="req">*</span></label>
             <input type="email" [(ngModel)]="shipping.email" name="email" required />
           </div>
           <div class="form-group">
-            <label>Phone</label>
+            <label>{{ lang.t().shipping.phone }}</label>
             <input [(ngModel)]="shipping.phone" name="phone" />
           </div>
         </div>
         <div class="form-group">
-          <label>Address <span class="req">*</span></label>
-          <input [(ngModel)]="shipping.addressLine1" name="addr1" required placeholder="Street address" />
+          <label>{{ lang.t().shipping.address }} <span class="req">*</span></label>
+          <input [(ngModel)]="shipping.addressLine1" name="addr1" required [placeholder]="lang.t().shipping.addressPlaceholder" />
         </div>
         <div class="form-group">
-          <input [(ngModel)]="shipping.addressLine2" name="addr2" placeholder="Apartment, suite, etc. (optional)" />
+          <input [(ngModel)]="shipping.addressLine2" name="addr2" [placeholder]="lang.t().shipping.addressLine2Placeholder" />
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>City <span class="req">*</span></label>
+            <label>{{ lang.t().shipping.city }} <span class="req">*</span></label>
             <input [(ngModel)]="shipping.city" name="city" required />
           </div>
           <div class="form-group">
-            <label>Post Code <span class="req">*</span></label>
+            <label>{{ lang.t().shipping.postCode }} <span class="req">*</span></label>
             <input [(ngModel)]="shipping.postCode" name="postCode" required />
           </div>
         </div>
         <div class="form-group">
-          <label>Country</label>
+          <label>{{ lang.t().shipping.country }}</label>
           <input [(ngModel)]="shipping.country" name="country" />
         </div>
         <label class="save-row">
           <input type="checkbox" [(ngModel)]="saveShipping" name="saveShipping" />
-          <span>Save details for next time</span>
+          <span>{{ lang.t().shipping.saveDetails }}</span>
         </label>
         @if (error) { <div class="msg-error">{{ error }}</div> }
-        <div class="of-footer of-footer--inline">
-          <button type="button" class="btn-secondary" (click)="step = 1">← Back</button>
+        <div class="of-footer">
+          <button type="button" class="btn-secondary" (click)="step = 1">{{ lang.t().orderFlow.back }}</button>
           <button type="submit" class="btn-primary" [disabled]="submitting">
-            @if (!submitting) { Pay Now } @else { Processing… }
+            @if (!submitting) { {{ lang.t().orderFlow.payNow }} } @else { {{ lang.t().orderFlow.processing }} }
           </button>
         </div>
       </form>
@@ -190,10 +190,10 @@
   @if (step === 'success') {
     <div class="of-success">
       <div class="success-icon">✓</div>
-      <p class="success-msg">Your order has been placed!<br />We'll be in touch soon.</p>
+      <p class="success-msg">{{ lang.t().orderFlow.successMsg }}<br />{{ lang.t().orderFlow.successSub }}</p>
       <div class="of-footer of-footer--center">
-        <button class="btn-secondary" (click)="closed.emit()">Close</button>
-        <button class="btn-primary" (click)="viewOrders.emit()">View Orders</button>
+        <button class="btn-secondary" (click)="closed.emit()">{{ lang.t().orderFlow.close }}</button>
+        <button class="btn-primary" (click)="viewOrders.emit()">{{ lang.t().orderFlow.viewOrders }}</button>
       </div>
     </div>
   }

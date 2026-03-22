@@ -1,7 +1,7 @@
 <section class="explore-styles">
   <div class="explore-header">
     <h3 class="explore-title">{{ sectionTitle }}</h3>
-    <button type="button" class="explore-see-all" (click)="showAllModal = true">See All</button>
+    <button type="button" class="explore-see-all" (click)="showAllModal = true">{{ lang.t().styles.seeAll }}</button>
   </div>
 
   <div class="carousel-track" #carouselTrack>
@@ -16,7 +16,7 @@
         } @else {
           <div class="carousel-placeholder">{{ getIcon(i) }}</div>
         }
-        <span class="carousel-label">{{ templates[key]?.name || key }}</span>
+        <span class="carousel-label">{{ lang.templateName(templates[key]) || key }}</span>
       </button>
     }
   </div>

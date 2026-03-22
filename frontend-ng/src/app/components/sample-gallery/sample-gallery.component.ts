@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { SampleEntry } from '../../models';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-sample-gallery',
@@ -9,6 +10,7 @@ import { SampleEntry } from '../../models';
   styleUrl: './sample-gallery.component.css',
 })
 export class SampleGalleryComponent {
+  protected readonly lang = inject(LanguageService);
   @Input() samples: SampleEntry[] = [];
   @Input() loading = false;
   @Input() showDelete = false;

@@ -4,43 +4,6 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :host {
-  /* ── Palette ─────────────────────────────────────────── */
-  --bg:             #0a0a0a;
-  --bg-elevated:    #111111;
-  --surface:        #181816;
-  --surface-hover:  #202020;
-  --border:         #272724;
-  --border-focus:   #4a4538;
-
-  --accent:         #d4a853;
-  --accent-dim:     #8b7340;
-  --accent-glow:    rgba(212, 168, 83, 0.14);
-  --accent-glow-strong: rgba(212, 168, 83, 0.22);
-
-  --text:           #e8e4de;
-  --text-muted:     #888480;
-  --text-dim:       #504d49;
-
-  --success:        #5a9a6e;
-  --error:          #c86b6b;
-  --error-bg:       rgba(200, 107, 107, 0.1);
-
-  /* ── Spacing ─────────────────────────────────────────── */
-  --space-xs:  4px;
-  --space-sm:  8px;
-  --space-md:  16px;
-  --space-lg:  24px;
-  --space-xl:  32px;
-  --space-2xl: 48px;
-
-  /* ── Radii ────────────────────────────────────────────── */
-  --radius-sm: 8px;
-  --radius:    12px;
-  --radius-lg: 16px;
-
-  /* ── Touch ────────────────────────────────────────────── */
-  --touch-min: 44px;
-
   display: block;
   min-height: 100vh;
   background: var(--bg);
@@ -281,6 +244,27 @@ header {
 
 .menu-item--signin:hover {
   background: var(--accent-glow);
+}
+
+/* Language toggle */
+.lang-toggle {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.lang-toggle:hover {
+  border-color: var(--accent-dim);
+  color: var(--accent);
 }
 
 /* ── Main ────────────────────────────────────────────────── */
@@ -1034,168 +1018,4 @@ main {
 }
 .footer-link-a:hover { color: var(--text-muted); }
 
-/* ── Static pages (Support / Terms) ──────────────────────────── */
-.page-static {
-  display: flex;
-  justify-content: center;
-  padding: var(--space-xl) var(--space-md) calc(var(--space-2xl) + 80px);
-}
-
-.static-card {
-  width: 100%;
-  max-width: 680px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl) var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.static-title {
-  font-family: 'DM Serif Display', Georgia, serif;
-  font-size: 1.75rem;
-  font-weight: 400;
-  color: var(--accent);
-  margin: 0;
-}
-
-.static-lead {
-  color: var(--text-muted);
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.support-contact {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--space-md) var(--space-lg);
-  color: var(--text-muted);
-}
-
-.support-email {
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  transition: opacity 0.15s;
-}
-.support-email:hover { opacity: 0.75; }
-
-.static-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.static-section-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0;
-  letter-spacing: 0.01em;
-}
-
-.static-section p {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  line-height: 1.65;
-  margin: 0;
-}
-
-.static-list {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  line-height: 1.65;
-  margin: 0;
-  padding-left: var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.static-note {
-  color: var(--text-dim);
-  font-size: 0.8125rem;
-  margin: 0;
-}
-
-.static-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  align-self: flex-start;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  font-size: 0.8125rem;
-  padding: var(--space-sm) var(--space-md);
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-}
-.static-back-btn:hover {
-  border-color: var(--accent-dim);
-  color: var(--text);
-}
-
-/* ── SCTA table ───────────────────────────────────────────── */
-.scta-table-wrap {
-  overflow-x: auto;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-}
-
-.scta-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-
-.scta-table th,
-.scta-table td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  vertical-align: top;
-}
-
-.scta-table tr:last-child th,
-.scta-table tr:last-child td {
-  border-bottom: none;
-}
-
-.scta-table th {
-  width: 38%;
-  background: var(--bg-elevated);
-  color: var(--text);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.scta-table td {
-  color: var(--text-muted);
-}
-
-.scta-th-sub {
-  display: block;
-  font-weight: 400;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-top: 0.1rem;
-}
-
-.scta-td-sub {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  opacity: 0.75;
-  margin-top: 0.35rem;
-}
+/* Static page styles live in global styles.css */

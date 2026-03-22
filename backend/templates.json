@@ -1,6 +1,7 @@
 {
   "scholar_lord": {
     "name": "Noble Scholar Lord",
+    "name_ja": "書堂の殿様",
     "preview_url": "styles/inkwash/tab.jpg",
     "role_title": "a noble scholar lord",
     "attire_verb": "wears",
@@ -14,6 +15,7 @@
   },
   "edo_royal": {
     "name": "Edo-era Royal Figure",
+    "name_ja": "江戸の貴族",
     "preview_url": "styles/inkwash/fan.jpg",
     "role_title": "a noble Edo-era royal figure",
     "attire_verb": "is dressed in",
@@ -27,6 +29,7 @@
   },
   "sake_on_pillow": {
     "name": "Sake on Pillow",
+    "name_ja": "枕辺の一杯",
     "preview_url": "styles/inkwash/sake.jpg",
     "role_title": "a noble scholar lord at rest",
     "attire_verb": "wears",
@@ -40,6 +43,7 @@
   },
   "ceremonial_throne": {
     "name": "Ceremonial Throne",
+    "name_ja": "儀式の玉座",
     "preview_url": "styles/inkwash/throne.jpg",
     "role_title": "a majestic shogun or ceremonial ruler",
     "attire_verb": "wears",
@@ -53,6 +57,7 @@
   },
   "boat_sakura": {
     "name": "Boat on Lake with Sakura",
+    "name_ja": "桜湖の舟遊び",
     "preview_url": "styles/inkwash/boatHusky.jpg",
     "role_title": "a serene figure on the water",
     "attire_verb": "wears",
@@ -83,6 +88,7 @@
   },
   "battle_lord": {
     "name": "Battle Lord",
+    "name_ja": "武将",
     "preview_url": "styles/inkwash/warrior.jpg",
     "role_title": "a battle-ready samurai lord",
     "attire_verb": "wears",
@@ -96,6 +102,7 @@
   },
   "sakura_samurai": {
     "name": "Samurai under Sakura",
+    "name_ja": "桜の下の侍",
     "preview_url": "styles/inkwash/samurai.jpg",
     "role_title": "a solitary samurai warrior under the cherry blossoms",
     "attire_verb": "wears",
@@ -126,6 +133,7 @@
   },
   "moonlit_window": {
     "name": "Moonlit Window Portrait",
+    "name_ja": "月下の窓辺",
     "preview_url": "styles/inkwash/moonlight.jpg",
     "role_title": "a solitary figure in quiet contemplation",
     "attire_verb": "wears",

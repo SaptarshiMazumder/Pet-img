@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, inject } from '@angular/core';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-template-selector',
@@ -8,6 +9,7 @@ import { Component, EventEmitter, Input, Output, ViewChild, ElementRef } from '@
   styleUrl: './template-selector.component.css',
 })
 export class TemplateSelectorComponent {
+  protected readonly lang = inject(LanguageService);
   @Input() templates: Record<string, any> = {};
   @Input() templateKeys: string[] = [];
   @Input() selectedTemplate = '';

@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { GalleryEntry } from '../../models';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-past-gallery',
@@ -9,6 +10,7 @@ import { GalleryEntry } from '../../models';
   styleUrl: './past-gallery.component.css',
 })
 export class PastGalleryComponent {
+  protected readonly lang = inject(LanguageService);
   @Input() gallery: GalleryEntry[] = [];
   @Input() loading = false;
   @Input() templates: Record<string, any> = {};
@@ -21,7 +23,7 @@ export class PastGalleryComponent {
   private selectedIds = new Set<string>();
 
   templateName(key: string): string {
-    return this.templates[key]?.name ?? key;
+    return this.lang.templateName(this.templates[key]) || key;
   }
 
   isSelected(job_id: string): boolean {
@@ -50,7 +52,7 @@ export class PastGalleryComponent {
   }
 
   onRegen(item: GalleryEntry): void {
-    if (confirm('Regenerate this portrait? The current result will be replaced.')) {
+    if (confirm(this.lang.t().confirm.regenerate)) {
       this.regenerateRequested.emit(item);
     }
   }

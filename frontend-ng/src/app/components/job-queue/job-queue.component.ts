@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { JobEntry } from '../../models';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-job-queue',
@@ -9,6 +10,7 @@ import { JobEntry } from '../../models';
   styleUrl: './job-queue.component.css',
 })
 export class JobQueueComponent {
+  protected readonly lang = inject(LanguageService);
   @Input() jobs: JobEntry[] = [];
   @Input() templates: Record<string, any> = {};
   @Output() jobClicked = new EventEmitter<JobEntry>();
@@ -28,24 +30,17 @@ export class JobQueueComponent {
 
   onRegen(event: Event, job: JobEntry) {
     event.stopPropagation();
-    if (confirm('Regenerate this portrait? The current result will be replaced.')) {
+    if (confirm(this.lang.t().confirm.regenerate)) {
       this.jobRegenerate.emit(job);
     }
   }
 
   templateName(key: string): string {
-    return this.templates[key]?.name ?? key;
+    return this.lang.templateName(this.templates[key]) || key;
   }
 
   statusLabel(status: JobEntry['status']): string {
-    const labels: Record<JobEntry['status'], string> = {
-      pending: 'Queued',
-      processing: 'Generating',
-      fixing: 'Fixing',
-      completed: 'Done',
-      failed: 'Failed',
-    };
-    return labels[status] ?? status;
+    return this.lang.t().queue.status[status] ?? status;
   }
 
   formatDuration(s: number): string {

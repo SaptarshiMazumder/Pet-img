@@ -1,51 +1,15 @@
-/* Global reset & base */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-/* ── Design tokens (global) ──────────────────────────────── */
-:root {
-  --bg:             #0a0a0a;
-  --bg-elevated:    #111111;
-  --surface:        #181816;
-  --surface-hover:  #202020;
-  --border:         #272724;
-  --border-focus:   #4a4538;
-
-  --accent:         #d4a853;
-  --accent-dim:     #8b7340;
-  --accent-glow:    rgba(212, 168, 83, 0.14);
-  --accent-glow-strong: rgba(212, 168, 83, 0.22);
-
-  --text:           #e8e4de;
-  --text-muted:     #888480;
-  --text-dim:       #504d49;
-
-  --success:        #5a9a6e;
-  --error:          #c86b6b;
-  --error-bg:       rgba(200, 107, 107, 0.1);
-
-  --space-xs:  4px;
-  --space-sm:  8px;
-  --space-md:  16px;
-  --space-lg:  24px;
-  --space-xl:  32px;
-  --space-2xl: 48px;
-
-  --radius-sm: 8px;
-  --radius:    12px;
-  --radius-lg: 16px;
-
-  --touch-min: 44px;
-}
-
-/* ── Static pages (Support / Privacy / Terms / SCTA) ──────── */
-.page-static {
-  display: flex;
-  justify-content: center;
-  padding: var(--space-xl) var(--space-md) calc(var(--space-2xl) + 80px);
+:host {
+  display: block;
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
   font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.page-static {
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px 80px;
 }
 
 .static-card {
@@ -53,11 +17,11 @@
   max-width: 680px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl) var(--space-lg);
+  border-radius: 16px;
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: 24px;
 }
 
 .static-title {
@@ -78,11 +42,11 @@
 .support-contact {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 8px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--space-md) var(--space-lg);
+  border-radius: 12px;
+  padding: 16px 24px;
   color: var(--text-muted);
 }
 
@@ -98,7 +62,7 @@
 .static-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: 8px;
 }
 
 .static-section-title {
@@ -121,10 +85,10 @@
   font-size: 0.875rem;
   line-height: 1.65;
   margin: 0;
-  padding-left: var(--space-lg);
+  padding-left: 24px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: 8px;
 }
 
 .static-note {
@@ -136,14 +100,14 @@
 .static-back-btn {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 8px;
   align-self: flex-start;
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   color: var(--text-muted);
   font-size: 0.8125rem;
-  padding: var(--space-sm) var(--space-md);
+  padding: 8px 16px;
   cursor: pointer;
   text-decoration: none;
   transition: border-color 0.15s, color 0.15s;
@@ -155,7 +119,7 @@
 
 .scta-table-wrap {
   overflow-x: auto;
-  border-radius: var(--radius);
+  border-radius: 12px;
   border: 1px solid var(--border);
 }
 
@@ -201,20 +165,4 @@
   color: var(--text-muted);
   opacity: 0.75;
   margin-top: 0.35rem;
-}
-
-html {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  background: #0d0d0d;
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  color: #e8e4de;
-  overflow-x: hidden;
 }

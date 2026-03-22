@@ -3,7 +3,7 @@
   <div class="header-inner">
     <div class="header-left">
       @if (activeTab !== 'samples') {
-        <button class="header-back" (click)="switchTab('samples')" title="Back to home">
+        <button class="header-back" (click)="switchTab('samples')" [title]="lang.t().nav.home">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
           </svg>
@@ -26,16 +26,15 @@
         @if (headerMenuOpen) {
           <nav class="header-menu">
             <!-- Mobile-only nav items -->
-            <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'samples'" (click)="switchTab('samples'); headerMenuOpen = false">Home</button>
-            <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'generate'" (click)="switchTab('generate'); headerMenuOpen = false">Create Portrait</button>
+            <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'samples'" (click)="switchTab('samples'); headerMenuOpen = false">{{ lang.t().nav.home }}</button>
+            <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'generate'" (click)="switchTab('generate'); headerMenuOpen = false">{{ lang.t().nav.createPortrait }}</button>
             @if (currentUser) {
-              <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'orders'" (click)="switchTab('orders'); headerMenuOpen = false">Orders</button>
-              <button class="menu-item menu-item--mobile-only" (click)="goToMyGenerations(); headerMenuOpen = false">My Generations</button>
+              <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'orders'" (click)="switchTab('orders'); headerMenuOpen = false">{{ lang.t().nav.orders }}</button>
+              <button class="menu-item menu-item--mobile-only" (click)="goToMyGenerations(); headerMenuOpen = false">{{ lang.t().nav.myGenerations }}</button>
             }
             <div class="menu-divider menu-item--mobile-only"></div>
-            <!-- Sign in/out always in dropdown -->
             @if (currentUser) {
-              <button class="menu-item menu-item--signout" (click)="signOut(); headerMenuOpen = false">Sign out</button>
+              <button class="menu-item menu-item--signout" (click)="signOut(); headerMenuOpen = false">{{ lang.t().nav.signOut }}</button>
             } @else {
               <button class="menu-item menu-item--signin" (click)="signIn(); headerMenuOpen = false">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
@@ -44,7 +43,7 @@
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                 </svg>
-                Sign in
+                {{ lang.t().nav.signIn }}
               </button>
             }
           </nav>
@@ -54,15 +53,17 @@
 
     <!-- Desktop nav links -->
     <nav class="header-nav">
-      <button class="nav-link" [class.nav-link--active]="activeTab === 'samples'" (click)="switchTab('samples')">Home</button>
-      <button class="nav-link" [class.nav-link--active]="activeTab === 'generate'" (click)="switchTab('generate')">Create Portrait</button>
+      <button class="nav-link" [class.nav-link--active]="activeTab === 'samples'" (click)="switchTab('samples')">{{ lang.t().nav.home }}</button>
+      <button class="nav-link" [class.nav-link--active]="activeTab === 'generate'" (click)="switchTab('generate')">{{ lang.t().nav.createPortrait }}</button>
       @if (currentUser) {
-        <button class="nav-link" [class.nav-link--active]="activeTab === 'orders'" (click)="switchTab('orders')">Orders</button>
-        <button class="nav-link" (click)="goToMyGenerations()">My Generations</button>
+        <button class="nav-link" [class.nav-link--active]="activeTab === 'orders'" (click)="switchTab('orders')">{{ lang.t().nav.orders }}</button>
+        <button class="nav-link" (click)="goToMyGenerations()">{{ lang.t().nav.myGenerations }}</button>
       }
     </nav>
 
-    <div class="header-right"></div>
+    <div class="header-right">
+      <button class="lang-toggle" (click)="lang.toggle()">{{ lang.lang() === 'en' ? 'JP' : 'EN' }}</button>
+    </div>
   </div>
 </header>
 
@@ -81,19 +82,18 @@
           [templateKeys]="templateKeys"
           [selectedTemplate]="selectedTemplate"
           [previewOnly]="true"
+          [sectionTitle]="lang.t().styles.exploreStyles"
           (templateSelected)="onGalleryStyleSelected($event)"
         />
       </section>
 
       <section class="hero">
         <h2 class="hero-title">
-          Transform your pet into<br /><span class="hero-accent">Edo-era art</span>
+          {{ lang.t().hero.line1 }}<br /><span class="hero-accent">{{ lang.t().hero.accent }}</span>
         </h2>
-        <p class="hero-sub">
-          Upload any photo and choose from our curated portrait styles inspired by Ukiyo-e masters.
-        </p>
+        <p class="hero-sub">{{ lang.t().hero.subtitle }}</p>
         <button class="hero-cta" (click)="switchTab('generate')">
-          Create Portrait
+          {{ lang.t().hero.cta }}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
           </svg>
@@ -101,7 +101,7 @@
       </section>
 
       <section class="samples-section">
-        <h3 class="section-heading">Community</h3>
+        <h3 class="section-heading">{{ lang.t().gallery.community }}</h3>
         <app-sample-gallery
           [samples]="samples"
           [loading]="samplesLoading"
@@ -112,15 +112,15 @@
       </section>
 
       <footer class="page-footer">
-        <button class="footer-link" (click)="switchTab('support')">Support</button>
+        <a class="footer-link footer-link-a" routerLink="/support">{{ lang.t().footer.support }}</a>
         <span class="footer-sep">·</span>
-        <button class="footer-link" (click)="switchTab('privacy')">Privacy Policy</button>
+        <a class="footer-link footer-link-a" routerLink="/privacy">{{ lang.t().footer.privacy }}</a>
         <span class="footer-sep">·</span>
-        <button class="footer-link" (click)="switchTab('terms')">Terms &amp; Conditions</button>
+        <a class="footer-link footer-link-a" routerLink="/terms">{{ lang.t().footer.terms }}</a>
         <span class="footer-sep">·</span>
-        <button class="footer-link" (click)="switchTab('scta')">特定商取引法に基づく表記</button>
+        <a class="footer-link footer-link-a" routerLink="/scta">{{ lang.t().footer.scta }}</a>
         <span class="footer-sep">·</span>
-        <span class="footer-brand">A product of <a href="https://nakamaai.co" target="_blank" rel="noopener" class="footer-link-a">Nakama AI</a></span>
+        <span class="footer-brand">{{ lang.t().footer.brand }}</span>
       </footer>
     </div>
   }
@@ -132,23 +132,23 @@
       <aside class="gen-sidebar">
         <div class="sidebar-scroll">
           <div class="sidebar-block">
-            <p class="sidebar-label">1 · Upload your pet</p>
+            <p class="sidebar-label">{{ lang.t().create.step1 }}</p>
             <app-upload-area [previewUrl]="previewUrl" (fileSelected)="setFile($event)" />
           </div>
 
           <div class="sidebar-block">
-            <p class="sidebar-label">2 · Select style</p>
+            <p class="sidebar-label">{{ lang.t().create.step2 }}</p>
             <app-template-selector
               [templates]="templates"
               [templateKeys]="templateKeys"
               [selectedTemplate]="selectedTemplate"
               (templateSelected)="selectTemplate($event)"
-              sectionTitle="Select Style"
+              [sectionTitle]="lang.t().styles.selectStyle"
             />
           </div>
 
           <div class="sidebar-block">
-            <p class="sidebar-label">3 · Orientation</p>
+            <p class="sidebar-label">{{ lang.t().create.step3 }}</p>
             <div class="ratio-picker">
               @for (opt of ratioOptions; track opt.label) {
                 <button
@@ -168,7 +168,7 @@
               <input type="checkbox" [(ngModel)]="dryRun" />
               <span class="toggle-track"><span class="toggle-thumb"></span></span>
               <span class="toggle-text"
-                >Dry run <span class="toggle-hint">(print prompt, skip RunPod)</span></span
+                >{{ lang.t().create.dryRun }} <span class="toggle-hint">{{ lang.t().create.dryRunHint }}</span></span
               >
             </label>
 
@@ -188,10 +188,10 @@
                     d="m9.813 15.904 1.075-4.267m1.075-4.267.427-1.708a.25.25 0 0 1 .305-.188l1.432.358a1 1 0 0 1 .75 1.037l-.196 1.307m-3.793 3.461.196-1.308M12 8.25l-3 .75m6 6-3 .75m-6.75 3.75L3 20.25m18 0-3.75-1.5M21 3l-1.5 3.75M3 3l1.5 3.75"
                   />
                 </svg>
-                {{ dryRun ? 'Generate (Dry Run)' : 'Generate Portrait' }}
+                {{ dryRun ? lang.t().create.generateDry : lang.t().create.generate }}
               } @else {
                 <span class="btn-spinner"></span>
-                Submitting…
+                {{ lang.t().create.submitting }}
               }
             </button>
 
@@ -200,7 +200,7 @@
               [disabled]="!canOrderPrint"
               (click)="openOrderFromLatest()"
             >
-              Order Print
+              {{ lang.t().create.orderPrint }}
             </button>
 
             @if (errorMsg) {
@@ -215,7 +215,7 @@
         @if (jobs.length > 0) {
           <section class="gen-results">
             <div class="gen-results-header">
-              <h3 class="gen-results-title">Generating</h3>
+              <h3 class="gen-results-title">{{ lang.t().create.generating }}</h3>
             </div>
             <app-job-queue
               [jobs]="jobs"
@@ -339,274 +339,8 @@
     </div>
   }
 
-  <!-- SUPPORT PAGE ─────────────────────────────────────────── -->
-  @if (activeTab === 'support') {
-    <div class="page-static">
-      <div class="static-card">
-        <h2 class="static-title">Support</h2>
-        <p class="static-lead">
-          We're here to help. If you have any questions, issues, or feedback about your portraits or orders, reach out to us directly.
-        </p>
 
-        <div class="support-contact">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-          </svg>
-          <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>
-        </div>
 
-        <div class="static-section">
-          <h3 class="static-section-title">Common Topics</h3>
-          <ul class="static-list">
-            <li><strong>Generation issues</strong> — If your portrait failed or looks unexpected, email us with your job ID (visible in the Generations panel).</li>
-            <li><strong>Orders &amp; shipping</strong> — For questions about print orders, tracking, or delivery, include your order ID in your message.</li>
-            <li><strong>Billing</strong> — Payment queries or refund requests are handled within 2 business days.</li>
-            <li><strong>Feedback</strong> — We love hearing what you think. Style suggestions are always welcome.</li>
-          </ul>
-        </div>
-
-        <p class="static-note">We typically respond within 24 hours on business days.</p>
-
-        <button class="static-back-btn" (click)="switchTab('samples')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
-          Back to Gallery
-        </button>
-      </div>
-    </div>
-  }
-
-  <!-- PRIVACY PAGE ──────────────────────────────────────────────── -->
-  @if (activeTab === 'privacy') {
-    <div class="page-static">
-      <div class="static-card">
-        <h2 class="static-title">Privacy Policy</h2>
-        <p class="static-lead">Effective date: March 19, 2026</p>
-
-        <div class="static-section">
-          <h3 class="static-section-title">1. Introduction</h3>
-          <p>Pet-to AI is a product of Nakama AI. This Privacy Policy explains how we collect, use, and protect your personal information when you use Pet-to AI ("Service"). By using the Service, you agree to the practices described here.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">2. Information We Collect</h3>
-          <ul class="static-list">
-            <li><strong>Account information</strong> — When you sign in via Google, we receive your name, email address, and profile picture from Firebase Authentication.</li>
-            <li><strong>Uploaded images</strong> — Photos of pets you upload to generate portraits.</li>
-            <li><strong>Order information</strong> — Shipping address and contact details you provide when placing a print order.</li>
-            <li><strong>Usage data</strong> — Basic information about how you interact with the Service (e.g. generations requested, styles selected).</li>
-          </ul>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">3. How We Use Your Information</h3>
-          <ul class="static-list">
-            <li>To generate AI portraits from your uploaded images.</li>
-            <li>To process and fulfil print orders.</li>
-            <li>To authenticate you and manage your account.</li>
-            <li>To respond to support requests.</li>
-            <li>To improve the Service.</li>
-          </ul>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">4. Third-Party Services</h3>
-          <p>We use the following third-party providers to operate the Service. Each is governed by their own privacy policy:</p>
-          <ul class="static-list">
-            <li><strong>Google Firebase</strong> — Authentication and data storage.</li>
-            <li><strong>Razorpay</strong> — Payment processing. We do not store your card details.</li>
-            <li><strong>RunPod</strong> — AI image generation infrastructure. Uploaded images are transmitted to RunPod solely to generate your portrait and are not retained by them beyond processing.</li>
-            <li><strong>Google Cloud</strong> — Hosting and infrastructure.</li>
-          </ul>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">5. Data Retention</h3>
-          <p>Uploaded images are stored temporarily and used only to generate your portrait. Generated portraits are retained in your account gallery until you delete them. Order information is retained as long as necessary to fulfil and support your order. You may request deletion of your data at any time by contacting us.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">6. Data Sharing</h3>
-          <p>We do not sell or share your personal information with third parties for marketing purposes. Information is shared only as necessary to deliver the Service (e.g. shipping address with our print fulfilment partner when you place a print order).</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">7. Your Rights</h3>
-          <p>You have the right to access, correct, or request deletion of your personal data. To exercise these rights, contact us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>. We will respond within a reasonable timeframe.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">8. Security</h3>
-          <p>We take reasonable measures to protect your information. However, no internet transmission is completely secure and we cannot guarantee absolute security.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">9. Changes to This Policy</h3>
-          <p>We may update this Privacy Policy from time to time. When we do, we will update the effective date at the top of this page. Continued use of the Service after changes are posted means you accept the revised policy.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">10. Contact</h3>
-          <p>Questions about this Privacy Policy? Reach out to us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>.</p>
-        </div>
-
-        <button class="static-back-btn" (click)="switchTab('samples')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
-          Back to Gallery
-        </button>
-      </div>
-    </div>
-  }
-
-  <!-- TERMS PAGE ────────────────────────────────────────────────── -->
-  @if (activeTab === 'terms') {
-    <div class="page-static">
-      <div class="static-card">
-        <h2 class="static-title">Terms &amp; Conditions</h2>
-        <p class="static-lead">Last Updated: March 20, 2026</p>
-
-        <div class="static-section">
-          <h3 class="static-section-title">1. Service Overview</h3>
-          <p>The website <a href="https://pet-to.com/" target="_blank" rel="noopener" class="support-email">https://pet-to.com/</a> (the "Service") is an AI-powered platform operated by Nakama AI. We provide tools for users to generate custom artwork of pets by uploading images. Users can then choose to order physical prints of their generated designs.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">2. User-Uploaded Content</h3>
-          <p>By uploading photos to pet-to.com, you represent that you own the rights to such content. You grant us a limited license to process these images solely to provide the AI generation service.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">3. AI Generation and Order Process</h3>
-          <p><strong>Instant Previews:</strong> AI generation occurs instantly. Users are encouraged to use the unlimited free preview feature to ensure they are satisfied with the artistic style before purchasing.</p>
-          <p style="margin-top:0.5rem"><strong>Fulfillment:</strong> Once a physical print is ordered, the data is transmitted to our Japanese partner, Gakubuti.net (Nagano), for printing and framing.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">4. Payment and Delivery</h3>
-          <p>Full payment in JPY is required at checkout. Payment is processed securely via KOMOJU — we do not collect or store your card details directly.</p>
-          <p style="margin-top:0.5rem">Estimated delivery for physical prints within Japan is 10–14 days.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">5. Refunds and Cancellations</h3>
-          <p>Since AI generation is instant and orders are transmitted immediately to our fulfillment partner, cancellations are not accepted after order confirmation. Returns for customer convenience are not accepted.</p>
-          <p style="margin-top:0.5rem">In the case of damage during shipping or a manufacturing defect, please contact us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a> within 7 days of receiving your order. After confirmation with the carrier and fulfillment partner, we will provide a full refund or send a replacement.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">6. Privacy</h3>
-          <p>Your privacy matters to us. Uploaded images are stored temporarily to generate your portrait and are not shared with third parties except as required to fulfil print orders. We use Firebase for authentication; please refer to Google's privacy policy for details on how authentication data is handled.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">7. Proprietary Rights</h3>
-          <p>All AI-generation technology and website content on pet-to.com are the property of Nakama AI and protected under applicable intellectual property laws. You may not copy, reproduce, or redistribute any part of the Service without prior written permission.</p>
-          <p style="margin-top:0.5rem">You retain ownership of the photos you upload. By uploading, you grant us a limited licence to process them solely for generating your portraits.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">8. Limitation of Liability</h3>
-          <p>The Service is provided "as is" without warranties of any kind. To the fullest extent permitted by law, Nakama AI shall not be liable for any indirect, incidental, or consequential damages arising from your use of or inability to use the Service.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">9. Governing Law</h3>
-          <p>These Terms are governed by the laws of India. Any disputes arising from your use of the Service will be subject to the jurisdiction of courts in West Bengal, India.</p>
-        </div>
-
-        <div class="static-section">
-          <h3 class="static-section-title">10. Contact</h3>
-          <p>Questions about these Terms? Reach out to us at <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>.</p>
-        </div>
-
-        <button class="static-back-btn" (click)="switchTab('samples')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
-          Back to Gallery
-        </button>
-      </div>
-    </div>
-  }
-
-  <!-- SCTA PAGE ────────────────────────────────────────────── -->
-  @if (activeTab === 'scta') {
-    <div class="page-static">
-      <div class="static-card">
-        <h2 class="static-title">特定商取引法に基づく表記</h2>
-        <p class="static-lead">Notation based on the Specified Commercial Transactions Act</p>
-
-        <div class="scta-table-wrap">
-          <table class="scta-table">
-            <tbody>
-              <tr>
-                <th>販売業者<br><span class="scta-th-sub">Seller Name</span></th>
-                <td>Nakama AI</td>
-              </tr>
-              <tr>
-                <th>運営責任者<br><span class="scta-th-sub">Representative</span></th>
-                <td>Purabi Mazumder</td>
-              </tr>
-              <tr>
-                <th>所在地<br><span class="scta-th-sub">Address</span></th>
-                <td>258, Ward no 12, Indrakanan, Sripalli, Kanainatsal, Barddhaman, West Bengal, 713103, India</td>
-              </tr>
-              <tr>
-                <th>電話番号<br><span class="scta-th-sub">Phone Number</span></th>
-                <td>+91 7209167772</td>
-              </tr>
-              <tr>
-                <th>メールアドレス<br><span class="scta-th-sub">Email</span></th>
-                <td><a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a></td>
-              </tr>
-              <tr>
-                <th>サイトURL<br><span class="scta-th-sub">Site URL</span></th>
-                <td><a href="https://pet-to.com/" target="_blank" rel="noopener" class="support-email">https://pet-to.com/</a></td>
-              </tr>
-              <tr>
-                <th>販売価格<br><span class="scta-th-sub">Sales Price</span></th>
-                <td>各商品ページに表示された価格に基づきます<br><span class="scta-td-sub">Based on prices displayed on each product page</span></td>
-              </tr>
-              <tr>
-                <th>商品代金以外に必要な料金<br><span class="scta-th-sub">Additional Fees</span></th>
-                <td>配送料（チェックアウト時に表示されます）<br><span class="scta-td-sub">Shipping fees, if applicable, are displayed at checkout</span></td>
-              </tr>
-              <tr>
-                <th>お支払方法<br><span class="scta-th-sub">Payment Methods</span></th>
-                <td>クレジットカード、コンビニ決済等（KOMOJU経由）<br><span class="scta-td-sub">Credit Card, Konbini, etc. via KOMOJU</span></td>
-              </tr>
-              <tr>
-                <th>代金の支払時期<br><span class="scta-th-sub">Payment Timing</span></th>
-                <td>商品注文時にお支払いいただきます<br><span class="scta-td-sub">Payment is due at the time of order</span></td>
-              </tr>
-              <tr>
-                <th>商品の引渡時期<br><span class="scta-th-sub">Delivery Time</span></th>
-                <td>AI生成は即時に行われます。印刷および配送は、注文確定後10〜14日以内に完了します<br><span class="scta-td-sub">AI generation is instant. Printing and delivery are completed within 10–14 days of order confirmation</span></td>
-              </tr>
-              <tr>
-                <th>返品・交換・キャンセル<br><span class="scta-th-sub">Returns / Exchanges / Cancellations</span></th>
-                <td>
-                  AI生成は即時であり、注文は直ちに日本国内の提携先（Gakubuti.net）へ送信されるため、注文確定後のキャンセルは受け付けておりません。お客様都合による返品は不可となります。<br>
-                  配送中の破損や初期不良がある場合は、商品到着後7日以内にご連絡ください。配送業者および提携先との確認後、全額返金または代替品の再発送をいたします。<br>
-                  <span class="scta-td-sub">Since AI generation is instant and orders are sent immediately to Gakubuti.net, cancellations are not accepted. No returns for customer convenience. For damage or defects, notify us within 7 days of receipt for a full refund or replacement.</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <button class="static-back-btn" (click)="switchTab('samples')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
-          Back to Gallery
-        </button>
-      </div>
-    </div>
-  }
 
   <!-- ORDER FLOW PAGE ──────────────────────────────────────── -->
   @if (activeTab === 'order') {
@@ -624,11 +358,11 @@
 
 <!-- ── Cat menu backdrop ──────────────────────────────────── -->
 @if (catMenuOpen) {
-  <div class="bottom-bar-backdrop" [hidden]="activeTab === 'orders'" (click)="closeCatMenu()"></div>
+  <div class="bottom-bar-backdrop" [style.display]="(activeTab === 'orders' || activeTab === 'order' || orderFlowItems.length > 0) ? 'none' : 'block'" (click)="closeCatMenu()"></div>
 }
 
 <!-- ── Bottom bar ────────────────────────────────────────── -->
-<div class="bottom-bar-wrapper" [hidden]="activeTab === 'orders'">
+<div class="bottom-bar-wrapper" [style.display]="(activeTab === 'orders' || activeTab === 'order' || orderFlowItems.length > 0) ? 'none' : 'flex'">
   <app-character [animation]="characterAnimation" (tapped)="onCharacterTap()" />
   <div class="bottom-bar" [class.bottom-bar--open]="catMenuOpen">
     <!-- Home -->
@@ -638,7 +372,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg>
       </span>
-      <span class="bar-btn-label">Home</span>
+      <span class="bar-btn-label">{{ lang.t().bottomBar.home }}</span>
     </button>
     <!-- Create -->
     <button class="bar-btn" [class.bar-btn--active]="activeTab === 'generate'" (click)="switchTab('generate'); $event.stopPropagation()">
@@ -647,7 +381,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="m9.813 15.904 1.075-4.267m1.075-4.267.427-1.708a.25.25 0 0 1 .305-.188l1.432.358a1 1 0 0 1 .75 1.037l-.196 1.307m-3.793 3.461.196-1.308M12 8.25l-3 .75m6 6-3 .75m-6.75 3.75L3 20.25m18 0-3.75-1.5M21 3l-1.5 3.75M3 3l1.5 3.75" />
         </svg>
       </span>
-      <span class="bar-btn-label">Create</span>
+      <span class="bar-btn-label">{{ lang.t().bottomBar.create }}</span>
     </button>
     <!-- Orders -->
     <button class="bar-btn" [class.bar-btn--active]="activeTab === 'orders'" (click)="switchTab('orders'); $event.stopPropagation()">
@@ -656,7 +390,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" />
         </svg>
       </span>
-      <span class="bar-btn-label">Orders</span>
+      <span class="bar-btn-label">{{ lang.t().bottomBar.orders }}</span>
     </button>
     <!-- Gallery -->
     <button class="bar-btn" [class.bar-btn--active]="activeTab === 'gallery'" (click)="switchTab('gallery'); $event.stopPropagation()">
@@ -665,7 +399,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0z" />
         </svg>
       </span>
-      <span class="bar-btn-label">Gallery</span>
+      <span class="bar-btn-label">{{ lang.t().bottomBar.gallery }}</span>
     </button>
     <div class="bar-cat-gap"></div>
   </div>
