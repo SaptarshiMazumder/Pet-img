@@ -16,6 +16,7 @@ import { LightboxComponent } from './components/lightbox/lightbox.component';
 import { OrderModalComponent } from './components/order-modal/order-modal.component';
 import { OrderFlowComponent } from './components/order-flow/order-flow.component';
 import { OrdersPageComponent } from './components/orders-page/orders-page.component';
+import { AuthModalComponent } from './components/auth-modal/auth-modal.component';
 import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order } from './models';
 
 @Component({
@@ -34,6 +35,7 @@ import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order } f
     OrderModalComponent,
     OrderFlowComponent,
     OrdersPageComponent,
+    AuthModalComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -196,8 +198,11 @@ export class App implements OnInit, OnDestroy {
   }
 
   // ── Auth ───────────────────────────────────────────────────
+  showAuthModal = false;
+
   signIn() {
-    this.auth.signInWithGoogle().catch((err) => console.error('Sign-in error', err));
+    this.showAuthModal = true;
+    this.headerMenuOpen = false;
   }
 
   signOut() {

@@ -5,6 +5,9 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut,
   User,
 } from 'firebase/auth';
@@ -21,6 +24,18 @@ export class AuthService {
 
   signInWithGoogle(): Promise<void> {
     return signInWithPopup(this.auth, new GoogleAuthProvider()).then(() => {});
+  }
+
+  signInWithEmail(email: string, password: string): Promise<void> {
+    return signInWithEmailAndPassword(this.auth, email, password).then(() => {});
+  }
+
+  signUpWithEmail(email: string, password: string): Promise<void> {
+    return createUserWithEmailAndPassword(this.auth, email, password).then(() => {});
+  }
+
+  sendPasswordReset(email: string): Promise<void> {
+    return sendPasswordResetEmail(this.auth, email);
   }
 
   signOut(): Promise<void> {

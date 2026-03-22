@@ -131,6 +131,21 @@ export interface T {
     regenerate: string;
   };
   backToHome: string;
+  auth: {
+    signIn: string;
+    signUp: string;
+    email: string;
+    password: string;
+    forgotPassword: string;
+    sendResetEmail: string;
+    confirmPassword: string;
+    passwordMismatch: string;
+    resetSent: string;
+    orContinueWith: string;
+    noAccount: string;
+    hasAccount: string;
+    submitting: string;
+  };
 }
 
 export const TRANSLATIONS: Record<Lang, T> = {
@@ -264,6 +279,21 @@ export const TRANSLATIONS: Record<Lang, T> = {
       regenerate: 'Regenerate this portrait? The current result will be replaced.',
     },
     backToHome: '← Back to Home',
+    auth: {
+      signIn: 'Sign In',
+      signUp: 'Create Account',
+      email: 'Email',
+      password: 'Password',
+      forgotPassword: 'Forgot password?',
+      sendResetEmail: 'Send reset email',
+      confirmPassword: 'Confirm Password',
+      passwordMismatch: 'Passwords do not match.',
+      resetSent: 'Password reset email sent — check your inbox.',
+      orContinueWith: 'or continue with',
+      noAccount: "Don't have an account? Sign up",
+      hasAccount: 'Already have an account? Sign in',
+      submitting: 'Please wait…',
+    },
   },
 
   ja: {
@@ -396,5 +426,20 @@ export const TRANSLATIONS: Record<Lang, T> = {
       regenerate: 'このポートレートを再生成しますか？現在の結果は置き換えられます。',
     },
     backToHome: '← ホームへ戻る',
+    auth: {
+      signIn: 'ログイン',
+      signUp: 'アカウント作成',
+      email: 'メールアドレス',
+      password: 'パスワード',
+      forgotPassword: 'パスワードをお忘れですか？',
+      sendResetEmail: 'リセットメールを送信',
+      confirmPassword: 'パスワード（確認）',
+      passwordMismatch: 'パスワードが一致しません。',
+      resetSent: 'パスワードリセットメールを送信しました。受信トレイをご確認ください。',
+      orContinueWith: 'または',
+      noAccount: 'アカウントをお持ちでない方はこちら',
+      hasAccount: 'すでにアカウントをお持ちの方はこちら',
+      submitting: 'しばらくお待ちください…',
+    },
   },
 };
