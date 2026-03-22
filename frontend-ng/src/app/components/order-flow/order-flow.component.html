@@ -28,12 +28,12 @@
     @for (cfg of itemConfigs; track cfg.item.job_id) {
       <div class="of-body">
 
-        <!-- Left: portrait preview with frame overlay -->
+        <!-- Left: portrait with frame overlay -->
         <div class="of-portrait-col">
-          <div class="of-frame-composite" [ngStyle]="frameCompositeStyle(cfg)">
+          <div class="of-frame-composite" [style]="frameCompositeStyle(cfg)">
             <img class="of-portrait-img" [src]="cfg.item.presigned_url!" alt="Your portrait" />
             @if (selectedFrameImg(cfg)) {
-              <img class="of-frame-overlay" [src]="selectedFrameImg(cfg)" [ngStyle]="frameOverlayStyle(cfg)" alt="" />
+              <img class="of-frame-overlay" [style]="frameOverlayStyle(cfg)" [src]="selectedFrameImg(cfg)" alt="" />
             }
           </div>
         </div>
@@ -62,7 +62,7 @@
           @if ((categoryFor(cfg)?.variants?.length ?? 0) > 1) {
             <div class="of-section">
               <p class="of-section-label">Color</p>
-              <select class="of-color-select" [(ngModel)]="cfg.color" [name]="'color_' + cfg.item.job_id">
+              <select class="of-color-select" [(ngModel)]="cfg.color" [name]="'color_' + cfg.item.job_id" (change)="onColorChange(cfg)">
                 @for (v of categoryFor(cfg)!.variants; track v.color) {
                   <option [value]="v.color">{{ v.color }}</option>
                 }
@@ -88,11 +88,11 @@
                 <button class="of-pill"
                   [class.of-pill--active]="cfg.orientation === 'portrait'"
                   [disabled]="cfg.lockedOrientation === 'landscape'"
-                  (click)="cfg.orientation = 'portrait'">Portrait</button>
+                  (click)="onOrientationChange(cfg, 'portrait')">Portrait</button>
                 <button class="of-pill"
                   [class.of-pill--active]="cfg.orientation === 'landscape'"
                   [disabled]="cfg.lockedOrientation === 'portrait'"
-                  (click)="cfg.orientation = 'landscape'">Landscape</button>
+                  (click)="onOrientationChange(cfg, 'landscape')">Landscape</button>
               </div>
             </div>
             <div class="of-section of-section--qty">

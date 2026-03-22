@@ -95,6 +95,8 @@ def regenerate_generation(job_id: str):
 
     template_key = data.get("template_key")
     style_key = data.get("style_key", "inkwash")
+    orientation = data.get("orientation", "portrait")
+    width, height = (1040, 832) if orientation == "landscape" else (832, 1040)
 
     try:
         style = load_style(style_key)
@@ -128,8 +130,8 @@ def regenerate_generation(job_id: str):
 
     threading.Thread(
         target=run_job_background,
-        args=(new_job_id, tmp_path, style, style_key, template_key, {}),
-        kwargs={"uid": g.uid, "source_r2_key": new_source_r2_key},
+        args=(new_job_id, tmp_path, style, style_key, template_key, {"width": width, "height": height}),
+        kwargs={"uid": g.uid, "source_r2_key": new_source_r2_key, "orientation": orientation},
         daemon=True,
     ).start()
 

@@ -123,5 +123,18 @@
       "norwegian elkhound",
       "american eskimo"
     ]
+  },
+  "moonlit_window": {
+    "name": "Moonlit Window Portrait",
+    "preview_url": "assets/templates/moonlight.jpg",
+    "role_title": "a solitary figure in quiet contemplation",
+    "attire_verb": "wears",
+    "wardrobe": "a simple, elegant yukata or light kimono in muted dark tones — deep navy, charcoal, or black — with a minimal understated pattern, worn loosely and draped naturally over the seated body",
+    "pose_sentence": "The {pronoun} is seated directly facing a large open shoji screen window, back to the viewer, body turned slightly to reveal a three-quarter rear profile. The silhouette of the figure is softly lit from behind by the cool glow of a large full moon visible through the open shoji panels. Both paws rest gently on the knees or lap. The head is inclined slightly upward, gazing at the moon through the window. The lower body and hind legs are completely hidden beneath the loose kimono fabric pooled around the figure on the tatami — only the head, shoulders, and the soft outline of the upper back are visible. The figure is rendered as a soft dark silhouette, edges gently luminous from the moonlight behind the shoji screen.",
+    "props_sentence": "Directly in front of the figure, a large open shoji screen window with white rice-paper panels in a wooden grid frame, one or two panels slid open to reveal the night sky and the glowing full moon. A single small ceramic cup or teacup rests on the tatami beside the figure. Faint wisps of incense smoke curl from a small burner nearby.",
+    "environment": "a minimal, spare traditional Japanese interior at night — bare tatami flooring, dark wooden wall panels, a low ceiling with a single wooden beam. The room is nearly empty except for the figure and a few quiet objects. Through the open shoji window, the night sky is visible: a vast soft dark sky with a large, luminous full moon — a perfect pale disc — and perhaps faint wisps of cloud drifting across it. Total stillness.",
+    "lighting": "The primary light source is the full moon behind the shoji screen, casting a cool diffuse silver-white glow that silhouettes the figure and filters softly through the rice-paper panels. No warm light sources. The interior is dim and shadowed, the figure a soft dark shape against the luminous window.",
+    "mood": "solitary, contemplative, melancholic, serene, and deeply atmospheric",
+    "not_suitable_for": []
   }
 }

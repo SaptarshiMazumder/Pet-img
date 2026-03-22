@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GalleryEntry, Order, ShippingAddress } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -32,7 +31,7 @@ const SHIPPING_KEY = 'pg_shipping';
 @Component({
   selector: 'app-order-flow',
   standalone: true,
-  imports: [FormsModule, NgStyle],
+  imports: [FormsModule],
   templateUrl: './order-flow.component.html',
   styleUrl: './order-flow.component.css',
 })
@@ -82,7 +81,6 @@ export class OrderFlowComponent implements OnChanges, OnInit {
     this.existingOrderId = this.editOrder?.id ?? null;
 
     if (this.editOrder) {
-      // Pre-populate from existing order
       this.itemConfigs = this.items
         .filter(i => i.presigned_url)
         .map((item, idx) => {
@@ -139,10 +137,25 @@ export class OrderFlowComponent implements OnChanges, OnInit {
     }
   }
 
+  onColorChange(_cfg: ItemConfig) {}
+
+  onOrientationChange(cfg: ItemConfig, orientation: 'portrait' | 'landscape') {
+    cfg.orientation = orientation;
+  }
+
   frameCoverImg(cfg: ItemConfig, cat: FrameCategory): string {
     const variant = cfg.category === cat.name
       ? (cat.variants.find(v => v.color === cfg.color) ?? cat.variants[0])
       : cat.variants[0];
+    if (!variant) return '';
+    const img = cfg.orientation === 'landscape' ? variant.preview_img_landscape : variant.preview_img_portrait;
+    return img ? this.api.assetUrl(img) : '';
+  }
+
+  selectedFrameImg(cfg: ItemConfig): string {
+    const cat = this.categoryFor(cfg);
+    if (!cat) return '';
+    const variant = cat.variants.find(v => v.color === cfg.color) ?? cat.variants[0];
     if (!variant) return '';
     const img = cfg.orientation === 'landscape' ? variant.preview_img_landscape : variant.preview_img_portrait;
     return img ? this.api.assetUrl(img) : '';
@@ -165,15 +178,6 @@ export class OrderFlowComponent implements OnChanges, OnInit {
       'max-width': `${pct}%`,
       'margin': `${inset}% auto`,
     };
-  }
-
-  selectedFrameImg(cfg: ItemConfig): string {
-    const cat = this.categoryFor(cfg);
-    if (!cat) return '';
-    const variant = cat.variants.find(v => v.color === cfg.color) ?? cat.variants[0];
-    if (!variant) return '';
-    const img = cfg.orientation === 'landscape' ? variant.preview_img_landscape : variant.preview_img_portrait;
-    return img ? this.api.assetUrl(img) : '';
   }
 
   sizeKeys(cfg: ItemConfig): string[] {

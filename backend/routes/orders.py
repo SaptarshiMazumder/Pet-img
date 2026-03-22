@@ -7,10 +7,12 @@ from google.cloud import firestore
 from backend.auth_middleware import require_auth
 from backend.config.prices import FRAME_CATALOG
 from backend.firebase import get_db
+from backend.storage.r2 import public_url as r2_public_url
 
 orders_bp = Blueprint("orders", __name__)
 
 _PREVIEW_DIR = Path(__file__).parent.parent / "config" / "config_preview_images"
+
 
 
 @orders_bp.get("/orders/catalog/images/<path:filename>")
@@ -27,8 +29,8 @@ def get_catalog():
         variants = [
             {
                 "color": v["color"],
-                "preview_img_landscape": f"/orders/catalog/images/{os.path.basename(v['preview_img_landscape'])}",
-                "preview_img_portrait": f"/orders/catalog/images/{os.path.basename(v['preview_img_portrait'])}",
+                "preview_img_landscape": r2_public_url(v["preview_img_landscape"]),
+                "preview_img_portrait": r2_public_url(v["preview_img_portrait"]),
             }
             for v in cat.get("variants", [])
         ]

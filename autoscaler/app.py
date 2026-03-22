@@ -7,6 +7,7 @@ from flask_cors import CORS
 import autoscaler.jobs as jobs
 import autoscaler.scaling as scaling
 from autoscaler.dashboard import dashboard_bp
+from autoscaler.scaling import pause, resume
 
 app = Flask(__name__)
 CORS(app)
@@ -33,11 +34,23 @@ def route_job_finish():
     return jsonify({"ok": True})
 
 
+@app.route("/pause", methods=["POST"])
+def route_pause():
+    pause()
+    return jsonify({"ok": True, "paused": True})
+
+
+@app.route("/resume", methods=["POST"])
+def route_resume():
+    resume()
+    return jsonify({"ok": True, "paused": False})
+
+
 @app.route("/status", methods=["GET"])
 def route_status():
     import os
     import time
-    from autoscaler.scaling import _lock, _active_count, _queue_empty_since, _has_had_activity, _stuck_checks
+    from autoscaler.scaling import _lock, _active_count, _queue_empty_since, _has_had_activity, _stuck_checks, _paused
     from autoscaler.runpod import get_endpoint_health
 
     with _lock:
@@ -45,6 +58,7 @@ def route_status():
         empty_since = _queue_empty_since
         activity = _has_had_activity
         stuck = _stuck_checks
+        paused = _paused
 
     idle = int(time.time() - empty_since) if empty_since else 0
 
@@ -58,6 +72,7 @@ def route_status():
         "idle_seconds": idle,
         "has_had_activity": activity,
         "stuck_checks": stuck,
+        "paused": paused,
         "workers": {
             "standby":  health["standby"],
             "min":      health["workers_min"],

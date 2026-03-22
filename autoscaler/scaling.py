@@ -28,6 +28,21 @@ _active_count      = 0
 _queue_empty_since: float | None = None
 _has_had_activity  = False
 _stuck_checks      = 0   # consecutive checks: jobs in flight but zero healthy workers
+_paused            = False
+
+
+def pause() -> None:
+    global _paused
+    with _lock:
+        _paused = True
+    print("[autoscaler] paused — scaling decisions suspended")
+
+
+def resume() -> None:
+    global _paused
+    with _lock:
+        _paused = False
+    print("[autoscaler] resumed — scaling decisions active")
 
 
 def _increment() -> int:
@@ -47,6 +62,8 @@ def _decrement() -> int:
 def warm() -> None:
     global _has_had_activity, _queue_empty_since
     with _lock:
+        if _paused:
+            return
         if _active_count > 0:
             return  # workers already busy, nothing to do
     try:
@@ -66,6 +83,8 @@ def on_job_start() -> None:
     with _lock:
         _has_had_activity = True
         _queue_empty_since = None
+        if _paused:
+            return
     desired_max = min(max(_WARM_MAX, count + 1), _MAX_WORKERS)
     threading.Thread(target=_ensure_capacity, args=(desired_max,), daemon=True).start()
 
@@ -120,6 +139,9 @@ def _check() -> None:
     global _queue_empty_since
     if not _has_had_activity:
         return  # dormant until first user activity
+    with _lock:
+        if _paused:
+            return
 
     now = time.time()
     with _lock:

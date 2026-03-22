@@ -44,10 +44,24 @@ _HTML = """<!DOCTYPE html>
 
   .updated { font-size: 0.65rem; color: #334155; margin-top: 16px; }
   .section { margin-bottom: 24px; }
+
+  .controls { display: flex; gap: 10px; margin-bottom: 24px; align-items: center; }
+  .btn { padding: 8px 18px; border: none; border-radius: 6px; font-family: monospace; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: opacity 0.15s; }
+  .btn:hover { opacity: 0.85; }
+  .btn-pause  { background: #facc15; color: #0f1117; }
+  .btn-resume { background: #4ade80; color: #0f1117; }
+  .paused-banner { font-size: 0.75rem; color: #facc15; background: #2d2200; border: 1px solid #facc1540; border-radius: 6px; padding: 6px 14px; display: none; }
+  .paused-banner.visible { display: inline-block; }
 </style>
 </head>
 <body>
 <h1>⬡ Autoscaler Dashboard</h1>
+
+<div class="controls">
+  <button class="btn btn-pause"  id="btn-pause"  onclick="doAction('/pause')">⏸ Pause</button>
+  <button class="btn btn-resume" id="btn-resume" onclick="doAction('/resume')" style="display:none">▶ Resume</button>
+  <span class="paused-banner" id="paused-banner">⚠ Scaling paused — workers will not be adjusted</span>
+</div>
 
 <div class="section">
   <h2>RunPod Workers</h2>
@@ -106,6 +120,13 @@ _HTML = """<!DOCTYPE html>
 <div class="updated">Last updated: <span id="ts">–</span></div>
 
 <script>
+async function doAction(path) {
+  try {
+    await fetch(path, { method: 'POST' });
+    await refresh();
+  } catch(e) { console.error(e); }
+}
+
 async function refresh() {
   try {
     const [statusRes, jobsRes] = await Promise.all([
@@ -114,6 +135,12 @@ async function refresh() {
     ]);
     const s = await statusRes.json();
     const jobList = await jobsRes.json();
+
+    // Pause state
+    const paused = !!s.paused;
+    document.getElementById('btn-pause').style.display  = paused ? 'none' : '';
+    document.getElementById('btn-resume').style.display = paused ? '' : 'none';
+    document.getElementById('paused-banner').classList.toggle('visible', paused);
 
     // Workers
     const standby = s.workers?.standby ?? '?';

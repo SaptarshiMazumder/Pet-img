@@ -588,7 +588,7 @@ export class App implements OnInit, OnDestroy {
     this.api.regenerateGeneration(job.job_id).subscribe({
       next: (resp) => {
         this.jobs = this.jobs.filter(j => j.job_id !== job.job_id);
-        this.jobs = [{ job_id: resp.job_id, template_key: job.template_key, style_key: job.style_key, status: 'pending', submitted_at: new Date() }, ...this.jobs];
+        this.jobs = [{ job_id: resp.job_id, template_key: job.template_key, style_key: job.style_key, status: 'pending', submitted_at: new Date(), orientation: job.orientation }, ...this.jobs];
         this.schedulePoll(resp.job_id);
       },
       error: (err) => { this.errorMsg = err?.error?.error || 'Regeneration failed.'; },
@@ -607,7 +607,7 @@ export class App implements OnInit, OnDestroy {
     this.api.regenerateGeneration(entry.job_id).subscribe({
       next: (resp) => {
         this.gallery = this.gallery.filter(g => g.job_id !== entry.job_id);
-        this.jobs = [{ job_id: resp.job_id, template_key: entry.template_key, style_key: entry.style_key, status: 'pending', submitted_at: new Date() }, ...this.jobs];
+        this.jobs = [{ job_id: resp.job_id, template_key: entry.template_key, style_key: entry.style_key, status: 'pending', submitted_at: new Date(), orientation: entry.orientation }, ...this.jobs];
         this.schedulePoll(resp.job_id);
         this.switchTab('generate');
       },

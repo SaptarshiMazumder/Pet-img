@@ -25,6 +25,7 @@ export class ApiService {
   }
 
   assetUrl(path: string): string {
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
     return `${this.base}${path.startsWith('/') ? '' : '/'}${path}`;
   }
 

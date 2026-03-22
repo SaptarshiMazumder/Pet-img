@@ -106,7 +106,6 @@
 .of-frame-composite {
   position: relative;
   width: 100%;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
   overflow: visible;
 }
 
@@ -115,14 +114,11 @@
   display: block;
   border-radius: 4px;
   object-fit: contain;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
 }
 
 .of-frame-overlay {
   position: absolute;
-  top: -10%;
-  left: -10%;
-  width: 120%;
-  height: 120%;
   object-fit: contain;
   pointer-events: none;
 }
