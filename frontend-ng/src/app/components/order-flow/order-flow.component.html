@@ -10,15 +10,15 @@
     <div class="of-tabs">
       <button class="of-tab" [class.of-tab--active]="step === 1" [class.of-tab--done]="step === 2 || step === 'success'"
         (click)="step === 2 ? step = 1 : null">
-        <span class="of-tab-num">1</span> {{ lang.t().orderFlow.configurePrints }}
+        <span class="of-tab-num">1</span><span class="of-tab-text"> {{ lang.t().orderFlow.configurePrints }}</span>
       </button>
       <span class="of-tab-sep">›</span>
       <button class="of-tab" [class.of-tab--active]="step === 2" [class.of-tab--done]="step === 'success'" [disabled]="step === 1">
-        <span class="of-tab-num">2</span> {{ lang.t().orderFlow.shipping }}
+        <span class="of-tab-num">2</span><span class="of-tab-text"> {{ lang.t().orderFlow.shipping }}</span>
       </button>
       <span class="of-tab-sep">›</span>
       <button class="of-tab" [class.of-tab--active]="step === 'success'" [disabled]="step !== 'success'">
-        <span class="of-tab-num">3</span> {{ lang.t().orderFlow.done }}
+        <span class="of-tab-num">3</span><span class="of-tab-text"> {{ lang.t().orderFlow.done }}</span>
       </button>
     </div>
   </div>

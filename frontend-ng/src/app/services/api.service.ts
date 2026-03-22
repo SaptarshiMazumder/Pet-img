@@ -85,7 +85,7 @@ export class ApiService {
     return this.http.post<any>(`${this.base}/orders/${orderId}/payment`, { return_url: returnUrl });
   }
 
-  verifyPayment(orderId: string): Observable<{ success: boolean }> {
-    return this.http.post<any>(`${this.base}/orders/${orderId}/payment/verify`, {});
+  verifyPayment(orderId: string, lang: string = 'en'): Observable<{ success: boolean }> {
+    return this.http.post<any>(`${this.base}/orders/${orderId}/payment/verify`, { lang });
   }
 }

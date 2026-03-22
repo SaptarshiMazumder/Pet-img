@@ -47,6 +47,8 @@
   cursor: default;
   padding: 0;
   transition: color 0.15s;
+  flex-shrink: 0;
+  min-width: 0;
 }
 .of-tab--active { color: var(--text); font-weight: 600; }
 .of-tab--done { color: var(--accent); cursor: pointer; }
@@ -54,6 +56,7 @@
 .of-tab-num {
   width: 20px;
   height: 20px;
+  min-width: 20px;
   border-radius: 50%;
   border: 1.5px solid currentColor;
   font-size: 0.625rem;
@@ -61,11 +64,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 .of-tab--active .of-tab-num { background: var(--accent); border-color: var(--accent); color: #0d0d0d; }
 .of-tab--done .of-tab-num { background: var(--accent); border-color: var(--accent); color: #0d0d0d; }
 
-.of-tab-sep { color: var(--text-dim); font-size: 0.875rem; }
+.of-tab-sep { color: var(--text-dim); font-size: 0.875rem; flex-shrink: 0; }
+
+.of-tab-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 400px) {
+  .of-tab-text { display: none; }
+  .of-tabs { gap: 6px; }
+}
 
 /* ── Step 1 body layout ──────────────────────── */
 .of-body {

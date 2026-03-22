@@ -35,7 +35,7 @@ export class OrdersPageComponent {
           if (event.origin !== window.location.origin) return;
           if (event.data?.type === 'komoju_return') {
             window.removeEventListener('message', handler);
-            this.api.verifyPayment(order.id).subscribe({
+            this.api.verifyPayment(order.id, this.lang.lang()).subscribe({
               next: () => { this.payingId = null; this.refresh.emit(); },
               error: () => { this.payingId = null; this.payError = 'Payment verification failed.'; },
             });

@@ -41,7 +41,24 @@ header {
 }
 
 .header-left { justify-content: flex-start; gap: 8px; }
-.header-right { justify-content: flex-end; min-width: 44px; }
+.header-right { justify-content: flex-end; min-width: 44px; gap: 8px; }
+
+.header-signin-btn {
+  height: 32px;
+  padding: 0 16px;
+  background: var(--accent);
+  border: none;
+  border-radius: 100px;
+  color: #0d0d0d;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.header-signin-btn:hover { opacity: 0.85; }
 
 /* Desktop nav */
 .header-nav {
@@ -75,8 +92,9 @@ header {
   color: var(--accent);
 }
 
+.header-nav { display: flex; flex-wrap: nowrap; overflow-x: auto; }
+
 @media (min-width: 768px) {
-  .header-nav { display: flex; }
   .menu-item--mobile-only { display: none !important; }
 }
 
@@ -890,7 +908,7 @@ main {
 }
 
 .bottom-bar--open {
-  width: 380px;
+  width: min(380px, calc(100vw - 24px));
   height: 72px;
 }
 

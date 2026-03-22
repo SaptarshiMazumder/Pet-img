@@ -59,6 +59,9 @@
     </nav>
 
     <div class="header-right">
+      @if (!currentUser) {
+        <button class="header-signin-btn" (click)="signIn()">{{ lang.t().nav.signIn }}</button>
+      }
       <button class="lang-toggle" (click)="lang.toggle()">{{ lang.lang() === 'en' ? 'JP' : 'EN' }}</button>
     </div>
   </div>

@@ -281,7 +281,7 @@ export class OrderFlowComponent implements OnChanges, OnInit {
           if (event.origin !== window.location.origin) return;
           if (event.data?.type === 'komoju_return') {
             window.removeEventListener('message', handler);
-            this.api.verifyPayment(orderId).subscribe({
+            this.api.verifyPayment(orderId, this.lang.lang()).subscribe({
               next: () => { this.step = 'success'; this.orderPlaced.emit(); },
               error: () => { this.error = 'Payment verification failed. Contact support.'; },
             });

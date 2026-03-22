@@ -87,8 +87,10 @@ export class App implements OnInit, OnDestroy {
   // ── Order flow ─────────────────────────────────────────────
   orderFlowItems: GalleryEntry[] = [];
   editingOrder: Order | null = null;
+  private _orderFlowOrigin: typeof this.activeTab = 'gallery';
 
   openOrderFlow(items: GalleryEntry[]) {
+    this._orderFlowOrigin = this.activeTab;
     this.editingOrder = null;
     this.orderFlowItems = items;
     this.activeTab = 'order';
@@ -97,6 +99,7 @@ export class App implements OnInit, OnDestroy {
   openOrderForEdit(order: Order) {
     const item = order.items[0];
     if (!item) return;
+    this._orderFlowOrigin = this.activeTab;
     this.editingOrder = order;
     this.orderFlowItems = [{
       job_id: item.job_id,
@@ -114,7 +117,7 @@ export class App implements OnInit, OnDestroy {
   closeOrderFlow() {
     this.orderFlowItems = [];
     this.editingOrder = null;
-    this.activeTab = 'gallery';
+    this.activeTab = this._orderFlowOrigin;
   }
 
   onOrderPlaced() {
@@ -189,6 +192,7 @@ export class App implements OnInit, OnDestroy {
       }
     });
     this.loadSamples();
+
   }
 
   ngOnDestroy() {
