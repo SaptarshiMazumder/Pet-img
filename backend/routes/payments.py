@@ -1,4 +1,6 @@
 import base64
+import hashlib
+import hmac
 import os
 
 import requests as http_client
@@ -227,6 +229,67 @@ def verify_payment(order_id: str):
     _send_order_confirmation(data, order_id, g.user_email, lang)
 
     return jsonify({"success": True})
+
+
+@payments_bp.post("/webhooks/komoju")
+def komoju_webhook():
+    """Receive KOMOJU webhook events (e.g. konbini payment captured)."""
+    secret = os.environ.get("KOMOJU_WEBHOOK_SECRET", "")
+    if secret:
+        sig = request.headers.get("X-Komoju-Signature", "")
+        expected = hmac.new(secret.encode(), request.data, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expected, sig):
+            return jsonify({"error": "Invalid signature"}), 401
+
+    event = request.get_json(silent=True) or {}
+    if event.get("type") != "payment.captured":
+        return jsonify({"ok": True})  # ignore other events
+
+    payment = event.get("data", {})
+    session_id = (payment.get("session") or {}).get("id") or payment.get("external_order_num", "")
+    order_id = (payment.get("metadata") or {}).get("order_id", "")
+
+    if not order_id:
+        # Fall back: look up by komoju_session_id
+        if session_id:
+            db = get_db()
+            docs = db.collection("orders").where("komoju_session_id", "==", session_id).limit(1).stream()
+            doc = next(docs, None)
+            if doc:
+                order_id = doc.id
+        if not order_id:
+            print(f"[webhook] payment.captured: could not resolve order_id (session={session_id})")
+            return jsonify({"ok": True})
+
+    db = get_db()
+    doc_ref = db.collection("orders").document(order_id)
+    doc = doc_ref.get()
+    if not doc.exists:
+        print(f"[webhook] order {order_id} not found")
+        return jsonify({"ok": True})
+
+    data = doc.to_dict()
+    if data.get("payment_status") == "paid":
+        return jsonify({"ok": True})  # already processed
+
+    from google.cloud import firestore
+    doc_ref.update({
+        "payment_status": "paid",
+        "komoju_payment_id": payment.get("id", ""),
+        "updated_at": firestore.SERVER_TIMESTAMP,
+    })
+
+    # Send confirmation email — use shipping country to guess language
+    shipping = data.get("shipping", {})
+    lang = "ja" if shipping.get("country", "JP") == "JP" else "en"
+    user_email = data.get("user_email", "")
+    if user_email:
+        _send_order_confirmation(data, order_id, user_email, lang)
+    else:
+        print(f"[webhook] no user_email stored on order {order_id}, skipping email")
+
+    print(f"[webhook] order {order_id} marked paid via konbini webhook")
+    return jsonify({"ok": True})
 
 
 # ── Razorpay (disabled — kept for reference) ──────────────────────────────────

@@ -1,0 +1,188 @@
+{
+  "21": {
+    "inputs": {
+      "unet_name": "z_image_turbo_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Diffusion Model"
+    }
+  },
+  "22": {
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Load CLIP"
+    }
+  },
+  "23": {
+    "inputs": {
+      "width": 1920,
+      "height": 1088,
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "EmptySD3LatentImage"
+    }
+  },
+  "24": {
+    "inputs": {
+      "shift": 3,
+      "model": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "ModelSamplingAuraFlow"
+    }
+  },
+  "25": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "27": {
+    "inputs": {
+      "samples": [
+        "31",
+        0
+      ],
+      "vae": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "28": {
+    "inputs": {
+      "text": "art style: Watercolor painting of a relaxed cat lounging on a beach chair, rendered with soft blended washes of warm cream, sandy beige, golden sunlight tones, and gentle sea-blue accents; calm content expression with a slightly dreamy, sun-dazed gaze; one paw loosely holding a tropical drink; fur texture suggested through delicate brushstrokes, splatters, and soft layered washes; the beach chair, drink, and surrounding seaside atmosphere hinted with fluid painterly marks rather than hard detail; dynamic ink-like drips cascading downward from the cat’s fur, chair edges, and glass; background features abstract smudges and scattered speckles in pale blue, turquoise, sandy ochre, and soft gray hues, suggesting ocean breeze, distant waves, and sunlit beach air; overall composition evokes leisure, warmth, and artistic spontaneity on white paper. [lora:Aquarelle_E11:0.75](lora:Aquarelle_E11:0.75)\n",
+      "clip": [
+        "30",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "29": {
+    "inputs": {
+      "text": "# --- Anatomy & Limbs ---\ndeformed paws, malformed paws, extra paws, missing paws, fused paws\ndeformed hands, malformed hands, extra fingers, missing fingers, fused fingers\nbad hands, ugly hands, mutated hands, poorly drawn hands\nextra limbs, missing limbs, floating limbs, disconnected limbs\nbad anatomy, wrong anatomy, mutated anatomy\nextra tails, extra ears, extra eyes, extra heads\nasymmetric face, asymmetric ears, lopsided features\n\n# --- Face & Head ---\nugly face, deformed face, distorted face, poorly drawn face\ncross-eyed, wall-eyed, misaligned eyes\nopen mouth showing teeth (unless specified), drooling\nblurry face, low detail face\n\n# --- Quality & Artifacts ---\nblurry, out of focus, soft focus, low resolution, low quality\njpeg artifacts, compression artifacts, pixelated, grainy, noisy\nwatermark, text, signature, logo, stamp, username, caption\nborder, frame, vignette (unless intentional)\noversaturated, washed out, flat lighting\n\n# --- Style Violations ---\nmodern clothing, western clothing, jeans, t-shirts, sneakers\nguns, modern weapons, mechanical objects\ncartoon style, anime style, chibi (unless intentional)\nphotorealistic (for ink wash / ukiyo-e styles)\nCGI, 3D render, digital painting (for traditional styles)\n\n# --- Composition ---\nmultiple animals in frame, crowd, background characters\nduplicate subject, mirror image artifacts\ncluttered composition, busy background that overwhelms subject\n",
+      "clip": [
+        "30",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "30": {
+    "inputs": {
+      "lora_name": "AquarelleArtStyle.safetensors",
+      "strength_model": 0.7,
+      "strength_clip": 0.7,
+      "model": [
+        "21",
+        0
+      ],
+      "clip": [
+        "22",
+        0
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load Character"
+    }
+  },
+  "31": {
+    "inputs": {
+      "seed": 767609958990338,
+      "steps": 15,
+      "cfg": 1,
+      "sampler_name": "res_multistep",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": [
+        "30",
+        0
+      ],
+      "positive": [
+        "28",
+        0
+      ],
+      "negative": [
+        "29",
+        0
+      ],
+      "latent_image": [
+        "23",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "32": {
+    "inputs": {
+      "images": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "39": {
+    "inputs": {
+      "samples": [
+        "31",
+        0
+      ],
+      "vae": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "46": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  }
+}

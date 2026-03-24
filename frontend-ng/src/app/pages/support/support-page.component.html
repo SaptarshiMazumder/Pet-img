@@ -1,9 +1,36 @@
+@if (lang.lang() === 'ja') {
+<div class="page-static">
+  <div class="static-card">
+    <h2 class="static-title">サポート</h2>
+    <p class="static-lead">ご不明な点、ご注文やポートレートに関するご質問・ご意見は、お気軽にお問い合わせください。</p>
+
+    <div class="support-contact">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+      </svg>
+      <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">よくあるお問い合わせ</h3>
+      <ul class="static-list">
+        <li><strong>生成に関するご質問</strong> — ポートレートの生成に失敗した場合や予期しない結果が表示された場合は、生成パネルに表示されるジョブIDをご記載の上、メールにてご連絡ください。</li>
+        <li><strong>注文・配送に関するご質問</strong> — 印刷注文、追跡、配送についてのご質問は、メッセージに注文IDをご記載ください。</li>
+        <li><strong>お支払いについて</strong> — 支払いに関するご質問や返金リクエストは、2営業日以内に対応いたします。</li>
+        <li><strong>フィードバック</strong> — ご意見・ご感想をお待ちしております。スタイルのご提案もいつでも歓迎します。</li>
+      </ul>
+    </div>
+
+    <p class="static-note">営業日の24時間以内にご返信いたします。</p>
+
+    <a routerLink="/" class="static-back-btn">{{ lang.t().backToHome }}</a>
+  </div>
+</div>
+} @else {
 <div class="page-static">
   <div class="static-card">
     <h2 class="static-title">Support</h2>
-    <p class="static-lead">
-      We're here to help. If you have any questions, issues, or feedback about your portraits or orders, reach out to us directly.
-    </p>
+    <p class="static-lead">We're here to help. If you have any questions, issues, or feedback about your portraits or orders, reach out to us directly.</p>
 
     <div class="support-contact">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20">
@@ -27,3 +54,4 @@
     <a routerLink="/" class="static-back-btn">{{ lang.t().backToHome }}</a>
   </div>
 </div>
+}

@@ -61,6 +61,7 @@ def create_order():
     doc_ref.set(
         {
             "uid": g.uid,
+            "user_email": g.user_email,
             "items": items,
             "shipping": data.get("shipping", {}),
             "notes": data.get("notes", ""),

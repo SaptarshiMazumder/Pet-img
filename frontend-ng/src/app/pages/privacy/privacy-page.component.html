@@ -1,3 +1,81 @@
+@if (lang.lang() === 'ja') {
+<div class="page-static">
+  <div class="static-card">
+    <h2 class="static-title">プライバシーポリシー</h2>
+    <p class="static-lead">発効日：2026年3月19日</p>
+
+    <div class="static-section">
+      <h3 class="static-section-title">1. はじめに</h3>
+      <p>Pet-to AIはNakama AIのサービスです。本プライバシーポリシーは、Pet-to AI（以下「本サービス」）をご利用いただく際に収集・利用・保護する個人情報についてご説明するものです。本サービスをご利用いただくことで、本ポリシーに記載する取り扱いにご同意いただいたものとみなします。</p>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">2. 収集する情報</h3>
+      <ul class="static-list">
+        <li><strong>アカウント情報</strong> — Googleまたはメールアドレスでサインインした場合、Firebase Authenticationを通じてお名前・メールアドレス等の情報を取得します。</li>
+        <li><strong>アップロード画像</strong> — ポートレート生成のためにアップロードされたペットの写真。</li>
+        <li><strong>注文情報</strong> — 印刷注文時にご提供いただいた配送先住所および連絡先。</li>
+        <li><strong>利用データ</strong> — サービスのご利用状況に関する基本情報（例：生成回数、選択スタイルなど）。</li>
+      </ul>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">3. 情報の利用目的</h3>
+      <ul class="static-list">
+        <li>アップロード画像からAIポートレートを生成するため。</li>
+        <li>印刷注文を処理・履行するため。</li>
+        <li>アカウントの認証および管理のため。</li>
+        <li>サポートリクエストへの対応のため。</li>
+        <li>本サービスの改善のため。</li>
+      </ul>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">4. 第三者サービス</h3>
+      <p>本サービスの運営には以下の第三者サービスを利用しています。各サービスには独自のプライバシーポリシーが適用されます：</p>
+      <ul class="static-list">
+        <li><strong>Google Firebase</strong> — 認証およびデータ保存。</li>
+        <li><strong>KOMOJU</strong> — 決済処理。カード情報は当社では保存しません。</li>
+        <li><strong>RunPod</strong> — AI画像生成インフラ。アップロード画像はポートレート生成のためのみRunPodへ送信され、処理後は保持されません。</li>
+        <li><strong>Gakubuti.net（長野）</strong> — 印刷・額装の提携先。ご注文時に配送先情報を共有します。</li>
+        <li><strong>Google Cloud</strong> — ホスティングおよびインフラ。</li>
+      </ul>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">5. データの保存期間</h3>
+      <p>アップロード画像は一時的に保存され、ポートレート生成のみに使用します。生成されたポートレートはお客様が削除するまでギャラリーに保存されます。注文情報はご注文の履行・サポートに必要な期間保持します。データの削除はお問い合わせいただければいつでも対応いたします。</p>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">6. 情報の共有</h3>
+      <p>マーケティング目的でお客様の個人情報を第三者に販売・共有することはありません。本サービスの提供に必要な範囲でのみ情報を共有します（例：印刷注文時に提携先への配送先住所の共有）。</p>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">7. お客様の権利</h3>
+      <p>お客様は個人データへのアクセス、修正、削除を請求する権利を有します。これらの権利を行使される場合は、<a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a> までご連絡ください。合理的な期間内に対応いたします。</p>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">8. セキュリティ</h3>
+      <p>お客様の情報保護のために合理的な措置を講じています。ただし、インターネットを介した送信は完全には安全ではなく、絶対的なセキュリティを保証することはできません。</p>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">9. ポリシーの変更</h3>
+      <p>本プライバシーポリシーは随時更新される場合があります。変更の際はページ上部の発効日を更新します。変更後も本サービスをご利用いただいた場合、改定されたポリシーに同意いただいたものとみなします。</p>
+    </div>
+
+    <div class="static-section">
+      <h3 class="static-section-title">10. お問い合わせ</h3>
+      <p>本プライバシーポリシーに関するご質問は <a href="mailto:contact@nakamaai.co" class="support-email">contact&#64;nakamaai.co</a> までお問い合わせください。</p>
+    </div>
+
+    <a routerLink="/" class="static-back-btn">{{ lang.t().backToHome }}</a>
+  </div>
+</div>
+} @else {
 <div class="page-static">
   <div class="static-card">
     <h2 class="static-title">Privacy Policy</h2>
@@ -11,7 +89,7 @@
     <div class="static-section">
       <h3 class="static-section-title">2. Information We Collect</h3>
       <ul class="static-list">
-        <li><strong>Account information</strong> — When you sign in via Google, we receive your name, email address, and profile picture from Firebase Authentication.</li>
+        <li><strong>Account information</strong> — When you sign in via Google or email, we receive your email address and profile information through Firebase Authentication.</li>
         <li><strong>Uploaded images</strong> — Photos of pets you upload to generate portraits.</li>
         <li><strong>Order information</strong> — Shipping address and contact details you provide when placing a print order.</li>
         <li><strong>Usage data</strong> — Basic information about how you interact with the Service (e.g. generations requested, styles selected).</li>
@@ -34,8 +112,9 @@
       <p>We use the following third-party providers to operate the Service. Each is governed by their own privacy policy:</p>
       <ul class="static-list">
         <li><strong>Google Firebase</strong> — Authentication and data storage.</li>
-        <li><strong>Razorpay</strong> — Payment processing. We do not store your card details.</li>
+        <li><strong>KOMOJU</strong> — Payment processing. We do not store your card details.</li>
         <li><strong>RunPod</strong> — AI image generation infrastructure. Uploaded images are transmitted to RunPod solely to generate your portrait and are not retained by them beyond processing.</li>
+        <li><strong>Gakubuti.net (Nagano)</strong> — Print fulfilment partner. Shipping details are shared with them when you place a print order.</li>
         <li><strong>Google Cloud</strong> — Hosting and infrastructure.</li>
       </ul>
     </div>
@@ -73,3 +152,4 @@
     <a routerLink="/" class="static-back-btn">{{ lang.t().backToHome }}</a>
   </div>
 </div>
+}
