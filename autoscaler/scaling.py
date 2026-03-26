@@ -196,8 +196,15 @@ def _recover_from_firestore() -> None:
         if not firebase_admin._apps:
             firebase_admin.initialize_app(credentials.Certificate(sa_path))
 
+        import datetime
+        cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=2)
         db = fb_firestore.client()
-        processing = db.collection("jobs").where("status", "in", ["pending", "processing", "fixing"]).stream()
+        processing = (
+            db.collection("jobs")
+            .where("status", "in", ["pending", "processing", "fixing"])
+            .where("created_at", ">=", cutoff)
+            .stream()
+        )
         count = sum(1 for _ in processing)
 
         if count > 0:

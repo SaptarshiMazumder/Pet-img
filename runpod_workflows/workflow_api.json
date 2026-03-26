@@ -1,0 +1,133 @@
+{
+  "21": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "z_image_turbo_bf16.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "22": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    }
+  },
+  "23": {
+    "class_type": "EmptySD3LatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    }
+  },
+  "24": {
+    "class_type": "ModelSamplingAuraFlow",
+    "inputs": {
+      "model": ["44", 0],
+      "shift": 3.0
+    }
+  },
+  "25": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    }
+  },
+  "27": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["31", 0],
+      "vae": ["25", 0]
+    }
+  },
+  "28": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "w3t1nk A stoic Shiba Inu with warm golden-orange fur, cream-white markings on the muzzle, chest, and inner legs, a curled tail, alert triangular ears, and dark almond-shaped eyes, depicted as a noble shogun-like scholar. It wears small round reading glasses, a traditional scholar hat, and an elegant kimono with layered draping and refined patterns. The Shiba Inu lies stretched out comfortably on a futon in a dignified indoor pose, holding a scroll in one paw as if deeply absorbed in reading. In front of it rests a sake bottle and a small sake cup on a low lacquered tray. The surroundings form a refined traditional Japanese room with tatami mats, shoji screens, exposed wooden beams, hanging scroll paintings, decorative wall art, ceramics, and subtle noble ornaments that enrich the interior with historical elegance. Gentle indoor light illuminates the room, highlighting the scroll, the sake set, and the folds of the kimono. The mood is scholarly, noble, calm, and atmospheric. Artistic ink wash painting, sumi-e aesthetic, delicate brushwork, subtle ink gradients, soft layered washes, elegant composition, high detail, intricate textures. No harness, no collar, no text, no watermark, no logos, no blur, no anatomical errors, no extra limbs",
+      "clip": ["44", 1]
+    }
+  },
+  "29": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "",
+      "clip": ["30", 1]
+    }
+  },
+  "30": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "model": ["21", 0],
+      "clip": ["22", 0],
+      "lora_name": "wetInkZTurbo.safetensors",
+      "strength_model": 0.3,
+      "strength_clip": 0.3
+    }
+  },
+  "31": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["24", 0],
+      "positive": ["28", 0],
+      "negative": ["29", 0],
+      "latent_image": ["23", 0],
+      "seed": 775992634558440,
+      "control_after_generate": "randomize",
+      "steps": 15,
+      "cfg": 1.0,
+      "sampler_name": "res_multistep",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "37": {
+    "class_type": "LatentUpscaleBy",
+    "inputs": {
+      "samples": ["31", 0],
+      "upscale_method": "bislerp",
+      "scale_by": 1.25
+    }
+  },
+  "38": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["24", 0],
+      "positive": ["28", 0],
+      "negative": ["29", 0],
+      "latent_image": ["37", 0],
+      "seed": 60,
+      "control_after_generate": "fixed",
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "dpmpp_sde",
+      "scheduler": "beta",
+      "denoise": 0.7
+    }
+  },
+  "39": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["38", 0],
+      "vae": ["25", 0]
+    }
+  },
+  "41": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": ["39", 0],
+      "filename_prefix": "ComfyUI"
+    }
+  },
+  "44": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "model": ["30", 0],
+      "clip": ["30", 1],
+      "lora_name": "ukiyoeZTurbo.safetensors",
+      "strength_model": 0.5,
+      "strength_clip": 0.5
+    }
+  }
+}

@@ -11,7 +11,8 @@
     "environment": "a richly detailed traditional Japanese interior with tatami flooring, sliding shoji screens, wooden beams, and an atmosphere of quiet nobility. The walls are adorned with traditional Japanese paintings and refined decorative elements, including hanging scroll art, ornamental ceramics, and subtle period furnishings that evoke an old noble residence or castle chamber.",
     "lighting": "Soft ambient light filters through the room, casting gentle highlights across the {pronoun}'s kimono, the sake set, the scroll, and the surrounding interior.",
     "mood": "intimate, scholarly, noble, relaxed, and atmospheric",
-    "not_suitable_for": []
+    "not_suitable_for": [],
+    "style_group": "inkwash"
   },
   "edo_royal": {
     "name": "Edo-era Royal Figure",
@@ -25,7 +26,8 @@
     "environment": "a serene decorative composition with flowering branches, scattered blossoms, and subtle ornamental elements that frame the figure with noble elegance, while the garments flow beautifully in a dignified silhouette.",
     "lighting": "Soft ambient light casts delicate highlights across the kimono, the fan, and the surrounding floral details.",
     "mood": "intimate, noble, graceful, and atmospheric",
-    "not_suitable_for": []
+    "not_suitable_for": [],
+    "style_group": "inkwash"
   },
   "sake_on_pillow": {
     "name": "Sake on Pillow",
@@ -39,7 +41,8 @@
     "environment": "a richly detailed traditional Japanese interior with tatami flooring, sliding shoji screens, wooden beams, and an atmosphere of quiet nobility. The walls are adorned with traditional Japanese paintings and refined decorative elements, including hanging scroll art, ornamental ceramics, and subtle period furnishings that evoke an old noble residence or castle chamber.",
     "lighting": "Soft ambient light filters through the room, casting gentle highlights across the {pronoun}'s kimono, the sake set, and the surrounding interior.",
     "mood": "intimate, scholarly, noble, relaxed, and atmospheric",
-    "not_suitable_for": ["corgi"]
+    "not_suitable_for": ["corgi"],
+    "style_group": "inkwash"
   },
   "ceremonial_throne": {
     "name": "Ceremonial Throne",
@@ -53,7 +56,8 @@
     "environment": "a grand traditional Japanese hall with dark wooden pillars, a large screen or tapestry with traditional Japanese geometric patterns behind the throne, and two vertical banners with Japanese calligraphy hanging on either side. The throne sits on a multi-tiered wooden platform with steps. Traditional Japanese interior style.",
     "lighting": "Soft ambient light filters through the space.",
     "mood": "majestic, dignified, ceremonial, authoritative, and traditionally Japanese",
-    "not_suitable_for": []
+    "not_suitable_for": [],
+    "style_group": "inkwash"
   },
   "boat_sakura": {
     "name": "Boat on Lake with Sakura",
@@ -84,7 +88,8 @@
       "finnish spitz",
       "norwegian elkhound",
       "american eskimo"
-    ]
+    ],
+    "style_group": "inkwash"
   },
   "battle_lord": {
     "name": "Battle Lord",
@@ -98,7 +103,8 @@
     "environment": "a traditional Japanese dojo interior: tatami mat flooring, dark wooden pillars, high ceiling. Walls with a single hanging scroll (kakemono) with calligraphy—dojo name or a martial maxim. Perhaps a low wooden weapons rack or armor stand in the background. Simple, dignified dojo atmosphere. Traditional Japanese style.",
     "lighting": "Soft ambient light filters through the room, casting gentle highlights across the {pronoun}'s armor and the decorated interior.",
     "mood": "fierce, imposing, martial, powerful, and traditionally Japanese",
-    "not_suitable_for": []
+    "not_suitable_for": [],
+    "style_group": "inkwash"
   },
   "sakura_samurai": {
     "name": "Samurai under Sakura",
@@ -129,7 +135,8 @@
       "finnish spitz",
       "norwegian elkhound",
       "american eskimo"
-    ]
+    ],
+    "style_group": "inkwash"
   },
   "moonlit_window": {
     "name": "Moonlit Window Portrait",
@@ -143,6 +150,37 @@
     "environment": "a minimal, spare traditional Japanese interior at night — bare tatami flooring, dark wooden wall panels, a low ceiling with a single wooden beam. The room is nearly empty except for the figure and a few quiet objects. Through the open shoji window, the night sky is visible: a vast soft dark sky with a large, luminous full moon — a perfect pale disc — and perhaps faint wisps of cloud drifting across it. Total stillness.",
     "lighting": "The primary light source is the full moon behind the shoji screen, casting a cool diffuse silver-white glow that silhouettes the figure and filters softly through the rice-paper panels. No warm light sources. The interior is dim and shadowed, the figure a soft dark shape against the luminous window.",
     "mood": "solitary, contemplative, melancholic, serene, and deeply atmospheric",
-    "not_suitable_for": []
+    "not_suitable_for": [],
+    "style_group": "inkwash"
+  },
+  "road_trip_wind": {
+    "name": "Road Trip Wind",
+    "name_ja": "窓から風",
+    "preview_url": "styles/inkwash/roadtrip.jpg",
+    "role_title": "a carefree road trip passenger",
+    "attire_verb": "wears",
+    "wardrobe": "a pair of large, stylish sunglasses sitting confidently on the face — the only accessory needed. Only the animal's own natural fur and ears.",
+    "pose_sentence": "The {pronoun} is leaning far out of an open car window, upper body and head fully outside the vehicle, both front paws gripping the top edge of the car door for support. The head is tilted upward and slightly forward with an expression of pure joy. The lower body and hind legs remain entirely inside the car and are completely hidden by the car door and window frame — only the head, upper chest, and front paws on the door edge are visible.",
+    "props_sentence": "The {pronoun}'s front paws grip the top edge of a car door. The car window is fully rolled down. Sunglasses on the face.",
+    "environment": "a sun-drenched open road stretching into the distance, flanked by blurred scenery — trees, fields, or open sky — all motion-blurred to convey speed. The car exterior is partially visible: the door panel, window frame, and a hint of the car's body color. Warm afternoon light, open road atmosphere. Shot from outside the car at eye level with the {pronoun}, close and dynamic. Rendered as a sumi-e ink wash painting — delicate brushstrokes, soft ink washes, expressive linework throughout.",
+    "lighting": "Warm golden afternoon sunlight hitting the {pronoun}'s face and fur from the front, catching highlights on the sunglasses lenses and the windswept coat. Strong directional light with warm tones, slight lens flare or atmospheric haze from motion.",
+    "mood": "joyful, carefree, exhilarating, sun-drenched, and alive",
+    "not_suitable_for": [],
+    "style_group": "inkwash"
+  },
+  "desert_jeep": {
+    "name": "Desert Jeep",
+    "name_ja": "砂漠のジープ",
+    "preview_url": "styles/inkwash/desert_jeep.jpg",
+    "role_title": "a confident off-road adventurer",
+    "attire_verb": "wears",
+    "wardrobe": "a pair of large stylish sunglasses. Only the animal's own natural fur and ears.",
+    "pose_sentence": "The {pronoun} is seated in the driver's seat of a rugged open-top jeep, facing forward, both front paws resting confidently on the steering wheel. The head is turned very slightly toward the viewer with a relaxed, confident expression. The lower body and hind legs are completely hidden beneath the dashboard and steering column — only the head, upper chest, and front paws on the wheel are visible above the dashboard line.",
+    "props_sentence": "A large round steering wheel with both front paws resting on it. A rugged jeep interior — worn dashboard, simple gauges, open windows. The windshield frame visible at the top of the composition.",
+    "environment": "A vast open desert landscape visible through the windshield and open sides of the jeep — red sand dunes, rock formations, and a wide open sky. The jeep is parked or stationary, engine off, deep in the desert. Shot from slightly outside and in front of the vehicle at driver eye level, close and intimate. Rendered as a sumi-e ink wash painting — delicate brushstrokes, soft ink washes, expressive linework throughout.",
+    "lighting": "Harsh bright desert sunlight, strong shadows, warm golden and amber tones. Sun directly overhead or slightly angled, catching the {pronoun}'s fur and the chrome and metal of the jeep interior.",
+    "mood": "adventurous, confident, sun-baked, free, and rugged",
+    "not_suitable_for": [],
+    "style_group": "inkwash"
   }
 }

@@ -16,8 +16,8 @@
           style="cursor: pointer"
         >
           @if (currentUser) {
-            <div class="auth-avatar" [title]="currentUser.displayName || currentUser.email || ''">
-              {{ (currentUser.displayName || currentUser.email || '?')[0].toUpperCase() }}
+            <div class="auth-avatar" [title]="currentUser.name || currentUser.email || ''">
+              {{ (currentUser.name || currentUser.email || '?')[0].toUpperCase() }}
             </div>
           } @else {
             <div class="auth-avatar auth-avatar--guest hamburger-icon">

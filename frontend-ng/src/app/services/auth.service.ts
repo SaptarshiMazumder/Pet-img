@@ -1,49 +1,53 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import {
-  getAuth,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signOut,
-  User,
-} from 'firebase/auth';
-import { firebaseApp } from '../firebase.config';
+import { firstValueFrom } from 'rxjs';
+import { AuthService as Auth0Service, User } from '@auth0/auth0-angular';
+
+export { User };
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private auth = getAuth(firebaseApp);
   readonly user$ = new BehaviorSubject<User | null>(null);
 
+  private auth0 = inject(Auth0Service);
+
   constructor() {
-    onAuthStateChanged(this.auth, user => this.user$.next(user));
+    this.auth0.user$.subscribe(user => this.user$.next(user ?? null));
   }
 
   signInWithGoogle(): Promise<void> {
-    return signInWithPopup(this.auth, new GoogleAuthProvider()).then(() => {});
+    return firstValueFrom(
+      this.auth0.loginWithRedirect({ authorizationParams: { connection: 'google-oauth2' } })
+    );
   }
 
-  signInWithEmail(email: string, password: string): Promise<void> {
-    return signInWithEmailAndPassword(this.auth, email, password).then(() => {});
+  signInWithEmail(email: string, _password: string): Promise<void> {
+    return firstValueFrom(
+      this.auth0.loginWithRedirect({ authorizationParams: { login_hint: email } })
+    );
   }
 
-  signUpWithEmail(email: string, password: string): Promise<void> {
-    return createUserWithEmailAndPassword(this.auth, email, password).then(() => {});
+  signUpWithEmail(_email: string, _password: string): Promise<void> {
+    return firstValueFrom(
+      this.auth0.loginWithRedirect({ authorizationParams: { screen_hint: 'signup' } })
+    );
   }
 
-  sendPasswordReset(email: string): Promise<void> {
-    return sendPasswordResetEmail(this.auth, email);
+  sendPasswordReset(_email: string): Promise<void> {
+    return firstValueFrom(this.auth0.loginWithRedirect());
   }
 
   signOut(): Promise<void> {
-    return signOut(this.auth);
+    this.auth0.logout({ logoutParams: { returnTo: window.location.origin } });
+    return Promise.resolve();
   }
 
   async getIdToken(): Promise<string | null> {
-    const user = this.auth.currentUser;
-    return user ? user.getIdToken() : null;
+    try {
+      const claims = await firstValueFrom(this.auth0.idTokenClaims$);
+      return (claims as any)?.__raw ?? null;
+    } catch {
+      return null;
+    }
   }
 }

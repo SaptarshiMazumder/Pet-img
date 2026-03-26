@@ -41,78 +41,95 @@
         <!-- Right: frame configuration -->
         <div class="of-config-col">
 
-          <!-- Frame selector: one card per frame category -->
+          <!-- Country selector -->
           <div class="of-section">
-            <p class="of-section-label">{{ lang.t().orderFlow.selectFrame }}</p>
-            <div class="of-variant-scroll">
-              @for (cat of categories; track cat.name) {
-                <button
-                  class="of-variant-card"
-                  [class.of-variant-card--active]="cfg.category === cat.name"
-                  (click)="selectCategory(cfg, cat.name)"
-                >
-                  <img class="of-variant-img" [src]="frameCoverImg(cfg, cat)" [alt]="cat.name" />
-                  <span class="of-variant-label">{{ cat.name.split('(')[0].trim() }}</span>
-                </button>
+            <p class="of-section-label">{{ lang.t().orderFlow.selectCountry }}</p>
+            <select class="of-color-select" [(ngModel)]="selectedCountry" [name]="'country_' + cfg.item.job_id" (change)="onCountryChange()">
+              @for (c of countryList; track c.code) {
+                <option [value]="c.code">{{ lang.lang() === 'ja' ? c.ja : c.en }}</option>
               }
-            </div>
+            </select>
           </div>
 
-          <!-- Color dropdown (only when selected frame has multiple variants) -->
-          @if ((categoryFor(cfg)?.variants?.length ?? 0) > 1) {
+          @if (!shippingAvailable) {
+            <!-- Shipping unavailable notice -->
+            <div class="of-unavailable">{{ lang.t().orderFlow.shippingUnavailable }}</div>
+          } @else {
+
+            <!-- Frame selector: one card per frame category -->
             <div class="of-section">
-              <p class="of-section-label">{{ lang.t().orderFlow.color }}</p>
-              <select class="of-color-select" [(ngModel)]="cfg.color" [name]="'color_' + cfg.item.job_id" (change)="onColorChange(cfg)">
-                @for (v of categoryFor(cfg)!.variants; track v.color) {
-                  <option [value]="v.color">{{ v.color }}</option>
+              <p class="of-section-label">{{ lang.t().orderFlow.selectFrame }}</p>
+              <div class="of-variant-scroll">
+                @for (cat of categories; track cat.name) {
+                  <button
+                    class="of-variant-card"
+                    [class.of-variant-card--active]="cfg.category === cat.name"
+                    (click)="selectCategory(cfg, cat.name)"
+                  >
+                    <img class="of-variant-img" [src]="frameCoverImg(cfg, cat)" [alt]="cat.name" />
+                    <span class="of-variant-label">{{ cat.name.split('(')[0].trim() }}</span>
+                  </button>
                 }
-              </select>
-            </div>
-          }
-
-          <!-- Size pills -->
-          <div class="of-section">
-            <p class="of-section-label">{{ lang.t().orderFlow.size }}</p>
-            <div class="of-pills">
-              @for (s of sizeKeys(cfg); track s) {
-                <button class="of-pill" [class.of-pill--active]="cfg.size === s" (click)="cfg.size = s">{{ s }}</button>
-              }
-            </div>
-          </div>
-
-          <!-- Orientation + Qty -->
-          <div class="of-opts-row">
-            <div class="of-section of-section--sm">
-              <p class="of-section-label">{{ lang.t().orderFlow.orientation }}</p>
-              <div class="of-pills">
-                <button class="of-pill"
-                  [class.of-pill--active]="cfg.orientation === 'portrait'"
-                  [disabled]="cfg.lockedOrientation === 'landscape'"
-                  (click)="onOrientationChange(cfg, 'portrait')">{{ lang.t().orderFlow.portrait }}</button>
-                <button class="of-pill"
-                  [class.of-pill--active]="cfg.orientation === 'landscape'"
-                  [disabled]="cfg.lockedOrientation === 'portrait'"
-                  (click)="onOrientationChange(cfg, 'landscape')">{{ lang.t().orderFlow.landscape }}</button>
               </div>
             </div>
-            <div class="of-section of-section--qty">
-              <p class="of-section-label">{{ lang.t().orderFlow.qty }}</p>
-              <input class="of-qty-input" type="number" [(ngModel)]="cfg.quantity" [name]="'qty_' + cfg.item.job_id" min="1" max="20" />
-            </div>
-          </div>
 
-          <!-- Price -->
-          <div class="of-price-block">
-            <span class="of-price-label">{{ lang.t().orderFlow.total }}</span>
-            <span class="of-price-value">¥{{ currentPrice(cfg).toLocaleString() }}</span>
-          </div>
+            <!-- Color dropdown (only when selected frame has multiple variants) -->
+            @if ((categoryFor(cfg)?.variants?.length ?? 0) > 1) {
+              <div class="of-section">
+                <p class="of-section-label">{{ lang.t().orderFlow.color }}</p>
+                <select class="of-color-select" [(ngModel)]="cfg.color" [name]="'color_' + cfg.item.job_id" (change)="onColorChange(cfg)">
+                  @for (v of categoryFor(cfg)!.variants; track v.color) {
+                    <option [value]="v.color">{{ v.color }}</option>
+                  }
+                </select>
+              </div>
+            }
+
+            <!-- Size pills -->
+            <div class="of-section">
+              <p class="of-section-label">{{ lang.t().orderFlow.size }}</p>
+              <div class="of-pills">
+                @for (s of sizeKeys(cfg); track s) {
+                  <button class="of-pill" [class.of-pill--active]="cfg.size === s" (click)="cfg.size = s">{{ s }}</button>
+                }
+              </div>
+            </div>
+
+            <!-- Orientation + Qty -->
+            <div class="of-opts-row">
+              <div class="of-section of-section--sm">
+                <p class="of-section-label">{{ lang.t().orderFlow.orientation }}</p>
+                <div class="of-pills">
+                  <button class="of-pill"
+                    [class.of-pill--active]="cfg.orientation === 'portrait'"
+                    [disabled]="cfg.lockedOrientation === 'landscape'"
+                    (click)="onOrientationChange(cfg, 'portrait')">{{ lang.t().orderFlow.portrait }}</button>
+                  <button class="of-pill"
+                    [class.of-pill--active]="cfg.orientation === 'landscape'"
+                    [disabled]="cfg.lockedOrientation === 'portrait'"
+                    (click)="onOrientationChange(cfg, 'landscape')">{{ lang.t().orderFlow.landscape }}</button>
+                </div>
+              </div>
+              <div class="of-section of-section--qty">
+                <p class="of-section-label">{{ lang.t().orderFlow.qty }}</p>
+                <input class="of-qty-input" type="number" [(ngModel)]="cfg.quantity" [name]="'qty_' + cfg.item.job_id" min="1" max="20" />
+              </div>
+            </div>
+
+            <!-- Price -->
+            <div class="of-price-block">
+              <span class="of-price-label">{{ lang.t().orderFlow.total }}</span>
+              <span class="of-price-value">{{ currencySymbol }}{{ currentPrice(cfg).toLocaleString() }}</span>
+            </div>
+
+          }<!-- end shippingAvailable -->
 
         </div>
       </div>
 
       <div class="of-footer">
         <button class="btn-secondary" (click)="closed.emit()">{{ lang.t().orderFlow.cancel }}</button>
-        <button class="btn-primary" (click)="goToShipping()" [disabled]="savingDraft">
+        <button class="btn-primary" (click)="goToShipping()" [disabled]="savingDraft || !shippingAvailable">
           @if (savingDraft) {
             <span class="btn-spinner-sm"></span> {{ lang.t().orderFlow.saving }}
           } @else {

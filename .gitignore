@@ -30,6 +30,8 @@ output/
 .env.*
 *.env
 *firebase-adminsdk*.json
+client_secret*.json
+*client_secret*.json
 
 # OS
 .DS_Store

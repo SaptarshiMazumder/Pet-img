@@ -106,6 +106,11 @@ export interface T {
     successSub: string;
     close: string;
     viewOrders: string;
+    selectRegion: string;
+    japan: string;
+    india: string;
+    selectCountry: string;
+    shippingUnavailable: string;
   };
   shipping: {
     firstName: string;
@@ -257,6 +262,11 @@ export const TRANSLATIONS: Record<Lang, T> = {
       successSub: "We'll be in touch soon.",
       close: 'Close',
       viewOrders: 'View Orders',
+      selectRegion: 'Region',
+      japan: 'Japan',
+      india: 'India',
+      selectCountry: 'Shipping Country',
+      shippingUnavailable: "We don't ship to your country yet. Please select Japan or India.",
     },
     shipping: {
       firstName: 'First Name',
@@ -407,6 +417,11 @@ export const TRANSLATIONS: Record<Lang, T> = {
       successSub: 'まもなくご連絡いたします。',
       close: '閉じる',
       viewOrders: '注文を確認',
+      selectRegion: '地域',
+      japan: '日本',
+      india: 'インド',
+      selectCountry: '配送先の国',
+      shippingUnavailable: '申し訳ありませんが、現在お客様の国への配送には対応しておりません。日本またはインドをお選びください。',
     },
     shipping: {
       firstName: '名',

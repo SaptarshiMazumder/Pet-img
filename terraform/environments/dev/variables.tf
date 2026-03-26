@@ -31,17 +31,6 @@ variable "gemini_api_key" {
   type      = string
   sensitive = true
 }
-variable "komoju_secret_key" {
-  type      = string
-  sensitive = true
-}
-variable "komoju_publishable_key" {
-  type      = string
-  sensitive = true
-}
-variable "komoju_merchant_id" {
-  type = string
-}
 variable "gelato_api_key" {
   type      = string
   sensitive = true

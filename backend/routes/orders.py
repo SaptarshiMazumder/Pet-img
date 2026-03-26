@@ -6,6 +6,7 @@ from google.cloud import firestore
 
 from backend.auth_middleware import require_auth
 from backend.config.prices import FRAME_CATALOG
+from backend.config.prices_india import FRAME_CATALOG_INDIA
 from backend.firebase import get_db
 from backend.storage.r2 import public_url as r2_public_url
 
@@ -21,16 +22,25 @@ def serve_catalog_image(filename: str):
     return send_from_directory(_PREVIEW_DIR, filename)
 
 
+def _catalog_image_url(key: str, region: str) -> str:
+    """India frames are served locally; JP frames come from R2."""
+    if region == "IN":
+        return f"/orders/catalog/images/{key}"
+    return r2_public_url(key)
+
+
 @orders_bp.get("/orders/catalog")
 def get_catalog():
     """Return the full frame catalog for the order flow UI (no auth required)."""
+    region = request.args.get("region", "JP").upper()
+    catalog = FRAME_CATALOG_INDIA if region == "IN" else FRAME_CATALOG
     categories = []
-    for name, cat in FRAME_CATALOG.items():
+    for name, cat in catalog.items():
         variants = [
             {
                 "color": v["color"],
-                "preview_img_landscape": r2_public_url(v["preview_img_landscape"]),
-                "preview_img_portrait": r2_public_url(v["preview_img_portrait"]),
+                "preview_img_landscape": _catalog_image_url(v["preview_img_landscape"], region),
+                "preview_img_portrait": _catalog_image_url(v["preview_img_portrait"], region),
             }
             for v in cat.get("variants", [])
         ]
@@ -62,6 +72,7 @@ def create_order():
         {
             "uid": g.uid,
             "user_email": g.user_email,
+            "region": data.get("region", "JP"),
             "items": items,
             "shipping": data.get("shipping", {}),
             "notes": data.get("notes", ""),
@@ -125,7 +136,7 @@ def update_order(order_id):
     data = request.get_json(silent=True) or {}
     updates = {"updated_at": firestore.SERVER_TIMESTAMP}
 
-    for field in ("shipping", "notes", "items"):
+    for field in ("shipping", "notes", "items", "region"):
         if field in data:
             updates[field] = data[field]
 

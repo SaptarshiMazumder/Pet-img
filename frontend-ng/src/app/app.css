@@ -15,7 +15,7 @@
 header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 60;
   height: 52px;
   background: var(--bg);
   /* For dropdown positioning */
@@ -493,6 +493,7 @@ main {
     top: 52px;
     max-height: calc(100vh - 52px);
     overflow-y: auto;
+    z-index: 50;
   }
 
   .gen-right {

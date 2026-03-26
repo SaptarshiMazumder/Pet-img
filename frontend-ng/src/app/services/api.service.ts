@@ -77,15 +77,9 @@ export class ApiService {
     return this.http.delete<any>(`${this.base}/samples/${sampleId}`);
   }
 
-  getFrameCatalog(): Observable<{ categories: { name: string; overlay_inset: number; variants: { color: string; preview_img_landscape: string; preview_img_portrait: string }[]; sizes: { [key: string]: { price: number } } }[] }> {
-    return this.http.get<any>(`${this.base}/orders/catalog`);
+  getFrameCatalog(region: 'JP' | 'IN' = 'JP'): Observable<{ categories: { name: string; overlay_inset: number; variants: { color: string; preview_img_landscape: string; preview_img_portrait: string }[]; sizes: { [key: string]: { price: number } } }[] }> {
+    return this.http.get<any>(`${this.base}/orders/catalog?region=${region}`);
   }
 
-  createPayment(orderId: string, returnUrl: string): Observable<{ session_id: string; session_url: string; amount: number; total_jpy: number; currency: string }> {
-    return this.http.post<any>(`${this.base}/orders/${orderId}/payment`, { return_url: returnUrl });
-  }
-
-  verifyPayment(orderId: string, lang: string = 'en'): Observable<{ success: boolean }> {
-    return this.http.post<any>(`${this.base}/orders/${orderId}/payment/verify`, { lang });
-  }
 }
+

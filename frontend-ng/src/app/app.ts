@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { User } from 'firebase/auth';
+import { User } from './services/auth.service';
 import { ApiService } from './services/api.service';
 import { AuthService } from './services/auth.service';
 import { LanguageService } from './services/language.service';
@@ -162,15 +162,6 @@ export class App implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Handle Komoju payment popup return — close popup and notify parent window
-    if (window.opener && new URLSearchParams(window.location.search).get('payment_return') === '1') {
-      try {
-        window.opener.postMessage({ type: 'komoju_return' }, window.location.origin);
-      } catch {}
-      window.close();
-      return;
-    }
-
     this.api.warm();
     this.api.getTemplates().subscribe((t) => {
       for (const key of Object.keys(t)) {

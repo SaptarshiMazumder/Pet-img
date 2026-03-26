@@ -1,0 +1,153 @@
+{
+  "123": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "flux1-dev-fp8.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "128": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": ["123", 0],
+      "lora_name": "uso-flux1-dit-lora-v1.safetensors",
+      "strength_model": 1.0
+    }
+  },
+  "125": {
+    "class_type": "DualCLIPLoader",
+    "inputs": {
+      "clip_name1": "clip_l.safetensors",
+      "clip_name2": "t5xxl_fp8_e4m3fn.safetensors",
+      "type": "flux",
+      "device": "default"
+    }
+  },
+  "126": {
+    "class_type": "CLIPVisionLoader",
+    "inputs": {
+      "clip_name": "sigclip_vision_patch14_384.safetensors"
+    }
+  },
+  "127": {
+    "class_type": "ModelPatchLoader",
+    "inputs": {
+      "patch_name": "uso-flux1-projector-v1.safetensors"
+    }
+  },
+  "124": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    }
+  },
+  "131": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    }
+  },
+  "130": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "dog sitting under a tree",
+      "clip": ["125", 0]
+    }
+  },
+  "132": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": ["130", 0]
+    }
+  },
+  "129": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "style_ref_1.png",
+      "upload": "image"
+    }
+  },
+  "133": {
+    "class_type": "CLIPVisionEncode",
+    "inputs": {
+      "clip_vision": ["126", 0],
+      "image": ["129", 0],
+      "crop": "center"
+    }
+  },
+  "134": {
+    "class_type": "USOStyleReference",
+    "inputs": {
+      "model": ["128", 0],
+      "model_patch": ["127", 0],
+      "clip_vision_output": ["133", 0]
+    }
+  },
+  "141": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "subject_ref.png",
+      "upload": "image"
+    }
+  },
+  "142": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": ["141", 0],
+      "vae": ["124", 0]
+    }
+  },
+  "143": {
+    "class_type": "ReferenceLatent",
+    "inputs": {
+      "conditioning": ["130", 0],
+      "latent": ["142", 0]
+    }
+  },
+  "122": {
+    "class_type": "FluxKontextMultiReferenceLatentMethod",
+    "inputs": {
+      "conditioning": ["143", 0],
+      "method": "uxo/uno"
+    }
+  },
+  "144": {
+    "class_type": "FluxGuidance",
+    "inputs": {
+      "conditioning": ["122", 0],
+      "guidance": 2.0
+    }
+  },
+  "135": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["134", 0],
+      "positive": ["144", 0],
+      "negative": ["132", 0],
+      "latent_image": ["131", 0],
+      "seed": 121625918954288,
+      "control_after_generate": "randomize",
+      "steps": 20,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "136": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["135", 0],
+      "vae": ["124", 0]
+    }
+  },
+  "9": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": ["136", 0],
+      "filename_prefix": "ComfyUI"
+    }
+  }
+}
