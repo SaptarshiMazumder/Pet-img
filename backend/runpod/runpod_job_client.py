@@ -8,6 +8,7 @@ import urllib.request
 from backend.runpod.runpod_config import (
     RUNPOD_API_KEY,
     RUNPOD_ENDPOINT_ID,
+    RUNPOD_USO_ENDPOINT_ID,
     RUNPOD_API_BASE_URL,
     JOB_STATUS_POLL_INTERVAL_SEC,
     JOB_MAX_WAIT_SEC,
@@ -31,11 +32,13 @@ def _request(method: str, url: str, payload: dict | None = None) -> dict:
         return json.loads(resp.read())
 
 
-def submit_job(job_input: dict) -> str:
+def submit_job(job_input: dict, endpoint_id: str | None = None) -> str:
     """Submit a job to RunPod and return the RunPod job ID."""
-    if not RUNPOD_API_KEY or not RUNPOD_ENDPOINT_ID:
+    import os
+    ep = endpoint_id or os.environ.get("RUNPOD_ENDPOINT_ID", "") or RUNPOD_ENDPOINT_ID
+    if not RUNPOD_API_KEY or not ep:
         raise RuntimeError("RUNPOD_API_KEY and RUNPOD_ENDPOINT_ID must be set in .env")
-    submit_url = f"{RUNPOD_API_BASE_URL}/{RUNPOD_ENDPOINT_ID}/run"
+    submit_url = f"{RUNPOD_API_BASE_URL}/{ep}/run"
     resp = _request("POST", submit_url, {"input": job_input})
     runpod_job_id = resp.get("id")
     if not runpod_job_id:
@@ -43,9 +46,11 @@ def submit_job(job_input: dict) -> str:
     return runpod_job_id
 
 
-def poll_job(runpod_job_id: str) -> dict:
+def poll_job(runpod_job_id: str, endpoint_id: str | None = None) -> dict:
     """Poll a RunPod job until complete and return its output."""
-    status_url = f"{RUNPOD_API_BASE_URL}/{RUNPOD_ENDPOINT_ID}/status/{runpod_job_id}"
+    import os
+    ep = endpoint_id or os.environ.get("RUNPOD_ENDPOINT_ID", "") or RUNPOD_ENDPOINT_ID
+    status_url = f"{RUNPOD_API_BASE_URL}/{ep}/status/{runpod_job_id}"
     start = time.time()
     while True:
         if time.time() - start > JOB_MAX_WAIT_SEC:

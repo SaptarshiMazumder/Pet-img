@@ -10,6 +10,7 @@ from pathlib import Path
 from backend.services.prompt_builder import build_animal_edo_prompt
 from backend.services.compress import compress_image
 from backend.runpod import submit_job, poll_job
+from backend.runpod.runpod_config import RUNPOD_USO_ENDPOINT_ID
 from backend.job_store import job_store
 from backend.storage import public_url, download_object, upload_object
 from backend.autoscaler_client import autoscaler
@@ -227,3 +228,55 @@ def run_job_background(
         Path(tmp_path).unlink(missing_ok=True)
         active_jobs_db.remove(job_id)
         autoscaler.on_job_finish()
+
+
+def run_uso_job_background(
+    job_id: str,
+    subject_r2_key: str,
+    style_r2_key: str,
+    prompt: str,
+    uid: str | None = None,
+    overrides: dict | None = None,
+) -> None:
+    """Run a Flux1-Dev USO style-transfer job on RunPod."""
+    endpoint_id = os.environ.get("RUNPOD_USO_ENDPOINT_ID", "") or RUNPOD_USO_ENDPOINT_ID
+    if not endpoint_id:
+        job_store.update(job_id, status="failed", error="RUNPOD_USO_ENDPOINT_ID is not configured")
+        return
+
+    r2_public_base = os.environ.get("R2_PUBLIC_BASE_URL", "").rstrip("/")
+
+    try:
+        job_store.update(job_id, status="processing")
+
+        subject_url = f"{r2_public_base}/{subject_r2_key}"
+        style_url = f"{r2_public_base}/{style_r2_key}"
+
+        job_input: dict = {
+            "workflow_type": "uso",
+            "prompt": prompt,
+            "subject_image": subject_url,
+            "style_image_1": style_url,
+        }
+        if overrides:
+            job_input.update(overrides)
+
+        t_submit = time.time()
+        runpod_job_id = submit_job(job_input, endpoint_id=endpoint_id)
+        runpod_result = poll_job(runpod_job_id, endpoint_id=endpoint_id)
+        duration = time.time() - t_submit
+
+        process_runpod_result(
+            job_id=job_id,
+            runpod_result=runpod_result,
+            style_key="uso",
+            template_key="uso",
+            uid=uid,
+            positive_prompt=prompt,
+            negative_prompt="",
+            duration_seconds=duration,
+            source_r2_key=subject_r2_key,
+        )
+
+    except Exception as exc:
+        job_store.update(job_id, status="failed", error=str(exc))

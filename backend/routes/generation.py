@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 
 from backend.services.prompt_builder import load_style, load_template
 from backend.job_store import job_store
-from backend.services.generation import run_job_background
+from backend.services.generation import run_job_background, run_uso_job_background
 from backend.auth_middleware import get_optional_uid
 from backend.autoscaler_client import autoscaler
 from backend.storage.r2 import upload_object
@@ -93,6 +93,69 @@ def generate():
         daemon=True,
     )
     thread.start()
+
+    return jsonify({"job_id": job_id}), 202
+
+
+_USO_OVERRIDE_FIELDS: list[tuple[str, type]] = [
+    ("width", int), ("height", int), ("steps", int),
+    ("cfg", float), ("seed", int), ("batch_size", int),
+    ("guidance", float), ("lora_strength", float),
+]
+
+
+@generation_bp.post("/generate/uso")
+def generate_uso():
+    if "subject_image" not in request.files:
+        return jsonify({"error": "subject_image is required."}), 400
+    if "style_image" not in request.files:
+        return jsonify({"error": "style_image is required."}), 400
+
+    prompt = request.form.get("prompt", "").strip()
+    if not prompt:
+        return jsonify({"error": "prompt is required."}), 400
+
+    subject = request.files["subject_image"]
+    style = request.files["style_image"]
+
+    for f in (subject, style):
+        if Path(f.filename).suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
+            return jsonify({"error": f"{f.filename}: must be PNG, JPG, or WEBP."}), 400
+
+    overrides = {}
+    for field, cast in _USO_OVERRIDE_FIELDS:
+        val = request.form.get(field)
+        if val is not None:
+            try:
+                overrides[field] = cast(val)
+            except ValueError:
+                return jsonify({"error": f"Invalid value for '{field}'."}), 400
+
+    uid = get_optional_uid()
+    job_id = str(uuid.uuid4())
+
+    subject_suffix = Path(subject.filename).suffix.lower()
+    style_suffix = Path(style.filename).suffix.lower()
+    subject_r2_key = f"uso-inputs/{job_id}/subject{subject_suffix}"
+    style_r2_key = f"uso-inputs/{job_id}/style{style_suffix}"
+
+    subject_bytes = subject.read()
+    style_bytes = style.read()
+
+    try:
+        upload_object(subject_r2_key, subject_bytes, content_type=f"image/{subject_suffix.lstrip('.')}")
+        upload_object(style_r2_key, style_bytes, content_type=f"image/{style_suffix.lstrip('.')}")
+    except Exception as exc:
+        return jsonify({"error": f"Failed to upload images: {exc}"}), 500
+
+    job_store.create(job_id)
+
+    threading.Thread(
+        target=run_uso_job_background,
+        args=(job_id, subject_r2_key, style_r2_key, prompt),
+        kwargs={"uid": uid, "overrides": overrides},
+        daemon=True,
+    ).start()
 
     return jsonify({"job_id": job_id}), 202
 

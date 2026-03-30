@@ -65,6 +65,65 @@ export class App implements OnInit, OnDestroy {
   jobs: JobEntry[] = [];
   private activePolls = new Set<string>();
 
+  // ── USO mode ───────────────────────────────────────────────
+  generateMode: 'zturbo' | 'uso' = 'zturbo';
+  usoSubjectFile: File | null = null;
+  usoSubjectPreview: string | null = null;
+  usoStyleFile: File | null = null;
+  usoStylePreview: string | null = null;
+  usoPrompt = '';
+
+  setUsoSubjectFile(file: File) {
+    this.usoSubjectFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => (this.usoSubjectPreview = e.target?.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  setUsoStyleFile(file: File) {
+    this.usoStyleFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => (this.usoStylePreview = e.target?.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  get canGenerateUso(): boolean {
+    return !!(this.usoSubjectFile && this.usoStyleFile && this.usoPrompt.trim() && !this.submitting);
+  }
+
+  generateUso() {
+    if (!this.canGenerateUso) return;
+    this.submitting = true;
+    this.errorMsg = '';
+
+    const form = new FormData();
+    form.append('subject_image', this.usoSubjectFile!);
+    form.append('style_image', this.usoStyleFile!);
+    form.append('prompt', this.usoPrompt.trim());
+
+    this.api.submitUsoGenerate(form).subscribe({
+      next: (resp: any) => {
+        const job_id = resp?.job_id ?? resp;
+        this.submitting = false;
+        this.jobs = [
+          {
+            job_id,
+            template_key: 'uso',
+            style_key: 'uso',
+            status: 'pending',
+            submitted_at: new Date(),
+          },
+          ...this.jobs,
+        ];
+        this.schedulePoll(job_id);
+      },
+      error: (err) => {
+        this.submitting = false;
+        this.errorMsg = err?.error?.error || err?.message || 'Failed to submit USO job.';
+      },
+    });
+  }
+
   // ── Auth / User ────────────────────────────────────────────
   currentUser: User | null = null;
   private authSub!: Subscription;

@@ -20,6 +20,10 @@ export class ApiService {
     return this.http.post<any>(`${this.base}/generate`, formData);
   }
 
+  submitUsoGenerate(formData: FormData): Observable<{ job_id: string }> {
+    return this.http.post<any>(`${this.base}/generate/uso`, formData);
+  }
+
   getJobStatus(jobId: string): Observable<any> {
     return this.http.get<any>(`${this.base}/job/${jobId}`);
   }

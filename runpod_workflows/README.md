@@ -107,13 +107,13 @@ wget "https://huggingface.co/Comfy-Org/sigclip_vision_384/resolve/main/sigclip_v
 
 #### LoRA — USO Flux1 DiT
 ```bash
-wget "https://huggingface.co/<USO_REPO>/resolve/main/uso-flux1-dit-lora-v1.safetensors" \
+wget "https://huggingface.co/Comfy-Org/USO_1.0_Repackaged/resolve/main/split_files/loras/uso-flux1-dit-lora-v1.safetensors" \
   -O /workspace/models/loras/uso-flux1-dit-lora-v1.safetensors
 ```
 
 #### Model Patch — USO Flux1 Projector
 ```bash
-wget "https://huggingface.co/<USO_REPO>/resolve/main/uso-flux1-projector-v1.safetensors" \
+wget "https://huggingface.co/Comfy-Org/USO_1.0_Repackaged/resolve/main/split_files/model_patches/uso-flux1-projector-v1.safetensors" \
   -O /workspace/models/model_patches/uso-flux1-projector-v1.safetensors
 ```
 
