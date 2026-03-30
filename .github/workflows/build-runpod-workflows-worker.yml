@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Build RunPod Workflows Worker
 
 on:
   workflow_dispatch:
@@ -9,8 +9,7 @@ on:
         default: "latest"
 
 jobs:
-  # RunPod worker → Docker Hub (unchanged)
-  runpod:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,8 +23,7 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          context: ./runpod
-          file: ./runpod/Dockerfile
+          context: ./runpod_workflows
+          file: ./runpod_workflows/Dockerfile
           push: true
-          tags: raj1145/pet-generator-worker:${{ github.event.inputs.tag }}
-
+          tags: raj1145/pet-generator-worker-workflows:${{ github.event.inputs.tag }}
