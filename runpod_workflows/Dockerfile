@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir boto3 requests
 
 # Update ComfyUI to latest (required for FluxKontextMultiReferenceLatentMethod,
 # USOStyleReference, ModelPatchLoader, ReferenceLatent)
-RUN cd /comfyui && git pull && pip install --no-cache-dir -r requirements.txt
+RUN cd /comfyui && git fetch origin && git checkout main && git pull origin main && pip install --no-cache-dir -r requirements.txt
 
 # App code
 COPY workflow_api.json     /workflow_api.json
