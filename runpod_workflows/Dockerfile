@@ -8,9 +8,10 @@ FROM runpod/worker-comfyui:5.7.1-base
 # R2 client (runpod SDK already in base image)
 RUN pip install --no-cache-dir boto3 requests
 
-# Update ComfyUI to latest (required for FluxKontextMultiReferenceLatentMethod,
-# USOStyleReference, ModelPatchLoader, ReferenceLatent)
-RUN cd /comfyui && git fetch origin && git checkout main && git pull origin main && pip install --no-cache-dir -r requirements.txt
+# Update ComfyUI to get nodes_model_patch.py (USOStyleReference, ModelPatchLoader,
+# FluxKontextMultiReferenceLatentMethod, ReferenceLatent — added in v0.3.52+)
+RUN cd /comfyui && git fetch origin master && git reset --hard FETCH_HEAD && \
+    pip install --no-cache-dir -r requirements.txt
 
 # App code
 COPY workflow_api.json     /workflow_api.json
