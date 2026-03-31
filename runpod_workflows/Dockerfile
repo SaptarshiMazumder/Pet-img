@@ -8,10 +8,9 @@ FROM runpod/worker-comfyui:5.7.1-base
 # R2 client (runpod SDK already in base image)
 RUN pip install --no-cache-dir boto3 requests
 
-# USO custom nodes
-RUN git clone https://github.com/Limitless-AI/ComfyUI_USO \
-      /comfyui/custom_nodes/ComfyUI_USO && \
-    pip install --no-cache-dir -r /comfyui/custom_nodes/ComfyUI_USO/requirements.txt || true
+# Update ComfyUI to latest (required for FluxKontextMultiReferenceLatentMethod,
+# USOStyleReference, ModelPatchLoader, ReferenceLatent)
+RUN cd /comfyui && git pull && pip install --no-cache-dir -r requirements.txt
 
 # App code
 COPY workflow_api.json     /workflow_api.json
