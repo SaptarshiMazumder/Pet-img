@@ -24,7 +24,7 @@ from backend.routes.payments import payments_bp
 
 def create_app() -> Flask:
     app = Flask(__name__)
-    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB
+    app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024
     CORS(app)
 
     @app.get("/health")

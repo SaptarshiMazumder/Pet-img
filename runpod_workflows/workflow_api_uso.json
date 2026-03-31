@@ -32,7 +32,7 @@
   "127": {
     "class_type": "ModelPatchLoader",
     "inputs": {
-      "patch_name": "uso-flux1-projector-v1.safetensors"
+      "name": "uso-flux1-projector-v1.safetensors"
     }
   },
   "124": {
@@ -110,7 +110,7 @@
     "class_type": "FluxKontextMultiReferenceLatentMethod",
     "inputs": {
       "conditioning": ["143", 0],
-      "method": "uxo/uno"
+      "reference_latents_method": "uxo/uno"
     }
   },
   "144": {
