@@ -8,7 +8,6 @@ import urllib.request
 from backend.runpod.runpod_config import (
     RUNPOD_API_KEY,
     RUNPOD_ENDPOINT_ID,
-    RUNPOD_USO_ENDPOINT_ID,
     RUNPOD_API_BASE_URL,
     JOB_STATUS_POLL_INTERVAL_SEC,
     JOB_MAX_WAIT_SEC,

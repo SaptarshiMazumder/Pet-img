@@ -3,9 +3,8 @@ RunPod API configuration — credentials and job polling constants.
 """
 import os
 
-RUNPOD_API_KEY         = os.environ.get("RUNPOD_API_KEY", "")
-RUNPOD_ENDPOINT_ID     = os.environ.get("RUNPOD_ENDPOINT_ID", "")
-RUNPOD_USO_ENDPOINT_ID = os.environ.get("RUNPOD_USO_ENDPOINT_ID", "")
+RUNPOD_API_KEY     = os.environ.get("RUNPOD_API_KEY", "")
+RUNPOD_ENDPOINT_ID = os.environ.get("RUNPOD_ENDPOINT_ID", "")
 
 RUNPOD_API_BASE_URL = "https://api.runpod.ai/v2"
 

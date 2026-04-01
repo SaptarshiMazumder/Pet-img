@@ -10,7 +10,6 @@ from pathlib import Path
 from backend.services.prompt_builder import build_animal_edo_prompt
 from backend.services.compress import compress_image
 from backend.runpod import submit_job, poll_job
-from backend.runpod.runpod_config import RUNPOD_USO_ENDPOINT_ID
 from backend.job_store import job_store
 from backend.storage import public_url, download_object, upload_object
 from backend.autoscaler_client import autoscaler
@@ -239,13 +238,15 @@ def run_uso_job_background(
     overrides: dict | None = None,
 ) -> None:
     """Run a Flux1-Dev USO style-transfer job on RunPod."""
-    endpoint_id = os.environ.get("RUNPOD_USO_ENDPOINT_ID", "") or RUNPOD_USO_ENDPOINT_ID
+    endpoint_id = os.environ.get("RUNPOD_ENDPOINT_ID", "")
     if not endpoint_id:
-        job_store.update(job_id, status="failed", error="RUNPOD_USO_ENDPOINT_ID is not configured")
+        job_store.update(job_id, status="failed", error="RUNPOD_ENDPOINT_ID is not configured")
         return
 
     r2_public_base = os.environ.get("R2_PUBLIC_BASE_URL", "").rstrip("/")
 
+    autoscaler.on_job_start()
+    active_jobs_db.persist(job_id, "uso", "uso", uid)
     try:
         job_store.update(job_id, status="processing")
 
@@ -266,6 +267,8 @@ def run_uso_job_background(
         runpod_result = poll_job(runpod_job_id, endpoint_id=endpoint_id)
         duration = time.time() - t_submit
 
+        runpod_result = _review_and_fix_if_needed(job_id, runpod_result)
+
         process_runpod_result(
             job_id=job_id,
             runpod_result=runpod_result,
@@ -280,3 +283,7 @@ def run_uso_job_background(
 
     except Exception as exc:
         job_store.update(job_id, status="failed", error=str(exc))
+
+    finally:
+        active_jobs_db.remove(job_id)
+        autoscaler.on_job_finish()
