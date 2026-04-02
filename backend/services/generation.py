@@ -31,6 +31,7 @@ def process_runpod_result(
     duration_seconds: float | None = None,
     source_r2_key: str | None = None,
     orientation: str = "portrait",
+    uso_style_r2_key: str | None = None,
 ) -> None:
     """Convert a RunPod result into a presigned URL, persist to Firestore, update job store."""
     images = runpod_result.get("images", [])
@@ -49,6 +50,7 @@ def process_runpod_result(
             duration_seconds=duration_seconds,
             source_r2_key=source_r2_key,
             orientation=orientation,
+            uso_style_r2_key=uso_style_r2_key,
         )
 
     job_store.update(
@@ -140,6 +142,7 @@ def run_workflow_background(
     orientation: str = "portrait",
     dry_run: bool = False,
     cleanup: Callable | None = None,
+    uso_style_r2_key: str | None = None,
     **build_kwargs,
 ) -> None:
     """
@@ -194,6 +197,7 @@ def run_workflow_background(
             duration_seconds=duration,
             source_r2_key=source_r2_key,
             orientation=orientation,
+            uso_style_r2_key=uso_style_r2_key,
         )
 
     except Exception as exc:

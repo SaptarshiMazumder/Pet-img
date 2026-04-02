@@ -178,6 +178,7 @@ def generate_uso():
         kwargs={
             "uid": uid,
             "source_r2_key": subject_r2_key,
+            "uso_style_r2_key": style_r2_key,
             "cleanup": lambda: Path(subject_tmp_path).unlink(missing_ok=True),
             "subject_url": subject_url,
             "subject_image_path": subject_tmp_path,

@@ -97,13 +97,18 @@ def regenerate_generation(job_id: str):
     template_key = data.get("template_key")
     style_key = data.get("style_key", "inkwash")
     orientation = data.get("orientation", "portrait")
-    width, height = (1040, 832) if orientation == "landscape" else (832, 1040)
+    is_uso = style_key == "uso"
 
-    try:
-        load_style(style_key)
-        load_template(template_key)
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+    if is_uso:
+        uso_style_r2_key = data.get("uso_style_r2_key")
+        if not uso_style_r2_key:
+            return jsonify({"error": "Style image not stored for this generation. Please regenerate from the Create page."}), 422
+    else:
+        try:
+            load_style(style_key)
+            load_template(template_key)
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
 
     # Download source image from R2 into a temp file
     try:
@@ -119,31 +124,61 @@ def regenerate_generation(job_id: str):
     new_job_id = str(uuid.uuid4())
     job_store.create(new_job_id)
 
-    # Upload source for the new job too
-    new_source_r2_key = f"sources/{new_job_id}{suffix}"
-    def _upload_source():
-        try:
-            from backend.storage.r2 import upload_object
-            upload_object(new_source_r2_key, image_bytes, content_type=f"image/{suffix.lstrip('.')}")
-        except Exception as exc:
-            print(f"[R2] Source upload failed for {new_job_id}: {exc}")
-    threading.Thread(target=_upload_source, daemon=True).start()
-
     from pathlib import Path
-    threading.Thread(
-        target=run_workflow_background,
-        args=(new_job_id, get_workflow("zturbo"), template_key),
-        kwargs={
-            "uid": g.uid,
-            "source_r2_key": new_source_r2_key,
-            "orientation": orientation,
-            "cleanup": lambda: Path(tmp_path).unlink(missing_ok=True),
-            "image_path": tmp_path,
-            "style_key": style_key,
-            "overrides": {"width": width, "height": height},
-        },
-        daemon=True,
-    ).start()
+    from backend.storage.r2 import upload_object
+
+    if is_uso:
+        new_subject_r2_key = f"uso-inputs/{new_job_id}/subject{suffix}"
+        def _upload_subject():
+            try:
+                upload_object(new_subject_r2_key, image_bytes, content_type=f"image/{suffix.lstrip('.')}")
+            except Exception as exc:
+                print(f"[R2] Subject upload failed for {new_job_id}: {exc}")
+        threading.Thread(target=_upload_subject, daemon=True).start()
+
+        r2_public_base = os.environ.get("R2_PUBLIC_BASE_URL", "").rstrip("/")
+        subject_url = f"{r2_public_base}/{new_subject_r2_key}"
+        style_url = f"{r2_public_base}/{uso_style_r2_key}"
+
+        threading.Thread(
+            target=run_workflow_background,
+            args=(new_job_id, get_workflow("uso"), template_key),
+            kwargs={
+                "uid": g.uid,
+                "source_r2_key": new_subject_r2_key,
+                "uso_style_r2_key": uso_style_r2_key,
+                "cleanup": lambda: Path(tmp_path).unlink(missing_ok=True),
+                "subject_url": subject_url,
+                "subject_image_path": tmp_path,
+                "style_url": style_url,
+                "overrides": {},
+            },
+            daemon=True,
+        ).start()
+    else:
+        width, height = (1040, 832) if orientation == "landscape" else (832, 1040)
+        new_source_r2_key = f"sources/{new_job_id}{suffix}"
+        def _upload_source():
+            try:
+                upload_object(new_source_r2_key, image_bytes, content_type=f"image/{suffix.lstrip('.')}")
+            except Exception as exc:
+                print(f"[R2] Source upload failed for {new_job_id}: {exc}")
+        threading.Thread(target=_upload_source, daemon=True).start()
+
+        threading.Thread(
+            target=run_workflow_background,
+            args=(new_job_id, get_workflow("zturbo"), template_key),
+            kwargs={
+                "uid": g.uid,
+                "source_r2_key": new_source_r2_key,
+                "orientation": orientation,
+                "cleanup": lambda: Path(tmp_path).unlink(missing_ok=True),
+                "image_path": tmp_path,
+                "style_key": style_key,
+                "overrides": {"width": width, "height": height},
+            },
+            daemon=True,
+        ).start()
 
     # Delete old generation from R2 + Firestore after new job is queued
     keys_to_delete = []

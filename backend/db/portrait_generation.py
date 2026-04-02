@@ -23,6 +23,7 @@ def save(
     source_r2_key: str | None = None,
     compressed_r2_key: str | None = None,
     orientation: str = "portrait",
+    uso_style_r2_key: str | None = None,
 ) -> None:
     """Persist a completed portrait generation result. No-op on Firestore errors (logged)."""
     try:
@@ -43,6 +44,8 @@ def save(
             doc["source_r2_key"] = source_r2_key
         if compressed_r2_key:
             doc["compressed_r2_key"] = compressed_r2_key
+        if uso_style_r2_key:
+            doc["uso_style_r2_key"] = uso_style_r2_key
         _db().collection("generations").document(job_id).set(doc)
     except Exception as exc:
         print(f"[Firestore] Failed to save portrait generation {job_id}: {exc}")
