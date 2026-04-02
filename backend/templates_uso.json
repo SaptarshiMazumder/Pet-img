@@ -1,86 +1,14 @@
 {
-  "studio_portrait": {
-    "name": "Studio Portrait",
-    "name_ja": "スタジオポートレート",
-    "preview_url": "uso/studio_portrait.jpg",
-    "role_title": "a distinguished portrait subject",
-    "pose_sentence": "The {pronoun} is posed facing slightly to the side, head turned toward the viewer with composed and confident posture, upper body upright. The lower body is entirely out of frame — only the head, shoulders, and upper chest are visible.",
-    "props_sentence": "",
-    "environment": "a minimal studio backdrop with a soft gradient tone, clean and timeless composition, shallow depth of field",
-    "lighting": "Soft diffused studio lighting with gentle highlights and subtle shadows, creating a flattering and even illumination across the subject.",
-    "mood": "dignified, classic, and timeless",
-    "not_suitable_for": []
-  },
-  "garden_spring": {
-    "name": "Spring Garden",
-    "name_ja": "春の庭",
-    "preview_url": "uso/garden_spring.jpg",
-    "role_title": "a serene figure in a spring garden",
-    "pose_sentence": "The {pronoun} is seated amid the blossoms, body relaxed and upright, gazing gently forward or slightly to the side. The lower body and hind legs are completely hidden beneath the soft grass and fallen petals — only the head, upper body, and front paws are visible.",
-    "props_sentence": "Cherry blossom petals drift softly around the figure and rest on the ground nearby.",
-    "environment": "a sun-drenched garden with blooming cherry blossoms, soft green grass, and delicate petals drifting through the air — shallow depth of field with the background softly blurred into pastel tones",
-    "lighting": "Warm golden afternoon sunlight filtering through the blossoms, casting gentle dappled light and soft lens flare.",
-    "mood": "serene, joyful, and vibrant",
-    "not_suitable_for": []
-  },
-  "cozy_window": {
-    "name": "Cozy Window Light",
-    "name_ja": "窓辺の温もり",
-    "preview_url": "uso/cozy_window.jpg",
-    "role_title": "a contemplative figure by the window",
-    "pose_sentence": "The {pronoun} is seated beside a large window, body turned slightly toward the light, gazing softly toward the outside or into the middle distance. The lower body is completely hidden beneath soft fabric or just out of frame — only the head, upper body, and front paws are visible.",
-    "props_sentence": "A small ceramic mug or teacup rests nearby on the windowsill.",
-    "environment": "a warm indoor setting beside a large window with sheer curtains gently diffusing the outside light, a soft textured surface in the foreground, and a blurred warm-toned interior in the background",
-    "lighting": "Soft natural window light streaming in from one side, creating a gentle side-lit glow with warm amber tones and delicate shadow falloff.",
-    "mood": "warm, intimate, and peaceful",
-    "not_suitable_for": []
-  },
-  "dramatic_dusk": {
-    "name": "Dramatic Dusk",
-    "name_ja": "黄昏のドラマ",
-    "preview_url": "uso/dramatic_dusk.jpg",
-    "role_title": "a solitary figure at dusk",
-    "pose_sentence": "The {pronoun} stands or sits facing the horizon, silhouetted against the glowing sky, body upright and still. The lower body fades into deep shadow against the ground — only the head and upper body are clearly defined against the light.",
-    "props_sentence": "",
-    "environment": "a dramatic outdoor landscape at dusk — a vast open sky with deep orange and violet gradient tones, silhouetted foliage at the edges of the frame, and a sweeping horizon",
-    "lighting": "Strong golden-hour backlight from the setting sun creating a vivid rim light around the subject, with the foreground in soft shadow.",
-    "mood": "dramatic, atmospheric, and cinematic",
-    "not_suitable_for": []
-  },
-  "forest_path": {
-    "name": "Forest Path",
-    "name_ja": "森の小道",
-    "preview_url": "uso/forest_path.jpg",
-    "role_title": "a wanderer on a forest path",
-    "pose_sentence": "The {pronoun} is seated or standing along the path, body relaxed, head tilted slightly upward as if listening to the sounds of the forest. The lower body blends softly into the mossy ground — only the upper body and head are clearly visible above the forest floor.",
-    "props_sentence": "Soft moss and scattered leaves surround the figure on the forest floor.",
-    "environment": "a serene forest path with tall trees forming a natural canopy overhead, dappled light filtering through the leaves, soft moss and ferns along the edges, and a gentle misty atmosphere in the distance",
-    "lighting": "Soft diffused daylight filtered through the forest canopy, with gentle rays of light cutting through the foliage and creating subtle bokeh.",
-    "mood": "tranquil, natural, and contemplative",
-    "not_suitable_for": []
-  },
-  "urban_street": {
-    "name": "Urban Street",
-    "name_ja": "都市の街角",
-    "preview_url": "uso/urban_street.jpg",
-    "role_title": "a cool urban figure on a city street",
-    "pose_sentence": "The {pronoun} is posed on the wet street, body facing forward with relaxed confidence, head held steady, expression composed. The lower body is mostly obscured by the low angle and the reflective ground — only the upper body and head are sharply in focus.",
-    "props_sentence": "",
-    "environment": "a moody urban street scene with wet cobblestone pavement reflecting ambient light, blurred city lights and storefronts in the background, and a shallow depth of field emphasizing the subject",
-    "lighting": "Cool ambient street lighting mixed with warm glow from shop windows, creating layered atmospheric light with subtle specular highlights on the wet ground.",
-    "mood": "cool, stylish, and urban",
-    "not_suitable_for": []
-  },
-  "beach_golden_hour": {
-    "name": "Beach at Golden Hour",
-    "name_ja": "黄金の浜辺",
-    "preview_url": "uso/beach_golden_hour.jpg",
-    "role_title": "a carefree beach wanderer at golden hour",
-    "pose_sentence": "The {pronoun} is seated or standing at the water's edge, body relaxed and open, face tilted slightly upward toward the warm light. The lower body blends into the wet sand and sea foam — only the upper body and head are clearly visible above the shoreline.",
-    "props_sentence": "Gentle sea foam laps around the figure at the water's edge.",
-    "environment": "a wide sandy beach at golden hour with gentle ocean waves in the background, soft sea foam at the water's edge, and an open sky with warm pastel hues reflecting on the wet sand",
-    "lighting": "Rich golden-hour sunlight from low on the horizon, casting long soft shadows and bathing the entire scene in a warm amber glow with gentle specular highlights on the water.",
-    "mood": "carefree, warm, and expansive",
+  "backseat_ride": {
+    "name": "Sunday Drive",
+    "name_ja": "サンデードライブ",
+    "preview_url": "uso/backseat_ride.jpg",
+    "role_title": "a joyful passenger leaning out of a car window",
+    "pose_sentence": "The {pronoun} is leaning boldly out of the passenger-side car window, front paws draped over the door panel, head fully outside the car and facing forward into the wind. The body is angled outward and downward, chest resting on the window frame — the lower body and hind legs remain inside the car, completely out of frame. The camera angle is low and slightly from the side, looking up at the subject against the open road.",
+    "props_sentence": "A pair of dark wayfarer sunglasses is worn correctly over the eyes — lenses covering both eyes, nose bridge resting on the snout, temples hooked behind the ears. The glasses sit low on the face at eye level, not pushed up on the forehead or top of the head. The car door and window frame are visible beneath the front paws.",
+    "environment": "viewed from just outside and slightly below the car window — the open door panel and chrome trim in the foreground, and stretching behind the subject a long straight highway road disappearing into the horizon, flanked by trees and open landscape with a wide golden sky",
+    "lighting": "Warm sunset backlight from low on the horizon directly ahead, casting a golden rim glow around the subject's head and shoulders, with soft warm haze over the road behind.",
+    "mood": "exhilarated, carefree, and joyfully cinematic",
     "not_suitable_for": []
   }
 }

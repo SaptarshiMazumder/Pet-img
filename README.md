@@ -15,6 +15,29 @@ docker compose up
 
 ---
 
+## Templates (Firestore)
+
+Templates live in Firestore and are seeded from local JSON files:
+
+| Firestore collection | Source file | Workflow |
+|---|---|---|
+| `templates` | `backend/templates.json` | `zturbo` |
+| `templates_uso` | `backend/templates_uso.json` | `uso` |
+
+To add/edit a template, update the JSON file then re-seed:
+
+```bash
+# Activate venv
+source venv/Scripts/activate      # Windows
+# source venv/bin/activate        # Mac/Linux
+
+python -m scripts.seed_templates
+```
+
+This overwrites **all** documents in both collections with the current JSON contents.
+
+---
+
 ## Cloud Run deployment (GCP)
 
 Three environments: **dev**, **staging**, **prod** — each maps to a separate GCP project.
