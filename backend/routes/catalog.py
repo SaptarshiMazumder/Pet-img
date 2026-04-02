@@ -2,7 +2,8 @@ import json
 
 from flask import Blueprint, jsonify, send_from_directory
 
-from backend.config import STYLES_FILE, TEMPLATES_FILE, ASSETS_DIR
+from backend.config import STYLES_FILE, ASSETS_DIR
+from backend.db.templates import list_all as list_templates_db, list_all_uso as list_uso_templates_db
 from backend.storage.r2 import public_url as r2_public_url
 
 catalog_bp = Blueprint("catalog", __name__)
@@ -19,13 +20,27 @@ def list_styles():
 
 @catalog_bp.get("/templates")
 def list_templates():
-    templates = json.loads(TEMPLATES_FILE.read_text(encoding="utf-8"))
+    templates = list_templates_db()
     return jsonify({
         key: {
             "name": v["name"],
             "preview_url": r2_public_url(v["preview_url"]) if v.get("preview_url") else "",
             "mood": v.get("mood", ""),
-            "environment": v["environment"][:80],
+            "environment": (v.get("environment") or "")[:80],
+        }
+        for key, v in templates.items()
+    })
+
+
+@catalog_bp.get("/templates/uso")
+def list_uso_templates():
+    templates = list_uso_templates_db()
+    return jsonify({
+        key: {
+            "name": v["name"],
+            "preview_url": r2_public_url(v["preview_url"]) if v.get("preview_url") else "",
+            "mood": v.get("mood", ""),
+            "environment": (v.get("environment") or "")[:80],
         }
         for key, v in templates.items()
     })

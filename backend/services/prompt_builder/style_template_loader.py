@@ -1,9 +1,11 @@
 """
-Load style and template data from config files.
+Load style and template data.
+Styles: local JSON (styles.json) — rarely change, no UI to edit them.
+Templates: Firestore — single source of truth, editable without redeploy.
 """
 import json
 
-from backend.config import STYLES_FILE, TEMPLATES_FILE
+from backend.config import STYLES_FILE
 
 
 def load_style(style_key: str) -> dict:
@@ -14,7 +16,16 @@ def load_style(style_key: str) -> dict:
 
 
 def load_template(template_key: str) -> dict:
-    templates = json.loads(TEMPLATES_FILE.read_text(encoding="utf-8"))
-    if template_key not in templates:
-        raise ValueError(f"Unknown template '{template_key}'. Available: {', '.join(templates)}")
-    return templates[template_key]
+    from backend.db.templates import get
+    data = get(template_key)
+    if data is None:
+        raise ValueError(f"Unknown template '{template_key}'.")
+    return data
+
+
+def load_uso_template(template_key: str) -> dict:
+    from backend.db.templates import get_uso
+    data = get_uso(template_key)
+    if data is None:
+        raise ValueError(f"Unknown USO template '{template_key}'.")
+    return data

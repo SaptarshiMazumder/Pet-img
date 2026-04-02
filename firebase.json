@@ -1,0 +1,25 @@
+{
+  "hosting": {
+    "public": "frontend-ng/dist/frontend-ng/browser",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "/generate",     "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/generate/**",  "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/job/**",       "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/orders",       "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/orders/**",    "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/user/**",      "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/samples",      "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/samples/**",   "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/styles",       "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/styles/**",    "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/templates",    "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/templates/**", "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/warm",         "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/print/**",     "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/catalog/**",   "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/health",       "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "**",            "destination": "/index.html" }
+    ]
+  }
+}

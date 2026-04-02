@@ -71,7 +71,9 @@ export class App implements OnInit, OnDestroy {
   usoSubjectPreview: string | null = null;
   usoStyleFile: File | null = null;
   usoStylePreview: string | null = null;
-  usoPrompt = '';
+  usoTemplates: Record<string, any> = {};
+  usoTemplateKeys: string[] = [];
+  selectedUsoTemplate = '';
 
   setUsoSubjectFile(file: File) {
     this.usoSubjectFile = file;
@@ -88,7 +90,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   get canGenerateUso(): boolean {
-    return !!(this.usoSubjectFile && this.usoStyleFile && this.usoPrompt.trim() && !this.submitting);
+    return !!(this.usoSubjectFile && this.usoStyleFile && this.selectedUsoTemplate && !this.submitting);
   }
 
   generateUso() {
@@ -99,7 +101,7 @@ export class App implements OnInit, OnDestroy {
     const form = new FormData();
     form.append('subject_image', this.usoSubjectFile!);
     form.append('style_image', this.usoStyleFile!);
-    form.append('prompt', this.usoPrompt.trim());
+    form.append('template_key', this.selectedUsoTemplate);
 
     this.api.submitUsoGenerate(form).subscribe({
       next: (resp: any) => {
@@ -223,13 +225,12 @@ export class App implements OnInit, OnDestroy {
   ngOnInit() {
     this.api.warm();
     this.api.getTemplates().subscribe((t) => {
-      for (const key of Object.keys(t)) {
-        if (t[key].preview_url && !t[key].preview_url.startsWith('http')) {
-          t[key].preview_url = this.api.assetUrl(t[key].preview_url);
-        }
-      }
       this.templates = t;
       this.templateKeys = Object.keys(t);
+    });
+    this.api.getUsoTemplates().subscribe((t) => {
+      this.usoTemplates = t;
+      this.usoTemplateKeys = Object.keys(t);
     });
     this.authSub = this.auth.user$.subscribe((user) => {
       this.currentUser = user;

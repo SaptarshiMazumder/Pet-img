@@ -50,10 +50,6 @@ resource "google_service_account" "autoscaler" {
   display_name = "Pet Gen ${var.env} - Autoscaler"
 }
 
-resource "google_service_account" "frontend" {
-  account_id   = "${local.prefix}-frontend"
-  display_name = "Pet Gen ${var.env} - Frontend"
-}
 
 # ── Cloud Run: Autoscaler ────────────────────────────────────────────────────
 
@@ -173,48 +169,7 @@ resource "google_cloud_run_v2_service" "backend" {
   depends_on = [google_project_service.run]
 }
 
-# ── Cloud Run: Frontend ──────────────────────────────────────────────────────
-
-resource "google_cloud_run_v2_service" "frontend" {
-  name     = "${local.prefix}-frontend"
-  location = var.region
-
-  template {
-    service_account = google_service_account.frontend.email
-
-    scaling {
-      min_instance_count = 0
-      max_instance_count = var.max_instances
-    }
-
-    containers {
-      image = "${local.image_base}/frontend:${var.image_tag}"
-
-      ports {
-        container_port = 80
-      }
-
-      resources {
-        cpu_idle = true
-        limits = {
-          cpu    = "1"
-          memory = "256Mi"
-        }
-      }
-
-      env {
-        name  = "API_BASE"
-        value = google_cloud_run_v2_service.backend.uri
-      }
-      env {
-        name  = "BACKEND_UPSTREAM"
-        value = trimprefix(google_cloud_run_v2_service.backend.uri, "https://")
-      }
-    }
-  }
-
-  depends_on = [google_project_service.run]
-}
+# Frontend is served via Firebase Hosting — no Cloud Run service needed.
 
 # ── IAM: public invoker ──────────────────────────────────────────────────────
 
@@ -232,9 +187,3 @@ resource "google_cloud_run_v2_service_iam_member" "backend_public" {
   member   = "allUsers"
 }
 
-resource "google_cloud_run_v2_service_iam_member" "frontend_public" {
-  location = var.region
-  name     = google_cloud_run_v2_service.frontend.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-}

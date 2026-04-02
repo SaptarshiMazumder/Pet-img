@@ -37,9 +37,10 @@ def compose_final_prompt(animal_data: dict, template: dict, style: dict) -> str:
     parts = [
         f"{subject_line}, portrayed as {role_title}.",
         face_sentence,
-        f"It {attire_verb} {wardrobe}.",
-        pose_sentence,
     ]
+    if wardrobe:
+        parts.append(f"It {attire_verb} {wardrobe}.")
+    parts.append(pose_sentence)
     if props_sentence:
         parts.append(props_sentence)
     parts.append(f"The setting is {environment}.")

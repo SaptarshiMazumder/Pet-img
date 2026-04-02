@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private base = (window as any).__CONFIG__?.apiBase ?? 'http://localhost:5000';
+  private base = (window as any).__CONFIG__?.apiBase ?? '';
 
   constructor(private http: HttpClient) {}
 
@@ -14,6 +14,10 @@ export class ApiService {
 
   getTemplates(): Observable<Record<string, { name: string; preview_url: string; mood: string; environment: string }>> {
     return this.http.get<any>(`${this.base}/templates`);
+  }
+
+  getUsoTemplates(): Observable<Record<string, { name: string; preview_url: string; mood: string; environment: string }>> {
+    return this.http.get<any>(`${this.base}/templates/uso`);
   }
 
   submitGenerate(formData: FormData): Observable<{ job_id: string }> {
@@ -31,6 +35,12 @@ export class ApiService {
   assetUrl(path: string): string {
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
     return `${this.base}${path.startsWith('/') ? '' : '/'}${path}`;
+  }
+
+  r2Url(path: string): string {
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    const base = (window as any).__CONFIG__?.r2PublicBase ?? 'https://pub-5ac903a98f564cc2b50d3727394f9431.r2.dev';
+    return `${base}/${path}`;
   }
 
   placeOrder(payload: any): Observable<any> {

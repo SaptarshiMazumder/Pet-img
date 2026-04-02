@@ -2,9 +2,10 @@
 Prompt builder — animal analysis (Gemini) + template composition.
 Builds the portrait prompt from pet image, style, and template.
 """
-from backend.services.prompt_builder.style_template_loader import load_style, load_template
+from backend.services.prompt_builder.style_template_loader import load_style, load_template, load_uso_template
 from backend.services.prompt_builder.animal_image_analysis import extract_animal_appearance
 from backend.services.prompt_builder.prompt_composer import compose_final_prompt
+from backend.services.prompt_builder.uso_prompt_composer import compose_uso_prompt  # noqa: F401
 
 
 def build_animal_edo_prompt(
@@ -30,6 +31,8 @@ __all__ = [
     "build_animal_edo_prompt",
     "load_style",
     "load_template",
+    "load_uso_template",
     "extract_animal_appearance",
     "compose_final_prompt",
+    "compose_uso_prompt",
 ]

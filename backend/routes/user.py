@@ -9,7 +9,8 @@ from backend.auth_middleware import require_auth
 from backend.db import portrait_generation as generations_db
 from backend.firebase import get_db
 from backend.job_store import job_store
-from backend.services.generation import run_job_background
+from backend.services.generation import run_workflow_background
+from backend.services.workflows import get_workflow
 from backend.services.prompt_builder import load_style, load_template
 from backend.storage import public_url
 from backend.storage.r2 import delete_object, download_object
@@ -99,7 +100,7 @@ def regenerate_generation(job_id: str):
     width, height = (1040, 832) if orientation == "landscape" else (832, 1040)
 
     try:
-        style = load_style(style_key)
+        load_style(style_key)
         load_template(template_key)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
@@ -128,10 +129,19 @@ def regenerate_generation(job_id: str):
             print(f"[R2] Source upload failed for {new_job_id}: {exc}")
     threading.Thread(target=_upload_source, daemon=True).start()
 
+    from pathlib import Path
     threading.Thread(
-        target=run_job_background,
-        args=(new_job_id, tmp_path, style, style_key, template_key, {"width": width, "height": height}),
-        kwargs={"uid": g.uid, "source_r2_key": new_source_r2_key, "orientation": orientation},
+        target=run_workflow_background,
+        args=(new_job_id, get_workflow("zturbo"), template_key),
+        kwargs={
+            "uid": g.uid,
+            "source_r2_key": new_source_r2_key,
+            "orientation": orientation,
+            "cleanup": lambda: Path(tmp_path).unlink(missing_ok=True),
+            "image_path": tmp_path,
+            "style_key": style_key,
+            "overrides": {"width": width, "height": height},
+        },
         daemon=True,
     ).start()
 

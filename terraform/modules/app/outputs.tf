@@ -1,6 +1,6 @@
 output "frontend_url" {
-  description = "Public URL of the frontend Cloud Run service"
-  value       = google_cloud_run_v2_service.frontend.uri
+  description = "Frontend is hosted on Firebase Hosting — see Firebase console for the URL"
+  value       = "https://pet-gen-dev.web.app"
 }
 
 output "backend_url" {

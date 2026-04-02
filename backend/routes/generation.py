@@ -1,3 +1,4 @@
+import os
 import tempfile
 import threading
 import uuid
@@ -5,9 +6,10 @@ from pathlib import Path
 
 from flask import Blueprint, jsonify, request
 
-from backend.services.prompt_builder import load_style, load_template
+from backend.services.prompt_builder import load_style, load_uso_template
+from backend.services.workflows import get_workflow
 from backend.job_store import job_store
-from backend.services.generation import run_job_background, run_uso_job_background
+from backend.services.generation import run_workflow_background
 from backend.auth_middleware import get_optional_uid
 from backend.autoscaler_client import autoscaler
 from backend.storage.r2 import upload_object
@@ -20,6 +22,12 @@ _OVERRIDE_FIELDS: list[tuple[str, type]] = [
     ("lora_strength", float), ("lora2_strength", float),
     ("upscale_factor", float), ("upscale_steps", int),
     ("upscale_denoise", float),
+]
+
+_USO_OVERRIDE_FIELDS: list[tuple[str, type]] = [
+    ("width", int), ("height", int), ("steps", int),
+    ("cfg", float), ("seed", int), ("batch_size", int),
+    ("guidance", float), ("lora_strength", float),
 ]
 
 
@@ -46,13 +54,10 @@ def generate():
 
     style_key = request.form.get("style_key", "inkwash")
 
+    workflow = get_workflow("zturbo")
     try:
-        style = load_style(style_key)
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-
-    try:
-        load_template(template_key)
+        workflow.load_template(template_key)
+        load_style(style_key)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
@@ -76,8 +81,8 @@ def generate():
     job_id = str(uuid.uuid4())
     job_store.create(job_id)
 
-    # Upload source image to R2 asynchronously — used for regeneration later
     source_r2_key = f"sources/{job_id}{suffix}"
+
     def _upload_source():
         try:
             with open(tmp_path, "rb") as f:
@@ -86,22 +91,23 @@ def generate():
             print(f"[R2] Source upload failed for {job_id}: {exc}")
     threading.Thread(target=_upload_source, daemon=True).start()
 
-    thread = threading.Thread(
-        target=run_job_background,
-        args=(job_id, tmp_path, style, style_key, template_key, overrides),
-        kwargs={"dry_run": dry_run, "uid": uid, "source_r2_key": source_r2_key, "orientation": orientation},
+    threading.Thread(
+        target=run_workflow_background,
+        args=(job_id, workflow, template_key),
+        kwargs={
+            "uid": uid,
+            "source_r2_key": source_r2_key,
+            "orientation": orientation,
+            "dry_run": dry_run,
+            "cleanup": lambda: Path(tmp_path).unlink(missing_ok=True),
+            "image_path": tmp_path,
+            "style_key": style_key,
+            "overrides": overrides,
+        },
         daemon=True,
-    )
-    thread.start()
+    ).start()
 
     return jsonify({"job_id": job_id}), 202
-
-
-_USO_OVERRIDE_FIELDS: list[tuple[str, type]] = [
-    ("width", int), ("height", int), ("steps", int),
-    ("cfg", float), ("seed", int), ("batch_size", int),
-    ("guidance", float), ("lora_strength", float),
-]
 
 
 @generation_bp.post("/generate/uso")
@@ -111,9 +117,14 @@ def generate_uso():
     if "style_image" not in request.files:
         return jsonify({"error": "style_image is required."}), 400
 
-    prompt = request.form.get("prompt", "").strip()
-    if not prompt:
-        return jsonify({"error": "prompt is required."}), 400
+    template_key = request.form.get("template_key")
+    if not template_key:
+        return jsonify({"error": "template_key is required."}), 400
+
+    try:
+        load_uso_template(template_key)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
     subject = request.files["subject_image"]
     style = request.files["style_image"]
@@ -148,12 +159,31 @@ def generate_uso():
     except Exception as exc:
         return jsonify({"error": f"Failed to upload images: {exc}"}), 500
 
+    # Write subject to temp file — Gemini needs a file path for animal analysis
+    import tempfile
+    with tempfile.NamedTemporaryFile(delete=False, suffix=subject_suffix) as tmp:
+        tmp.write(subject_bytes)
+        subject_tmp_path = tmp.name
+
+    r2_public_base = os.environ.get("R2_PUBLIC_BASE_URL", "").rstrip("/")
+    subject_url = f"{r2_public_base}/{subject_r2_key}"
+    style_url = f"{r2_public_base}/{style_r2_key}"
+
+    workflow = get_workflow("uso")
     job_store.create(job_id)
 
     threading.Thread(
-        target=run_uso_job_background,
-        args=(job_id, subject_r2_key, style_r2_key, prompt),
-        kwargs={"uid": uid, "overrides": overrides},
+        target=run_workflow_background,
+        args=(job_id, workflow, template_key),
+        kwargs={
+            "uid": uid,
+            "source_r2_key": subject_r2_key,
+            "cleanup": lambda: Path(subject_tmp_path).unlink(missing_ok=True),
+            "subject_url": subject_url,
+            "subject_image_path": subject_tmp_path,
+            "style_url": style_url,
+            "overrides": overrides,
+        },
         daemon=True,
     ).start()
 

@@ -1,0 +1,46 @@
+name: Deploy Frontend to Firebase Hosting
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "dev"
+        type: choice
+        options: [dev, prod]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend-ng/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend-ng
+        run: npm ci
+
+      - name: Clear apiBase for production
+        working-directory: frontend-ng
+        run: |
+          sed -i "s|apiBase: '[^']*'|apiBase: ''|g" public/config.js
+
+      - name: Build Angular
+        working-directory: frontend-ng
+        run: npm run build
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
+          target: ${{ github.event.inputs.environment }}
+          channelId: live

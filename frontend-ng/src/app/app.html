@@ -222,13 +222,14 @@
             </div>
 
             <div class="sidebar-block">
-              <p class="sidebar-label">3. Prompt</p>
-              <textarea
-                class="uso-prompt-input"
-                [(ngModel)]="usoPrompt"
-                placeholder="e.g. a dog sitting under a cherry blossom tree"
-                rows="3"
-              ></textarea>
+              <p class="sidebar-label">3. Choose a scene</p>
+              <app-template-selector
+                [templates]="usoTemplates"
+                [templateKeys]="usoTemplateKeys"
+                [selectedTemplate]="selectedUsoTemplate"
+                (templateSelected)="selectedUsoTemplate = $event"
+                [sectionTitle]="'Select Scene'"
+              />
             </div>
 
             <div class="sidebar-block">

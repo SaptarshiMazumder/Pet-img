@@ -25,7 +25,13 @@ from backend.routes.payments import payments_bp
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024
-    CORS(app)
+    CORS(app, origins=[
+        "https://pet-to.com",
+        "https://www.pet-to.com",
+        "https://pet-gen-dev-frontend-w3naol7cta-an.a.run.app",
+        "http://localhost:4200",
+        "http://localhost:5000",
+    ])
 
     @app.get("/health")
     def health():

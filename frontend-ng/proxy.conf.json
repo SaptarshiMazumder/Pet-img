@@ -1,0 +1,18 @@
+{
+  "/generate": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/generate/**": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/job/**": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/orders": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/orders/**": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/user/**": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/samples": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/samples/**": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/styles": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/styles/**": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/templates": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/templates/**": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/warm": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/print/**": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/catalog/**": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true },
+  "/health": { "target": "http://localhost:5000", "secure": false, "changeOrigin": true }
+}

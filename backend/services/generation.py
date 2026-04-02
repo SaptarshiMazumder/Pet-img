@@ -1,13 +1,15 @@
 """
-Generation service — orchestrates the full portrait generation pipeline:
-  build prompt → submit to RunPod → poll for result → review (Gemini) → fix if needed (Gemini) → persist + return
+Generation service — shared execution harness for all workflows.
+Each workflow is a WorkflowStrategy that knows how to build its own job_input.
+This module handles: RunPod submit/poll, Gemini review, autoscaler, DB persistence.
 """
 import os
 import threading
 import time
+from collections.abc import Callable
 from pathlib import Path
 
-from backend.services.prompt_builder import build_animal_edo_prompt
+from backend.services.workflow_strategy import WorkflowStrategy
 from backend.services.compress import compress_image
 from backend.runpod import submit_job, poll_job
 from backend.job_store import job_store
@@ -49,7 +51,6 @@ def process_runpod_result(
             orientation=orientation,
         )
 
-    # Mark job complete with full-size URL immediately so the UI shows it right away
     job_store.update(
         job_id,
         status="completed",
@@ -65,7 +66,6 @@ def process_runpod_result(
         orientation=orientation,
     )
 
-    # Compress asynchronously — Firestore gets updated with compressed_r2_key when done
     if uid and r2_key:
         threading.Thread(
             target=_compress_and_persist,
@@ -97,7 +97,7 @@ def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:
     and upload the fixed image to R2. Returns the (possibly modified) runpod_result.
     """
     if not os.getenv("GEMINI_API_KEY"):
-        return runpod_result  # Skip review when Gemini not configured
+        return runpod_result
 
     images = runpod_result.get("images", [])
     if not images or not images[0].get("key"):
@@ -117,7 +117,7 @@ def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:
 
         fix_prompt = review_image(image_bytes)
         if not fix_prompt:
-            return runpod_result  # No issues found
+            return runpod_result
 
         print(f"[review] issues found, fix prompt: {fix_prompt[:80]}...")
         fixed_bytes = fix_image(image_bytes, fix_prompt)
@@ -125,13 +125,11 @@ def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:
             print("[review] fix failed, using original image")
             return runpod_result
 
-        # Upload fixed image to R2 (new key: original_fixed.png)
         base, ext = r2_key.rsplit(".", 1) if "." in r2_key else (r2_key, "png")
         fixed_key = f"{base}_fixed.{ext}"
         upload_object(fixed_key, fixed_bytes)
         print(f"[review] uploaded fixed image to {fixed_key}")
 
-        # Use fixed image as the final result
         runpod_result = dict(runpod_result)
         runpod_result["images"] = [{**images[0], "key": fixed_key}]
         return runpod_result
@@ -141,80 +139,66 @@ def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:
         return runpod_result
 
 
-def run_job_background(
+def run_workflow_background(
     job_id: str,
-    tmp_path: str,
-    style: dict,
-    style_key: str,
+    workflow: WorkflowStrategy,
     template_key: str,
-    overrides: dict,
-    dry_run: bool = False,
     uid: str | None = None,
     source_r2_key: str | None = None,
     orientation: str = "portrait",
+    dry_run: bool = False,
+    cleanup: Callable | None = None,
+    **build_kwargs,
 ) -> None:
+    """
+    Shared execution harness for all workflows.
+    `workflow` decides how to build the job_input; everything else is handled here.
+    `cleanup` is an optional callable invoked in the finally block (e.g. delete a tmp file).
+    Extra `build_kwargs` are forwarded verbatim to `workflow.build()`.
+    """
     autoscaler.on_job_start()
-    active_jobs_db.persist(job_id, style_key, template_key, uid)
+    active_jobs_db.persist(job_id, workflow.workflow_name, template_key, uid)
     try:
         job_store.update(job_id, status="processing")
 
-        result = build_animal_edo_prompt(
-            image_path=tmp_path,
-            style=style,
-            style_key=style_key,
-            template_key=template_key,
-        )
-
-        lora_cfg = style.get("lora", {})
-        job_input = {
-            "prompt": result["positive_prompt"],
-            "negative_prompt": result["negative_prompt"],
-            "lora_name": lora_cfg.get("lora_name", "wetInkZTurbo.safetensors"),
-            "lora_strength": lora_cfg.get("lora_strength", 0.3),
-            "lora2_name": lora_cfg.get("lora2_name", "ukiyoeZTurbo.safetensors"),
-            "lora2_strength": lora_cfg.get("lora2_strength", 0.0),
-            "width": 1216,
-            "height": 832,
-        }
-        job_input.update(overrides)
+        result = workflow.build(template_key, **build_kwargs)
 
         if dry_run:
             print("\n" + "=" * 60)
-            print(f"[DRY RUN] job_id={job_id}  template={template_key}  style={style_key}")
+            print(f"[DRY RUN] job_id={job_id}  workflow={workflow.workflow_name}  template={template_key}")
             print("-" * 60)
-            print(result["positive_prompt"])
+            print(result.positive_prompt)
             print("=" * 60 + "\n")
             job_store.update(
                 job_id,
                 status="completed",
-                positive_prompt=result["positive_prompt"],
-                negative_prompt=result["negative_prompt"],
-                animal_data=result["animal_data"],
+                positive_prompt=result.positive_prompt,
+                negative_prompt=result.negative_prompt,
+                animal_data=result.animal_data,
                 template=template_key,
-                style=style_key,
+                style=result.style_key or workflow.workflow_name,
                 dry_run=True,
             )
             return
 
-        runpod_job_id = submit_job(job_input)
+        runpod_job_id = submit_job(result.job_input)
         active_jobs_db.update_runpod_id(job_id, runpod_job_id)
 
         t_submit = time.time()
         runpod_result = poll_job(runpod_job_id)
         duration = time.time() - t_submit
 
-        # Review with Gemini; fix defects (mangled paws, extra limbs, etc.) if found
         runpod_result = _review_and_fix_if_needed(job_id, runpod_result)
 
         process_runpod_result(
             job_id=job_id,
             runpod_result=runpod_result,
-            style_key=style_key,
+            style_key=result.style_key or workflow.workflow_name,
             template_key=template_key,
             uid=uid,
-            positive_prompt=result["positive_prompt"],
-            negative_prompt=result["negative_prompt"],
-            animal_data=result["animal_data"],
+            positive_prompt=result.positive_prompt,
+            negative_prompt=result.negative_prompt,
+            animal_data=result.animal_data,
             duration_seconds=duration,
             source_r2_key=source_r2_key,
             orientation=orientation,
@@ -224,66 +208,7 @@ def run_job_background(
         job_store.update(job_id, status="failed", error=str(exc))
 
     finally:
-        Path(tmp_path).unlink(missing_ok=True)
-        active_jobs_db.remove(job_id)
-        autoscaler.on_job_finish()
-
-
-def run_uso_job_background(
-    job_id: str,
-    subject_r2_key: str,
-    style_r2_key: str,
-    prompt: str,
-    uid: str | None = None,
-    overrides: dict | None = None,
-) -> None:
-    """Run a Flux1-Dev USO style-transfer job on RunPod."""
-    endpoint_id = os.environ.get("RUNPOD_ENDPOINT_ID", "")
-    if not endpoint_id:
-        job_store.update(job_id, status="failed", error="RUNPOD_ENDPOINT_ID is not configured")
-        return
-
-    r2_public_base = os.environ.get("R2_PUBLIC_BASE_URL", "").rstrip("/")
-
-    autoscaler.on_job_start()
-    active_jobs_db.persist(job_id, "uso", "uso", uid)
-    try:
-        job_store.update(job_id, status="processing")
-
-        subject_url = f"{r2_public_base}/{subject_r2_key}"
-        style_url = f"{r2_public_base}/{style_r2_key}"
-
-        job_input: dict = {
-            "workflow_type": "uso",
-            "prompt": prompt,
-            "subject_image": subject_url,
-            "style_image_1": style_url,
-        }
-        if overrides:
-            job_input.update(overrides)
-
-        t_submit = time.time()
-        runpod_job_id = submit_job(job_input, endpoint_id=endpoint_id)
-        runpod_result = poll_job(runpod_job_id, endpoint_id=endpoint_id)
-        duration = time.time() - t_submit
-
-        runpod_result = _review_and_fix_if_needed(job_id, runpod_result)
-
-        process_runpod_result(
-            job_id=job_id,
-            runpod_result=runpod_result,
-            style_key="uso",
-            template_key="uso",
-            uid=uid,
-            positive_prompt=prompt,
-            negative_prompt="",
-            duration_seconds=duration,
-            source_r2_key=subject_r2_key,
-        )
-
-    except Exception as exc:
-        job_store.update(job_id, status="failed", error=str(exc))
-
-    finally:
+        if cleanup:
+            cleanup()
         active_jobs_db.remove(job_id)
         autoscaler.on_job_finish()
