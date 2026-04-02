@@ -164,6 +164,8 @@ def generate_uso():
     workflow = get_workflow("uso")
     job_store.create(job_id)
 
+    orientation = request.form.get("orientation", "portrait")
+
     threading.Thread(
         target=run_workflow_background,
         args=(job_id, workflow, template_key),
@@ -171,6 +173,7 @@ def generate_uso():
             "uid": uid,
             "source_r2_key": subject_r2_key,
             "uso_style_r2_key": style_r2_key,
+            "orientation": orientation,
             "cleanup": lambda: Path(subject_tmp_path).unlink(missing_ok=True),
             "subject_url": subject_url,
             "subject_image_path": subject_tmp_path,

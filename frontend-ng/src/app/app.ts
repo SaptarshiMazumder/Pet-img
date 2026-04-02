@@ -67,6 +67,11 @@ export class App implements OnInit, OnDestroy {
 
   // ── USO mode ───────────────────────────────────────────────
   generateMode: 'zturbo' | 'uso' = 'zturbo';
+  readonly usoRatioOptions = [
+    { label: 'Portrait',  w: 896,  h: 1152 },
+    { label: 'Landscape', w: 1152, h: 896  },
+  ];
+  usoSelectedRatio = this.usoRatioOptions[0];
   readonly generateModes: { value: 'zturbo' | 'uso'; label: string }[] =
     (window as any).__CONFIG__?.generateModes ?? [
       { value: 'zturbo', label: 'Japanese' },
@@ -97,6 +102,9 @@ export class App implements OnInit, OnDestroy {
     const form = new FormData();
     form.append('subject_image', this.usoSubjectFile!);
     form.append('template_key', this.selectedUsoTemplate);
+    form.append('width', String(this.usoSelectedRatio.w));
+    form.append('height', String(this.usoSelectedRatio.h));
+    form.append('orientation', this.usoSelectedRatio.label.toLowerCase());
 
     this.api.submitUsoGenerate(form).subscribe({
       next: (resp: any) => {
