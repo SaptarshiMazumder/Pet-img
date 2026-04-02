@@ -9,6 +9,7 @@ from backend.services.prompt_builder import (
     load_style,
     load_template,
 )
+from backend.services.image_quality import review_image, fix_image
 
 
 class ZTurboWorkflow(WorkflowStrategy):
@@ -55,3 +56,10 @@ class ZTurboWorkflow(WorkflowStrategy):
             animal_data=result["animal_data"],
             style_key=style_key,
         )
+
+    def review_and_fix(self, image_bytes: bytes) -> bytes | None:
+        fix_prompt = review_image(image_bytes)
+        if not fix_prompt:
+            return None
+        print(f"[review/zturbo] fix prompt: {fix_prompt[:80]}...")
+        return fix_image(image_bytes, fix_prompt)

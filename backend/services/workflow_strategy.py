@@ -44,3 +44,11 @@ class WorkflowStrategy(ABC):
         kwargs are workflow-specific (image_path for ZTurbo, subject_url/style_url for USO, etc.)
         """
         ...
+
+    @abstractmethod
+    def review_and_fix(self, image_bytes: bytes) -> bytes | None:
+        """
+        Review the generated image and return fixed bytes if issues are found, else None.
+        Each workflow defines what counts as an issue and how aggressively to fix it.
+        """
+        ...

@@ -5,6 +5,7 @@ then combines it with the scene template to build the prompt.
 """
 from backend.services.workflow_strategy import WorkflowStrategy, BuildResult
 from backend.services.prompt_builder import load_uso_template, compose_uso_prompt
+from backend.services.image_quality import review_image_uso, fix_image
 
 
 class USOWorkflow(WorkflowStrategy):
@@ -42,3 +43,10 @@ class USOWorkflow(WorkflowStrategy):
             positive_prompt=prompt,
             style_key="uso",
         )
+
+    def review_and_fix(self, image_bytes: bytes) -> bytes | None:
+        fix_prompt = review_image_uso(image_bytes)
+        if not fix_prompt:
+            return None
+        print(f"[review/uso] fix prompt: {fix_prompt[:80]}...")
+        return fix_image(image_bytes, fix_prompt)

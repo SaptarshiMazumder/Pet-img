@@ -91,10 +91,10 @@ def _compress_and_persist(job_id: str, r2_key: str) -> None:
         print(f"[compress] failed for {r2_key}: {exc}")
 
 
-def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:
+def _review_and_fix_if_needed(job_id: str, runpod_result: dict, workflow: WorkflowStrategy) -> dict:
     """
-    Review the generated image with Gemini. If defects are found, fix with Gemini image edit
-    and upload the fixed image to R2. Returns the (possibly modified) runpod_result.
+    Review the generated image using the workflow's review strategy.
+    Returns the (possibly modified) runpod_result.
     """
     if not os.getenv("GEMINI_API_KEY"):
         return runpod_result
@@ -113,16 +113,8 @@ def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:
         return runpod_result
 
     try:
-        from backend.services.image_quality import review_image, fix_image
-
-        fix_prompt = review_image(image_bytes)
-        if not fix_prompt:
-            return runpod_result
-
-        print(f"[review] issues found, fix prompt: {fix_prompt[:80]}...")
-        fixed_bytes = fix_image(image_bytes, fix_prompt)
+        fixed_bytes = workflow.review_and_fix(image_bytes)
         if not fixed_bytes:
-            print("[review] fix failed, using original image")
             return runpod_result
 
         base, ext = r2_key.rsplit(".", 1) if "." in r2_key else (r2_key, "png")
@@ -188,7 +180,7 @@ def run_workflow_background(
         runpod_result = poll_job(runpod_job_id)
         duration = time.time() - t_submit
 
-        runpod_result = _review_and_fix_if_needed(job_id, runpod_result)
+        runpod_result = _review_and_fix_if_needed(job_id, runpod_result, workflow)
 
         process_runpod_result(
             job_id=job_id,
