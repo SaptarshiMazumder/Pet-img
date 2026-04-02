@@ -1,7 +1,9 @@
 #!/bin/sh
-# Angular always uses relative URLs — nginx proxies to the backend.
-# API_BASE should be empty string in all environments.
-API_BASE=""
+# apiBase in config.js:
+#   - Empty: browser calls same origin (/templates, …); nginx must proxy those paths (docker-compose, some hosts).
+#   - Full backend URL (https://…run.app): browser calls the API directly; set via API_BASE env (e.g. Terraform on Cloud Run).
+# Do NOT hardcode empty here — that ignored API_BASE from the environment and broke production.
+API_BASE="${API_BASE:-}"
 AUTH0_DOMAIN="${AUTH0_DOMAIN:-dev-xiwa5ogu3vfhcfba.us.auth0.com}"
 AUTH0_CLIENT_ID="${AUTH0_CLIENT_ID:-glHmYjs0pbowPZAtSKaQty4VJjvJnQgO}"
 

@@ -11,23 +11,5 @@
     <div class="lb-img-wrap">
       <img class="lb-img" [src]="item.presigned_url" alt="Portrait" (click)="$event.stopPropagation()" />
     </div>
-
-    @if (!item.isSample) {
-      <div class="lb-info" (click)="$event.stopPropagation()">
-        <div class="lb-meta-row">
-          <span class="lb-template-name">{{ templateName(item.template_key) }}</span>
-          <span class="lb-style-badge">Ink Wash</span>
-        </div>
-        @if (item.positive_prompt) {
-          <p class="lb-prompt">{{ item.positive_prompt }}</p>
-        }
-        <button class="lb-order-btn" (click)="orderClicked.emit()">
-          {{ lang.t().lightbox.orderPrint }}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-          </svg>
-        </button>
-      </div>
-    }
   </div>
 }

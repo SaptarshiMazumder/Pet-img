@@ -4,15 +4,16 @@ import threading
 import uuid
 from pathlib import Path
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, g, jsonify, request
 
 from backend.services.prompt_builder import load_style, load_uso_template
 from backend.services.workflows import get_workflow
 from backend.job_store import job_store
 from backend.services.generation import run_workflow_background
-from backend.auth_middleware import get_optional_uid
+from backend.auth_middleware import require_auth
 from backend.autoscaler_client import autoscaler
 from backend.storage.r2 import upload_object
+from backend.db import user_credits
 
 generation_bp = Blueprint("generation", __name__)
 
@@ -39,6 +40,7 @@ def warm():
 
 
 @generation_bp.post("/generate")
+@require_auth
 def generate():
     if "image" not in request.files:
         return jsonify({"error": "No image file provided."}), 400
@@ -63,7 +65,12 @@ def generate():
 
     dry_run = request.form.get("dry_run", "false").lower() == "true"
     orientation = request.form.get("orientation", "portrait")
-    uid = get_optional_uid()
+    uid = g.uid
+
+    try:
+        credits_remaining = user_credits.deduct_one_credit(uid)
+    except ValueError:
+        return jsonify({"error": "No credits remaining. Please recharge to continue.", "code": "insufficient_credits"}), 402
 
     overrides = {}
     for field, cast in _OVERRIDE_FIELDS:
@@ -107,10 +114,11 @@ def generate():
         daemon=True,
     ).start()
 
-    return jsonify({"job_id": job_id}), 202
+    return jsonify({"job_id": job_id, "credits_remaining": credits_remaining}), 202
 
 
 @generation_bp.post("/generate/uso")
+@require_auth
 def generate_uso():
     if "subject_image" not in request.files:
         return jsonify({"error": "subject_image is required."}), 400
@@ -137,7 +145,13 @@ def generate_uso():
             except ValueError:
                 return jsonify({"error": f"Invalid value for '{field}'."}), 400
 
-    uid = get_optional_uid()
+    uid = g.uid
+
+    try:
+        credits_remaining = user_credits.deduct_one_credit(uid)
+    except ValueError:
+        return jsonify({"error": "No credits remaining. Please recharge to continue.", "code": "insufficient_credits"}), 402
+
     job_id = str(uuid.uuid4())
 
     subject_suffix = Path(subject.filename).suffix.lower()
@@ -183,7 +197,7 @@ def generate_uso():
         daemon=True,
     ).start()
 
-    return jsonify({"job_id": job_id}), 202
+    return jsonify({"job_id": job_id, "credits_remaining": credits_remaining}), 202
 
 
 @generation_bp.get("/job/<job_id>")

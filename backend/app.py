@@ -20,6 +20,9 @@ from backend.routes.user import user_bp
 from backend.routes.samples import samples_bp
 from backend.routes.orders import orders_bp
 from backend.routes.payments import payments_bp
+from backend.routes.credits import credits_bp
+from backend.config.digital_download_prices_by_region import digital_download_pricing_bp
+from backend.config.credit_recharge_prices_by_region import credit_recharge_pricing_bp
 
 
 def create_app() -> Flask:
@@ -44,6 +47,9 @@ def create_app() -> Flask:
     app.register_blueprint(samples_bp)
     app.register_blueprint(orders_bp)
     app.register_blueprint(payments_bp)
+    app.register_blueprint(credits_bp)
+    app.register_blueprint(digital_download_pricing_bp)
+    app.register_blueprint(credit_recharge_pricing_bp)
     return app
 
 

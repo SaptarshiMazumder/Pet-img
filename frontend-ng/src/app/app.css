@@ -60,6 +60,133 @@ header {
 
 .header-signin-btn:hover { opacity: 0.85; }
 
+/* Balance + add-credits: single pill, money left, green + right */
+.header-credits-pill {
+  display: inline-flex;
+  align-items: stretch;
+  max-width: min(220px, 52vw);
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+@media (min-width: 480px) {
+  .header-credits-pill {
+    font-size: 0.75rem;
+    max-width: 240px;
+  }
+}
+
+.header-credits-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  color: #fff;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 480px) {
+  .header-credits-value {
+    padding: 6px 12px;
+  }
+}
+
+.header-credits-add {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 12px;
+  min-width: 40px;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, #166534 0%, #14532d 100%);
+  color: #bbf7d0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: inherit;
+  line-height: 1;
+  cursor: pointer;
+  transition: filter 0.15s, background 0.15s;
+}
+
+.header-credits-add:hover {
+  filter: brightness(1.08);
+}
+
+.header-credits-add:focus-visible {
+  outline: 2px solid rgba(134, 239, 172, 0.6);
+  outline-offset: 2px;
+}
+
+.header-credits-pill--low {
+  border-color: rgba(234, 179, 8, 0.45);
+}
+
+.header-credits-pill--empty .header-credits-value {
+  color: #f87171;
+}
+
+.header-credits-pill--empty {
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+.header-credits-pill--error {
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+.header-credits-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  animation: header-credits-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes header-credits-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.header-credits-retry {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: inherit;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.header-credits-retry:hover {
+  opacity: 0.88;
+}
+
+.header-credits-num {
+  font-weight: 700;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.header-credits-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Desktop nav */
 .header-nav {
   display: none;
@@ -608,6 +735,66 @@ main {
 .ratio-chip--active .ratio-label {
   color: var(--accent);
 }
+
+.credit-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md, 10px);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.credit-bar--low {
+  border-color: rgba(255, 180, 0, 0.35);
+  color: rgb(255, 200, 60);
+}
+
+.credit-bar--empty {
+  border-color: rgba(255, 80, 80, 0.35);
+  color: rgb(255, 100, 100);
+  justify-content: space-between;
+}
+
+.credit-bar-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: header-credits-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+.credit-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.credit-bar--low .credit-dot { background: rgb(255, 200, 60); }
+
+.credit-recharge-btn {
+  background: none;
+  border: 1px solid currentColor;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.credit-recharge-btn:hover { opacity: 0.75; }
 
 .order-print-btn {
   width: 100%;

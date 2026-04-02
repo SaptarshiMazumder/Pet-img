@@ -16,6 +16,7 @@ export class PastGalleryComponent {
   @Input() templates: Record<string, any> = {};
   @Output() itemClicked = new EventEmitter<GalleryEntry>();
   @Output() orderSelected = new EventEmitter<GalleryEntry[]>();
+  @Output() downloadRequested = new EventEmitter<GalleryEntry>();
   @Output() refresh = new EventEmitter<void>();
   @Output() regenerateRequested = new EventEmitter<GalleryEntry>();
   @Output() deleteRequested = new EventEmitter<GalleryEntry>();

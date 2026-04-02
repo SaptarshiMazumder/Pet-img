@@ -18,6 +18,9 @@
       { "source": "/warm",         "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
       { "source": "/print/**",     "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
       { "source": "/catalog/**",   "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/credits",      "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/credits/**",   "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
+      { "source": "/pricing",      "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
       { "source": "/health",       "run": { "serviceId": "pet-gen-dev-backend", "region": "asia-northeast1" } },
       { "source": "**",            "destination": "/index.html" }
     ]

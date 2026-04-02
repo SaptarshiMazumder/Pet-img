@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, g
 
 from backend.auth_middleware import require_auth
 from backend.db import portrait_generation as generations_db
+from backend.db import user_credits
 from backend.firebase import get_db
 from backend.job_store import job_store
 from backend.services.generation import run_workflow_background
@@ -48,6 +49,33 @@ def get_generations():
 
     results.sort(key=lambda x: x["created_at"] or "", reverse=True)
     return jsonify({"generations": results})
+
+
+@user_bp.post("/generations/<job_id>/download-with-credit")
+@require_auth
+def download_with_credit(job_id: str):
+    """
+    Spend DOWNLOAD_CREDIT_COST credits (default 10) for the high-res digital download
+    — generation alone costs 1 credit; download is priced at 10 credits or paid checkout.
+    """
+    doc = get_db().collection("generations").document(job_id).get()
+    if not doc.exists:
+        return jsonify({"error": "Not found"}), 404
+    data = doc.to_dict()
+    if data.get("uid") != g.uid:
+        return jsonify({"error": "Forbidden"}), 403
+    cost = user_credits.DOWNLOAD_CREDIT_COST
+    try:
+        credits_remaining = user_credits.deduct_credits(g.uid, cost)
+    except ValueError:
+        return jsonify(
+            {
+                "error": "Insufficient credits",
+                "code": "insufficient_credits",
+                "required_credits": cost,
+            }
+        ), 402
+    return jsonify({"credits_remaining": credits_remaining})
 
 
 @user_bp.delete("/generations/<job_id>")

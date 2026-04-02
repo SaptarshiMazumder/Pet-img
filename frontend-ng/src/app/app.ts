@@ -13,10 +13,12 @@ import { JobQueueComponent } from './components/job-queue/job-queue.component';
 import { SampleGalleryComponent } from './components/sample-gallery/sample-gallery.component';
 import { PastGalleryComponent } from './components/past-gallery/past-gallery.component';
 import { LightboxComponent } from './components/lightbox/lightbox.component';
+import { DownloadModalComponent, PricingInfo } from './components/download-modal/download-modal.component';
 import { OrderModalComponent } from './components/order-modal/order-modal.component';
 import { OrderFlowComponent } from './components/order-flow/order-flow.component';
 import { OrdersPageComponent } from './components/orders-page/orders-page.component';
 import { AuthModalComponent } from './components/auth-modal/auth-modal.component';
+import { CreditRechargeModalComponent } from './components/credit-recharge-modal/credit-recharge-modal.component';
 import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order } from './models';
 
 @Component({
@@ -32,10 +34,12 @@ import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order } f
     SampleGalleryComponent,
     PastGalleryComponent,
     LightboxComponent,
+    DownloadModalComponent,
     OrderModalComponent,
     OrderFlowComponent,
     OrdersPageComponent,
     AuthModalComponent,
+    CreditRechargeModalComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -91,7 +95,15 @@ export class App implements OnInit, OnDestroy {
   }
 
   get canGenerateUso(): boolean {
-    return !!(this.usoSubjectFile && this.selectedUsoTemplate && !this.submitting);
+    return !!(
+      this.usoSubjectFile &&
+      this.selectedUsoTemplate &&
+      !this.submitting &&
+      this.currentUser &&
+      this.creditsLoadState === 'ok' &&
+      this.creditBalance !== null &&
+      this.creditBalance > 0
+    );
   }
 
   generateUso() {
@@ -109,6 +121,7 @@ export class App implements OnInit, OnDestroy {
     this.api.submitUsoGenerate(form).subscribe({
       next: (resp: any) => {
         const job_id = resp?.job_id ?? resp;
+        if (resp?.credits_remaining !== undefined) this.creditBalance = resp.credits_remaining;
         this.submitting = false;
         this.jobs = [
           {
@@ -124,7 +137,148 @@ export class App implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.submitting = false;
-        this.errorMsg = err?.error?.error || err?.message || 'Failed to submit USO job.';
+        if (err?.status === 402) {
+          this.creditBalance = 0;
+          this.errorMsg = err?.error?.error || 'No credits remaining.';
+        } else {
+          this.errorMsg = err?.error?.error || err?.message || 'Failed to submit USO job.';
+        }
+      },
+    });
+  }
+
+  // ── Credits ────────────────────────────────────────────────
+  creditBalance: number | null = null;
+  /** Credits required for high-res download (from API; default 10). */
+  downloadCreditCost = 10;
+  /** Tracks loading / error so we never show a stuck ellipsis placeholder. */
+  creditsLoadState: 'idle' | 'loading' | 'ok' | 'error' = 'idle';
+  rechargePrice: {
+    label: string;
+    amount: number;
+    currency: string;
+    credits: number;
+    locale: string;
+  } | null = null;
+
+  showRechargeModal = false;
+  rechargeSubmitting = false;
+  rechargeCheckoutError: string | null = null;
+
+  /** Fiat equivalent of current credits (for recharge modal). */
+  private formatBalanceMoneyValue(): string {
+    if (this.creditBalance === null || !this.rechargePrice?.credits) {
+      return '';
+    }
+    const per = this.rechargePrice.amount / this.rechargePrice.credits;
+    const v = this.creditBalance * per;
+    try {
+      return new Intl.NumberFormat(this.rechargePrice.locale || 'en-US', {
+        style: 'currency',
+        currency: this.rechargePrice.currency,
+      }).format(v);
+    } catch {
+      return v.toFixed(2);
+    }
+  }
+
+  /** Header pill: credit count only (no currency). */
+  get headerCreditsDisplay(): string {
+    if (this.creditsLoadState === 'loading') return '…';
+    if (this.creditsLoadState === 'error') return '—';
+    if (this.creditBalance === null) return '…';
+    return String(this.creditBalance);
+  }
+
+  /** Buy modal pack row: credits + price (e.g. "25 credits · ¥1,000"). */
+  get rechargePackLine(): string {
+    if (!this.rechargePrice) return '';
+    const c = String(this.rechargePrice.credits ?? 25);
+    return this.lang.t().credits.packLineTemplate
+      .replace('{{count}}', c)
+      .replace('{{price}}', this.rechargePrice.label);
+  }
+
+  /** Buy modal balance row: credits + fiat equivalent. */
+  get rechargeBalanceLine(): string {
+    if (this.creditsLoadState === 'loading') return '…';
+    if (this.creditsLoadState === 'error') return '—';
+    if (this.creditBalance === null) return '…';
+    const count = String(this.creditBalance);
+    const money = this.formatBalanceMoneyValue() || '—';
+    return this.lang.t().credits.balanceCreditsMoney
+      .replace('{{count}}', count)
+      .replace('{{money}}', money);
+  }
+
+  loadCredits() {
+    if (!this.currentUser) return;
+    this.creditsLoadState = 'loading';
+    this.api.getRechargePrice().subscribe({
+      next: (p) => {
+        this.rechargePrice = p;
+      },
+      error: () => {},
+    });
+    this.api.getCredits().subscribe({
+      next: (r) => {
+        this.creditBalance = r.credits;
+        if (r.download_credit_cost != null && r.download_credit_cost > 0) {
+          this.downloadCreditCost = r.download_credit_cost;
+        }
+        this.creditsLoadState = 'ok';
+      },
+      error: () => {
+        this.creditBalance = null;
+        this.creditsLoadState = 'error';
+      },
+    });
+  }
+
+  openRechargeModal() {
+    this.rechargeCheckoutError = null;
+    if (!this.rechargePrice) {
+      this.api.getRechargePrice().subscribe({
+        next: (p) => {
+          this.rechargePrice = p;
+          this.showRechargeModal = true;
+        },
+        error: () => {
+          this.showRechargeModal = true;
+          this.rechargeCheckoutError = this.lang.t().credits.loadFailed;
+        },
+      });
+    } else {
+      this.showRechargeModal = true;
+    }
+  }
+
+  closeRechargeModal() {
+    this.showRechargeModal = false;
+    this.rechargeSubmitting = false;
+  }
+
+  startCreditCheckout() {
+    this.rechargeSubmitting = true;
+    this.rechargeCheckoutError = null;
+    this.api.createCreditCheckoutSession().subscribe({
+      next: (r) => {
+        if (r?.url) {
+          window.location.href = r.url;
+        } else {
+          this.rechargeSubmitting = false;
+          this.rechargeCheckoutError = this.lang.t().credits.checkoutFailed;
+        }
+      },
+      error: (err: any) => {
+        this.rechargeSubmitting = false;
+        const code = err?.error?.error;
+        if (code === 'payment_not_configured') {
+          this.rechargeCheckoutError = this.lang.t().credits.paymentNotConfigured;
+        } else {
+          this.rechargeCheckoutError =
+            err?.error?.detail || err?.error?.error || this.lang.t().credits.checkoutFailed;
+        }
       },
     });
   }
@@ -144,6 +298,40 @@ export class App implements OnInit, OnDestroy {
   samplePreviewUrl: string | null = null;
   sampleUploading = false;
   sampleError = '';
+
+  // ── Download modal ─────────────────────────────────────────
+  downloadImageUrl: string | null = null;
+  /** Generation id for credit-based download; null for samples or unknown. */
+  downloadJobId: string | null = null;
+
+  downloadLatest() {
+    const completed = this.jobs.find((j) => j.status === 'completed' && j.presigned_url);
+    if (completed?.presigned_url) {
+      this.downloadImageUrl = completed.presigned_url;
+      this.downloadJobId = completed.job_id;
+      return;
+    }
+    const fromGallery = this.gallery.find((g) => g.presigned_url);
+    if (fromGallery?.presigned_url) {
+      this.downloadImageUrl = fromGallery.presigned_url;
+      this.downloadJobId = fromGallery.job_id;
+    }
+  }
+
+  closeDownloadModal() {
+    this.downloadImageUrl = null;
+    this.downloadJobId = null;
+  }
+
+  onCreditsUpdatedFromDownload(balance: number) {
+    this.creditBalance = balance;
+    // Balance already reflects deduction; cost unchanged
+  }
+
+  onPayClicked(pricing: PricingInfo) {
+    // Payment integration to be wired up
+    console.log('[download] pay clicked', pricing);
+  }
 
   // ── Lightbox ───────────────────────────────────────────────
   expandedItem: ExpandedItem | null = null;
@@ -218,7 +406,6 @@ export class App implements OnInit, OnDestroy {
   catMenuOpen = false;
   headerMenuOpen = false;
   private happyTimeout: ReturnType<typeof setTimeout> | null = null;
-
   constructor(
     private api: ApiService,
     private auth: AuthService,
@@ -226,6 +413,18 @@ export class App implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('recharge') === 'success') {
+      params.delete('recharge');
+      params.delete('session_id');
+      const q = params.toString();
+      window.history.replaceState(
+        {},
+        '',
+        window.location.pathname + (q ? '?' + q : '') + window.location.hash,
+      );
+    }
+
     this.api.warm();
     this.api.getTemplates().subscribe((t) => {
       this.templates = t;
@@ -240,9 +439,14 @@ export class App implements OnInit, OnDestroy {
       if (user) {
         this.loadGallery();
         this.loadSamples();
+        this.loadCredits();
       } else {
         this.gallery = [];
         this.samples = [];
+        this.creditBalance = null;
+        this.downloadCreditCost = 10;
+        this.creditsLoadState = 'idle';
+        this.showRechargeModal = false;
       }
     });
     this.loadSamples();
@@ -299,7 +503,15 @@ export class App implements OnInit, OnDestroy {
   }
 
   get canGenerate(): boolean {
-    return !!(this.uploadedFile && this.selectedTemplate && !this.submitting);
+    return !!(
+      this.uploadedFile &&
+      this.selectedTemplate &&
+      !this.submitting &&
+      this.currentUser &&
+      this.creditsLoadState === 'ok' &&
+      this.creditBalance !== null &&
+      this.creditBalance > 0
+    );
   }
 
   get canOrderPrint(): boolean {
@@ -348,6 +560,7 @@ export class App implements OnInit, OnDestroy {
     this.api.submitGenerate(form).subscribe({
       next: (resp: any) => {
         const job_id = resp?.job_id ?? resp;
+        if (resp?.credits_remaining !== undefined) this.creditBalance = resp.credits_remaining;
         this.submitting = false;
         this.jobs = [
           {
@@ -364,7 +577,12 @@ export class App implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.submitting = false;
-        this.errorMsg = err?.error?.error || err?.message || 'Failed to submit job.';
+        if (err?.status === 402) {
+          this.creditBalance = 0;
+          this.errorMsg = err?.error?.error || 'No credits remaining.';
+        } else {
+          this.errorMsg = err?.error?.error || err?.message || 'Failed to submit job.';
+        }
       },
     });
   }
@@ -418,25 +636,14 @@ export class App implements OnInit, OnDestroy {
   // ── Lightbox ───────────────────────────────────────────────
   openExpandFromJob(job: JobEntry) {
     if (!job.presigned_url) return;
-    this.expandedItem = {
-      job_id: job.job_id,
-      presigned_url: job.presigned_url,
-      positive_prompt: job.positive_prompt,
-      template_key: job.template_key,
-      style_key: job.style_key,
-      orientation: job.orientation,
-    };
+    this.downloadImageUrl = job.presigned_url;
+    this.downloadJobId = job.job_id;
   }
 
   openExpandFromGallery(item: GalleryEntry) {
     if (!item.presigned_url) return;
-    this.expandedItem = {
-      job_id: item.job_id,
-      presigned_url: item.presigned_url,
-      template_key: item.template_key,
-      style_key: item.style_key,
-      orientation: item.orientation,
-    };
+    this.downloadImageUrl = item.presigned_url;
+    this.downloadJobId = item.job_id;
   }
 
   openExpandFromSample(s: SampleEntry) {
@@ -452,22 +659,6 @@ export class App implements OnInit, OnDestroy {
 
   closeExpand() {
     this.expandedItem = null;
-  }
-
-  orderFromExpand() {
-    if (!this.expandedItem) return;
-    const item = this.expandedItem;
-    this.closeExpand();
-    this.openOrderFlow([{
-      job_id: item.job_id,
-      template_key: item.template_key,
-      style_key: item.style_key,
-      presigned_url: item.presigned_url,
-      source_url: null,
-      seed: null,
-      created_at: null,
-      orientation: item.orientation,
-    }]);
   }
 
   // ── Order modal ────────────────────────────────────────────
@@ -682,6 +873,12 @@ export class App implements OnInit, OnDestroy {
         this.errorMsg = err?.error?.error || 'Regeneration failed.';
       },
     });
+  }
+
+  downloadFromGallery(entry: GalleryEntry) {
+    if (!entry.presigned_url) return;
+    this.downloadImageUrl = entry.presigned_url;
+    this.downloadJobId = entry.job_id;
   }
 
   deleteFromGallery(entry: GalleryEntry) {

@@ -25,7 +25,8 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN sed -i 's/\r$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
 
-ENV API_BASE=http://localhost:5000
+# Default empty: nginx proxy mode. Override API_BASE at runtime (e.g. Cloud Run → backend URL).
+ENV API_BASE=
 ENV AUTH0_DOMAIN=dev-xiwa5ogu3vfhcfba.us.auth0.com
 ENV AUTH0_CLIENT_ID=glHmYjs0pbowPZAtSKaQty4VJjvJnQgO
 

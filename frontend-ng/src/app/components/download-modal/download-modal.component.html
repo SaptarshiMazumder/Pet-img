@@ -1,0 +1,77 @@
+@if (imageUrl) {
+  <div class="dm-backdrop" (click)="closed.emit()"></div>
+
+  <div class="dm-panel" (click)="$event.stopPropagation()">
+    <button class="dm-close" (click)="closed.emit()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <div class="dm-img-wrap">
+      <img class="dm-img" [src]="imageUrl" alt="Your portrait" />
+    </div>
+
+    <div class="dm-footer">
+      <div class="dm-copy">
+        <p class="dm-title">Download your portrait</p>
+        <p class="dm-sub">High-resolution file</p>
+      </div>
+
+      <div class="dm-actions-wrap">
+        <div class="dm-actions">
+          @if (canUseCredit) {
+            <button
+              type="button"
+              class="dm-pay-btn"
+              [disabled]="consumingCredit"
+              (click)="consumeCreditForDownload()"
+            >
+              @if (consumingCredit) {
+                <span class="dm-spinner"></span>
+              } @else {
+                {{ useCreditsButtonLabel }}
+              }
+            </button>
+            @if (loadingPrice) {
+              <button type="button" class="dm-pay-btn dm-pay-btn--secondary dm-pay-btn--loading" disabled>
+                <span class="dm-spinner"></span>
+              </button>
+            } @else if (pricing) {
+              <button type="button" class="dm-pay-btn dm-pay-btn--secondary" (click)="payClicked.emit(pricing)">
+                {{ lang.t().credits.orPay }} {{ pricing.label }}
+              </button>
+            } @else {
+              <button type="button" class="dm-pay-btn dm-pay-btn--secondary" (click)="payClicked.emit(payFallback)">
+                {{ lang.t().credits.orPay }} {{ payFallback.label }}
+              </button>
+            }
+          } @else {
+            @if (loadingPrice) {
+              <button type="button" class="dm-pay-btn dm-pay-btn--loading" disabled>
+                <span class="dm-spinner"></span>
+              </button>
+            } @else if (pricing) {
+              <button type="button" class="dm-pay-btn" (click)="payClicked.emit(pricing)">
+                Pay {{ pricing.label }}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+              </button>
+            } @else {
+              <button type="button" class="dm-pay-btn" (click)="payClicked.emit(payFallback)">
+                Pay {{ payFallback.label }}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+              </button>
+            }
+          }
+        </div>
+        @if (creditConsumeError) {
+          <p class="dm-credit-err">{{ creditConsumeError }}</p>
+        }
+      </div>
+    </div>
+  </div>
+}

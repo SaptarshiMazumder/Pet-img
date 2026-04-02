@@ -25,6 +25,7 @@ export interface T {
     generateDry: string;
     submitting: string;
     orderPrint: string;
+    download: string;
     generating: string;
   };
   gallery: {
@@ -125,8 +126,32 @@ export interface T {
     country: string;
     saveDetails: string;
   };
+  credits: {
+    remaining: string;
+    recharge: string;
+    noCredits: string;
+    signInToGenerate: string;
+    useCreditsForDownload: string;
+    insufficientCreditsForDownload: string;
+    creditDownloadFailed: string;
+    orPay: string;
+    retry: string;
+    loadFailed: string;
+    addCredits: string;
+    rechargeTitle: string;
+    rechargeSubtitle: string;
+    balanceApprox: string;
+    /** "25 credits · ¥1,000" — placeholders: {{count}}, {{price}} */
+    packLineTemplate: string;
+    /** "600 credits · ¥600" — placeholders: {{count}}, {{money}} */
+    balanceCreditsMoney: string;
+    creditBalanceLabel: string;
+    continueToPayment: string;
+    paymentNotConfigured: string;
+    checkoutFailed: string;
+  };
   lightbox: {
-    orderPrint: string;
+    download: string;
   };
   footer: {
     support: string;
@@ -182,6 +207,7 @@ export const TRANSLATIONS: Record<Lang, T> = {
       generateDry: 'Generate (Dry Run)',
       submitting: 'Submitting…',
       orderPrint: 'Order Print',
+      download: 'Download',
       generating: 'Generating',
     },
     gallery: {
@@ -214,7 +240,7 @@ export const TRANSLATIONS: Record<Lang, T> = {
       },
     },
     past: {
-      title: 'Select to order for print',
+      title: 'My Portraits',
       refresh: 'Refresh',
       empty: 'No portraits yet — generate one above!',
       deselect: 'Deselect',
@@ -281,8 +307,31 @@ export const TRANSLATIONS: Record<Lang, T> = {
       country: 'Country',
       saveDetails: 'Save details for next time',
     },
+    credits: {
+      remaining: 'credits remaining',
+      recharge: 'Recharge',
+      noCredits: 'No credits remaining',
+      signInToGenerate: 'Sign in to generate',
+      useCreditsForDownload: 'Use {{count}} credits',
+      insufficientCreditsForDownload: 'You need {{count}} credits for this download.',
+      creditDownloadFailed: 'Could not complete credit download. Try again.',
+      orPay: 'or pay',
+      retry: 'Retry',
+      loadFailed: 'Could not load balance',
+      addCredits: 'Add credits',
+      rechargeTitle: 'Buy credits',
+      rechargeSubtitle: 'Purchases are securely processed by Stripe.',
+      balanceApprox: 'Current balance',
+      packLineTemplate: '{{count}} credits · {{price}}',
+      balanceCreditsMoney: '{{count}} credits · {{money}}',
+      creditBalanceLabel: 'Credits',
+      continueToPayment: 'Continue to payment',
+      paymentNotConfigured:
+        'Online payments are not configured on this server. Set STRIPE_SECRET_KEY and deploy the backend.',
+      checkoutFailed: 'Could not start checkout. Try again.',
+    },
     lightbox: {
-      orderPrint: 'Order Print',
+      download: 'Download',
     },
     footer: {
       support: 'Support',
@@ -337,6 +386,7 @@ export const TRANSLATIONS: Record<Lang, T> = {
       generateDry: '生成（ドライラン）',
       submitting: '送信中…',
       orderPrint: 'プリントを注文',
+      download: 'ダウンロード',
       generating: '生成中',
     },
     gallery: {
@@ -369,7 +419,7 @@ export const TRANSLATIONS: Record<Lang, T> = {
       },
     },
     past: {
-      title: 'プリントを注文する',
+      title: 'マイポートレート',
       refresh: '更新',
       empty: 'まだポートレートがありません — 上で生成してください！',
       deselect: '選択解除',
@@ -436,8 +486,31 @@ export const TRANSLATIONS: Record<Lang, T> = {
       country: '国',
       saveDetails: '次回のために保存',
     },
+    credits: {
+      remaining: 'クレジット残高',
+      recharge: 'チャージ',
+      noCredits: 'クレジットがありません',
+      signInToGenerate: 'ログインして生成',
+      useCreditsForDownload: 'クレジット{{count}}枚で高解像度を取得',
+      insufficientCreditsForDownload: 'このダウンロードにはクレジット{{count}}枚が必要です。',
+      creditDownloadFailed: 'クレジット処理に失敗しました。もう一度お試しください。',
+      orPay: 'または購入',
+      retry: '再試行',
+      loadFailed: '残高を読み込めません',
+      addCredits: 'クレジットを追加',
+      rechargeTitle: 'クレジットを購入',
+      rechargeSubtitle: 'お支払いは Stripe で安全に処理されます。',
+      balanceApprox: '現在の残高',
+      packLineTemplate: 'クレジット{{count}}枚 · {{price}}',
+      balanceCreditsMoney: 'クレジット{{count}}枚 · {{money}}',
+      creditBalanceLabel: 'クレジット',
+      continueToPayment: 'お支払いへ進む',
+      paymentNotConfigured:
+        'このサーバーではオンライン決済が設定されていません。STRIPE_SECRET_KEY を設定してバックエンドをデプロイしてください。',
+      checkoutFailed: 'チェックアウトを開始できませんでした。もう一度お試しください。',
+    },
     lightbox: {
-      orderPrint: 'プリントを注文',
+      download: 'ダウンロード',
     },
     footer: {
       support: 'サポート',

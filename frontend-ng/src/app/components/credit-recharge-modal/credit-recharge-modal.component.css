@@ -1,0 +1,138 @@
+.crm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 210;
+  backdrop-filter: blur(8px);
+}
+
+.crm-panel {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 211;
+  width: min(400px, calc(100vw - 32px));
+  padding: 24px;
+  border-radius: 18px;
+  background: var(--bg-elevated, #141414);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+}
+
+.crm-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.crm-title {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.crm-sub {
+  margin: 0 0 16px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.crm-pack {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+.crm-balance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.crm-balance-label {
+  color: var(--text-muted);
+  flex: 0 1 auto;
+  min-width: min(140px, 40%);
+}
+
+.crm-balance-val {
+  font-weight: 700;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  flex: 1 1 160px;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.crm-pay {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: #0d0d0d;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.15s;
+}
+
+.crm-pay:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.crm-pay:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.crm-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #0d0d0d;
+  border-radius: 50%;
+  animation: crm-spin 0.65s linear infinite;
+}
+
+@keyframes crm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.crm-err {
+  margin: 12px 0 0;
+  font-size: 0.8rem;
+  color: #f87171;
+  line-height: 1.4;
+}

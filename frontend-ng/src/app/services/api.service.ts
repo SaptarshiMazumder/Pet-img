@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { RegionService } from './region.service';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private base = (window as any).__CONFIG__?.apiBase ?? '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private region: RegionService) {}
 
   getStyles(): Observable<Record<string, { name: string; trigger_word: string }>> {
     return this.http.get<any>(`${this.base}/styles`);
@@ -89,6 +90,30 @@ export class ApiService {
 
   deleteSample(sampleId: string): Observable<any> {
     return this.http.delete<any>(`${this.base}/samples/${sampleId}`);
+  }
+
+  getPricing(): Observable<any> {
+    return this.http.get<any>(`${this.base}/pricing?country=${this.region.countryCode}`);
+  }
+
+  getCredits(): Observable<{ credits: number; download_credit_cost?: number }> {
+    return this.http.get<any>(`${this.base}/credits`);
+  }
+
+  /** Spend download_credit_cost credits (default 10) for high-res download (must own the generation). */
+  downloadWithCredit(jobId: string): Observable<{ credits_remaining: number }> {
+    return this.http.post<any>(`${this.base}/user/generations/${jobId}/download-with-credit`, {});
+  }
+
+  getRechargePrice(): Observable<any> {
+    return this.http.get<any>(`${this.base}/credits/recharge-price?country=${this.region.countryCode}`);
+  }
+
+  /** Stripe Checkout URL for one credit pack (requires server STRIPE_SECRET_KEY). */
+  createCreditCheckoutSession(): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(`${this.base}/credits/checkout-session`, {
+      country: this.region.countryCode,
+    });
   }
 
   getFrameCatalog(region: 'JP' | 'IN' = 'JP'): Observable<{ categories: { name: string; overlay_inset: number; variants: { color: string; preview_img_landscape: string; preview_img_portrait: string }[]; sizes: { [key: string]: { price: number } } }[] }> {

@@ -1,0 +1,27 @@
+@if (open) {
+  <div class="crm-backdrop" (click)="close()"></div>
+  <div class="crm-panel" (click)="$event.stopPropagation()">
+    <button type="button" class="crm-close" (click)="close()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <h2 class="crm-title">{{ lang.t().credits.rechargeTitle }}</h2>
+    <p class="crm-sub">{{ lang.t().credits.rechargeSubtitle }}</p>
+    <div class="crm-pack">{{ packLine }}</div>
+    <div class="crm-balance-row">
+      <span class="crm-balance-label">{{ lang.t().credits.balanceApprox }}</span>
+      <span class="crm-balance-val">{{ balanceLine }}</span>
+    </div>
+    <button type="button" class="crm-pay" [disabled]="submitting" (click)="checkout.emit()">
+      @if (submitting) {
+        <span class="crm-spinner"></span>
+      } @else {
+        {{ lang.t().credits.continueToPayment }}
+      }
+    </button>
+    @if (errorMessage) {
+      <p class="crm-err">{{ errorMessage }}</p>
+    }
+  </div>
+}
