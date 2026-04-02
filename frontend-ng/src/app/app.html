@@ -139,8 +139,9 @@
           <!-- Mode toggle -->
           <div class="sidebar-block">
             <div class="mode-toggle">
-              <button class="mode-btn" [class.mode-btn--active]="generateMode === 'zturbo'" (click)="generateMode = 'zturbo'">ZTurbo</button>
-              <button class="mode-btn" [class.mode-btn--active]="generateMode === 'uso'" (click)="generateMode = 'uso'">Style Transfer</button>
+              @for (mode of generateModes; track mode.value) {
+                <button class="mode-btn" [class.mode-btn--active]="generateMode === mode.value" (click)="generateMode = mode.value">{{ mode.label }}</button>
+              }
             </div>
           </div>
 
@@ -212,17 +213,12 @@
           <!-- USO form -->
           @if (generateMode === 'uso') {
             <div class="sidebar-block">
-              <p class="sidebar-label">1. Your pet (subject)</p>
+              <p class="sidebar-label">1. Upload your pet photo</p>
               <app-upload-area [previewUrl]="usoSubjectPreview" (fileSelected)="setUsoSubjectFile($event)" />
             </div>
 
             <div class="sidebar-block">
-              <p class="sidebar-label">2. Style reference (painting)</p>
-              <app-upload-area [previewUrl]="usoStylePreview" (fileSelected)="setUsoStyleFile($event)" />
-            </div>
-
-            <div class="sidebar-block">
-              <p class="sidebar-label">3. Choose a scene</p>
+              <p class="sidebar-label">2. Choose a scene</p>
               <app-template-selector
                 [templates]="usoTemplates"
                 [templateKeys]="usoTemplateKeys"

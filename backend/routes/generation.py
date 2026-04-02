@@ -114,8 +114,6 @@ def generate():
 def generate_uso():
     if "subject_image" not in request.files:
         return jsonify({"error": "subject_image is required."}), 400
-    if "style_image" not in request.files:
-        return jsonify({"error": "style_image is required."}), 400
 
     template_key = request.form.get("template_key")
     if not template_key:
@@ -127,11 +125,8 @@ def generate_uso():
         return jsonify({"error": str(e)}), 400
 
     subject = request.files["subject_image"]
-    style = request.files["style_image"]
-
-    for f in (subject, style):
-        if Path(f.filename).suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
-            return jsonify({"error": f"{f.filename}: must be PNG, JPG, or WEBP."}), 400
+    if Path(subject.filename).suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
+        return jsonify({"error": f"{subject.filename}: must be PNG, JPG, or WEBP."}), 400
 
     overrides = {}
     for field, cast in _USO_OVERRIDE_FIELDS:
@@ -146,18 +141,15 @@ def generate_uso():
     job_id = str(uuid.uuid4())
 
     subject_suffix = Path(subject.filename).suffix.lower()
-    style_suffix = Path(style.filename).suffix.lower()
     subject_r2_key = f"uso-inputs/{job_id}/subject{subject_suffix}"
-    style_r2_key = f"uso-inputs/{job_id}/style{style_suffix}"
+    style_r2_key = "uso_styles/oilPainting.jpg"
 
     subject_bytes = subject.read()
-    style_bytes = style.read()
 
     try:
         upload_object(subject_r2_key, subject_bytes, content_type=f"image/{subject_suffix.lstrip('.')}")
-        upload_object(style_r2_key, style_bytes, content_type=f"image/{style_suffix.lstrip('.')}")
     except Exception as exc:
-        return jsonify({"error": f"Failed to upload images: {exc}"}), 500
+        return jsonify({"error": f"Failed to upload image: {exc}"}), 500
 
     # Write subject to temp file — Gemini needs a file path for animal analysis
     import tempfile

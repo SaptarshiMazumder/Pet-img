@@ -67,10 +67,13 @@ export class App implements OnInit, OnDestroy {
 
   // ── USO mode ───────────────────────────────────────────────
   generateMode: 'zturbo' | 'uso' = 'zturbo';
+  readonly generateModes: { value: 'zturbo' | 'uso'; label: string }[] =
+    (window as any).__CONFIG__?.generateModes ?? [
+      { value: 'zturbo', label: 'Japanese' },
+      { value: 'uso',    label: 'Oil Painting' },
+    ];
   usoSubjectFile: File | null = null;
   usoSubjectPreview: string | null = null;
-  usoStyleFile: File | null = null;
-  usoStylePreview: string | null = null;
   usoTemplates: Record<string, any> = {};
   usoTemplateKeys: string[] = [];
   selectedUsoTemplate = '';
@@ -82,15 +85,8 @@ export class App implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  setUsoStyleFile(file: File) {
-    this.usoStyleFile = file;
-    const reader = new FileReader();
-    reader.onload = (e) => (this.usoStylePreview = e.target?.result as string);
-    reader.readAsDataURL(file);
-  }
-
   get canGenerateUso(): boolean {
-    return !!(this.usoSubjectFile && this.usoStyleFile && this.selectedUsoTemplate && !this.submitting);
+    return !!(this.usoSubjectFile && this.selectedUsoTemplate && !this.submitting);
   }
 
   generateUso() {
@@ -100,7 +96,6 @@ export class App implements OnInit, OnDestroy {
 
     const form = new FormData();
     form.append('subject_image', this.usoSubjectFile!);
-    form.append('style_image', this.usoStyleFile!);
     form.append('template_key', this.selectedUsoTemplate);
 
     this.api.submitUsoGenerate(form).subscribe({
