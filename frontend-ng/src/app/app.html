@@ -34,7 +34,7 @@
             <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'generate'" (click)="switchTab('generate'); headerMenuOpen = false">{{ lang.t().nav.createPortrait }}</button>
             @if (currentUser) {
               <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'orders'" (click)="switchTab('orders'); headerMenuOpen = false">{{ lang.t().nav.orders }}</button>
-              <button class="menu-item menu-item--mobile-only" (click)="goToMyGenerations(); headerMenuOpen = false">{{ lang.t().nav.myGenerations }}</button>
+              <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'gallery'" (click)="goToGallery(); headerMenuOpen = false">{{ lang.t().nav.gallery }}</button>
             }
             <div class="menu-divider menu-item--mobile-only"></div>
             @if (currentUser) {
@@ -58,7 +58,7 @@
       <button class="nav-link" [class.nav-link--active]="activeTab === 'generate'" (click)="switchTab('generate')">{{ lang.t().nav.createPortrait }}</button>
       @if (currentUser) {
         <button class="nav-link" [class.nav-link--active]="activeTab === 'orders'" (click)="switchTab('orders')">{{ lang.t().nav.orders }}</button>
-        <button class="nav-link" (click)="goToMyGenerations()">{{ lang.t().nav.myGenerations }}</button>
+        <button class="nav-link" [class.nav-link--active]="activeTab === 'gallery'" (click)="goToGallery()">{{ lang.t().nav.gallery }}</button>
       }
     </nav>
 
@@ -164,15 +164,6 @@
       <aside class="gen-sidebar">
         <div class="sidebar-scroll">
 
-          <!-- Mode toggle -->
-          <div class="sidebar-block">
-            <div class="mode-toggle">
-              @for (mode of generateModes; track mode.value) {
-                <button class="mode-btn" [class.mode-btn--active]="generateMode === mode.value" (click)="generateMode = mode.value">{{ mode.label }}</button>
-              }
-            </div>
-          </div>
-
           <!-- ZTurbo form -->
           @if (generateMode === 'zturbo') {
             <div class="sidebar-block">
@@ -181,18 +172,66 @@
             </div>
 
             <div class="sidebar-block">
-              <p class="sidebar-label">{{ lang.t().create.step2 }}</p>
-              <app-template-selector
-                [templates]="templates"
-                [templateKeys]="templateKeys"
-                [selectedTemplate]="selectedTemplate"
-                (templateSelected)="selectTemplate($event)"
-                [sectionTitle]="lang.t().styles.selectStyle"
-              />
+              <p class="sidebar-label">{{ lang.t().create.stepStyle }}</p>
+              <div class="style-category-row">
+                <button
+                  type="button"
+                  class="style-category-card"
+                  [class.style-category-card--active]="styleCategoryActive('zturbo')"
+                  (click)="selectStyleCategory('zturbo')"
+                  [disabled]="!firstZturboTemplateKey"
+                >
+                  @if (firstZturboTemplateKey && templates[firstZturboTemplateKey]?.preview_url) {
+                    <img
+                      class="style-category-img"
+                      [src]="templates[firstZturboTemplateKey].preview_url"
+                      [alt]="lang.t().create.styleUkiyoE"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div class="style-category-placeholder" aria-hidden="true">⛩</div>
+                  }
+                  <span class="style-category-name">{{ lang.t().create.styleUkiyoE }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="style-category-card"
+                  [class.style-category-card--active]="styleCategoryActive('uso')"
+                  (click)="selectStyleCategory('uso')"
+                  [disabled]="!firstUsoTemplateKey"
+                >
+                  @if (firstUsoTemplateKey && usoTemplates[firstUsoTemplateKey]?.preview_url) {
+                    <img
+                      class="style-category-img"
+                      [src]="usoTemplates[firstUsoTemplateKey].preview_url"
+                      [alt]="lang.t().create.styleOilPainting"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div class="style-category-placeholder" aria-hidden="true">🖼</div>
+                  }
+                  <span class="style-category-name">{{ lang.t().create.styleOilPainting }}</span>
+                </button>
+              </div>
             </div>
 
+            @if (zturboTemplateKeysRest.length > 0) {
+              <div class="sidebar-block">
+                <p class="sidebar-label">{{ lang.t().create.stepPreset }}</p>
+                <app-template-selector
+                  [templates]="templates"
+                  [templateKeys]="zturboTemplateKeysRest"
+                  [selectedTemplate]="selectedTemplate"
+                  (templateSelected)="selectTemplate($event)"
+                  [sectionTitle]="lang.t().styles.selectPreset"
+                  [presetLayout]="true"
+                  [hideExploreTitle]="true"
+                />
+              </div>
+            }
+
             <div class="sidebar-block">
-              <p class="sidebar-label">{{ lang.t().create.step3 }}</p>
+              <p class="sidebar-label">{{ lang.t().create.stepOrientation }}</p>
               <div class="ratio-picker">
                 @for (opt of ratioOptions; track opt.label) {
                   <button
@@ -231,20 +270,12 @@
                 </div>
               }
 
-              <label class="toggle-label">
-                <input type="checkbox" [(ngModel)]="dryRun" />
-                <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                <span class="toggle-text"
-                  >{{ lang.t().create.dryRun }} <span class="toggle-hint">{{ lang.t().create.dryRunHint }}</span></span
-                >
-              </label>
-
               <button class="generate-btn" [disabled]="!canGenerate" (click)="generate()">
                 @if (!submitting) {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m9.813 15.904 1.075-4.267m1.075-4.267.427-1.708a.25.25 0 0 1 .305-.188l1.432.358a1 1 0 0 1 .75 1.037l-.196 1.307m-3.793 3.461.196-1.308M12 8.25l-3 .75m6 6-3 .75m-6.75 3.75L3 20.25m18 0-3.75-1.5M21 3l-1.5 3.75M3 3l1.5 3.75" />
                   </svg>
-                  {{ dryRun ? lang.t().create.generateDry : lang.t().create.generate }}
+                  {{ lang.t().create.generate }}
                 } @else {
                   <span class="btn-spinner"></span>
                   {{ lang.t().create.submitting }}
@@ -267,11 +298,71 @@
           <!-- USO form -->
           @if (generateMode === 'uso') {
             <div class="sidebar-block">
-              <p class="sidebar-label">1. Upload your pet photo</p>
+              <p class="sidebar-label">{{ lang.t().create.step1 }}</p>
               <app-upload-area [previewUrl]="usoSubjectPreview" (fileSelected)="setUsoSubjectFile($event)" />
             </div>
 
             <div class="sidebar-block">
+              <p class="sidebar-label">{{ lang.t().create.stepStyle }}</p>
+              <div class="style-category-row">
+                <button
+                  type="button"
+                  class="style-category-card"
+                  [class.style-category-card--active]="styleCategoryActive('zturbo')"
+                  (click)="selectStyleCategory('zturbo')"
+                  [disabled]="!firstZturboTemplateKey"
+                >
+                  @if (firstZturboTemplateKey && templates[firstZturboTemplateKey]?.preview_url) {
+                    <img
+                      class="style-category-img"
+                      [src]="templates[firstZturboTemplateKey].preview_url"
+                      [alt]="lang.t().create.styleUkiyoE"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div class="style-category-placeholder" aria-hidden="true">⛩</div>
+                  }
+                  <span class="style-category-name">{{ lang.t().create.styleUkiyoE }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="style-category-card"
+                  [class.style-category-card--active]="styleCategoryActive('uso')"
+                  (click)="selectStyleCategory('uso')"
+                  [disabled]="!firstUsoTemplateKey"
+                >
+                  @if (firstUsoTemplateKey && usoTemplates[firstUsoTemplateKey]?.preview_url) {
+                    <img
+                      class="style-category-img"
+                      [src]="usoTemplates[firstUsoTemplateKey].preview_url"
+                      [alt]="lang.t().create.styleOilPainting"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div class="style-category-placeholder" aria-hidden="true">🖼</div>
+                  }
+                  <span class="style-category-name">{{ lang.t().create.styleOilPainting }}</span>
+                </button>
+              </div>
+            </div>
+
+            @if (usoTemplateKeysRest.length > 0) {
+              <div class="sidebar-block">
+                <p class="sidebar-label">{{ lang.t().create.stepPreset }}</p>
+                <app-template-selector
+                  [templates]="usoTemplates"
+                  [templateKeys]="usoTemplateKeysRest"
+                  [selectedTemplate]="selectedUsoTemplate"
+                  (templateSelected)="selectedUsoTemplate = $event"
+                  [sectionTitle]="lang.t().styles.selectPreset"
+                  [presetLayout]="true"
+                  [hideExploreTitle]="true"
+                />
+              </div>
+            }
+
+            <div class="sidebar-block">
+              <p class="sidebar-label">{{ lang.t().create.stepOrientation }}</p>
               <div class="ratio-picker">
                 @for (opt of usoRatioOptions; track opt.label) {
                   <button
@@ -284,17 +375,6 @@
                   </button>
                 }
               </div>
-            </div>
-
-            <div class="sidebar-block">
-              <p class="sidebar-label">2. Choose a scene</p>
-              <app-template-selector
-                [templates]="usoTemplates"
-                [templateKeys]="usoTemplateKeys"
-                [selectedTemplate]="selectedUsoTemplate"
-                (templateSelected)="selectedUsoTemplate = $event"
-                [sectionTitle]="'Select Scene'"
-              />
             </div>
 
             <div class="sidebar-block">

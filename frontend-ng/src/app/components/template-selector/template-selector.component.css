@@ -11,6 +11,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+}
+
+.explore-styles--no-inline-title .explore-header {
+  justify-content: flex-end;
+}
+
+.explore-see-all--solo {
+  margin-left: auto;
 }
 
 .explore-title {
@@ -35,7 +44,7 @@
   color: var(--accent);
 }
 
-/* Horizontal scroll carousel — no arrows, swipe/drag like ARTIFY */
+/* Horizontal scroll carousel */
 .carousel-track {
   display: flex;
   gap: 12px;
@@ -47,6 +56,27 @@
 }
 
 .carousel-track::-webkit-scrollbar { display: none; }
+
+/* Preset row: larger portrait “poster” cards */
+.explore-styles--preset .carousel-card {
+  width: min(228px, 52vw);
+  border-radius: 14px;
+}
+
+.explore-styles--preset .carousel-img {
+  border-radius: 11px 11px 0 0;
+}
+
+.explore-styles--preset .carousel-placeholder {
+  border-radius: 11px 11px 0 0;
+}
+
+.explore-styles--preset .carousel-label {
+  font-size: 0.8rem;
+  padding-top: 10px;
+  padding-bottom: 2px;
+  color: var(--text);
+}
 
 .carousel-card {
   flex-shrink: 0;
@@ -188,6 +218,25 @@
 @media (min-width: 640px) {
   .styles-modal-grid {
     gap: 16px;
+  }
+}
+
+.styles-modal--preset .styles-modal-card {
+  flex: 0 0 calc((100% - 12px) / 2);
+  min-height: 200px;
+}
+
+@media (min-width: 480px) {
+  .styles-modal--preset .styles-modal-card {
+    flex: 0 0 calc((100% - 28px) / 3);
+    min-height: 220px;
+  }
+}
+
+@media (min-width: 640px) {
+  .styles-modal--preset .styles-modal-card {
+    flex: 0 0 calc((100% - 48px) / 3);
+    min-height: 240px;
   }
 }
 

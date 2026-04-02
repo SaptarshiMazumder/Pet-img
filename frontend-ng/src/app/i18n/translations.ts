@@ -5,7 +5,7 @@ export interface T {
     home: string;
     createPortrait: string;
     orders: string;
-    myGenerations: string;
+    gallery: string;
     signIn: string;
     signOut: string;
   };
@@ -17,12 +17,14 @@ export interface T {
   };
   create: {
     step1: string;
-    step2: string;
-    step3: string;
-    dryRun: string;
-    dryRunHint: string;
+    stepStyle: string;
+    stepPreset: string;
+    stepOrientation: string;
+    /** Style family: Japanese woodblock look (zturbo) */
+    styleUkiyoE: string;
+    /** Style family: oil painting look (uso) */
+    styleOilPainting: string;
     generate: string;
-    generateDry: string;
     submitting: string;
     orderPrint: string;
     download: string;
@@ -38,6 +40,7 @@ export interface T {
     seeAll: string;
     exploreStyles: string;
     selectStyle: string;
+    selectPreset: string;
   };
   bottomBar: {
     home: string;
@@ -187,7 +190,7 @@ export const TRANSLATIONS: Record<Lang, T> = {
       home: 'Home',
       createPortrait: 'Create Portrait',
       orders: 'Orders',
-      myGenerations: 'My Generations',
+      gallery: 'Gallery',
       signIn: 'Sign in',
       signOut: 'Sign out',
     },
@@ -199,12 +202,12 @@ export const TRANSLATIONS: Record<Lang, T> = {
     },
     create: {
       step1: '1 · Upload your pet',
-      step2: '2 · Select style',
-      step3: '3 · Orientation',
-      dryRun: 'Dry run',
-      dryRunHint: '(print prompt, skip RunPod)',
+      stepStyle: '2 · Style',
+      stepPreset: '3 · Preset',
+      stepOrientation: '4 · Orientation',
+      styleUkiyoE: 'Ukiyo-e',
+      styleOilPainting: 'Oil Painting',
       generate: 'Generate Portrait',
-      generateDry: 'Generate (Dry Run)',
       submitting: 'Submitting…',
       orderPrint: 'Order Print',
       download: 'Download',
@@ -220,6 +223,7 @@ export const TRANSLATIONS: Record<Lang, T> = {
       seeAll: 'See All',
       exploreStyles: 'Explore Styles',
       selectStyle: 'Select Style',
+      selectPreset: 'Preset',
     },
     bottomBar: {
       home: 'Home',
@@ -366,7 +370,7 @@ export const TRANSLATIONS: Record<Lang, T> = {
       home: 'ホーム',
       createPortrait: 'ポートレート作成',
       orders: '注文',
-      myGenerations: 'マイ作品',
+      gallery: 'ギャラリー',
       signIn: 'ログイン',
       signOut: 'ログアウト',
     },
@@ -378,12 +382,12 @@ export const TRANSLATIONS: Record<Lang, T> = {
     },
     create: {
       step1: '1 · ペット写真をアップロード',
-      step2: '2 · スタイルを選択',
-      step3: '3 · 向き',
-      dryRun: 'ドライラン',
-      dryRunHint: '（プロンプトを出力・RunPodをスキップ）',
+      stepStyle: '2 · スタイル',
+      stepPreset: '3 · プリセット',
+      stepOrientation: '4 · 向き',
+      styleUkiyoE: '浮世絵',
+      styleOilPainting: '油彩',
       generate: 'ポートレートを生成',
-      generateDry: '生成（ドライラン）',
       submitting: '送信中…',
       orderPrint: 'プリントを注文',
       download: 'ダウンロード',
@@ -399,6 +403,7 @@ export const TRANSLATIONS: Record<Lang, T> = {
       seeAll: 'すべて見る',
       exploreStyles: 'スタイルを探す',
       selectStyle: 'スタイルを選択',
+      selectPreset: 'プリセット',
     },
     bottomBar: {
       home: 'ホーム',

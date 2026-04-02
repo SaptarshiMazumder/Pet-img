@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { User } from './services/auth.service';
@@ -25,7 +24,6 @@ import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order } f
   selector: 'app-root',
   standalone: true,
   imports: [
-    FormsModule,
     RouterLink,
     CharacterComponent,
     UploadAreaComponent,
@@ -65,7 +63,6 @@ export class App implements OnInit, OnDestroy {
   // ── Generate ───────────────────────────────────────────────
   submitting = false;
   errorMsg = '';
-  dryRun = false;
   jobs: JobEntry[] = [];
   private activePolls = new Set<string>();
 
@@ -76,11 +73,6 @@ export class App implements OnInit, OnDestroy {
     { label: 'Landscape', w: 1152, h: 896  },
   ];
   usoSelectedRatio = this.usoRatioOptions[0];
-  readonly generateModes: { value: 'zturbo' | 'uso'; label: string }[] =
-    (window as any).__CONFIG__?.generateModes ?? [
-      { value: 'zturbo', label: 'Japanese' },
-      { value: 'uso',    label: 'Oil Painting' },
-    ];
   usoSubjectFile: File | null = null;
   usoSubjectPreview: string | null = null;
   usoTemplates: Record<string, any> = {};
@@ -429,10 +421,16 @@ export class App implements OnInit, OnDestroy {
     this.api.getTemplates().subscribe((t) => {
       this.templates = t;
       this.templateKeys = Object.keys(t);
+      if (!this.selectedTemplate && this.templateKeys.length) {
+        this.selectedTemplate = this.templateKeys[0];
+      }
     });
     this.api.getUsoTemplates().subscribe((t) => {
       this.usoTemplates = t;
       this.usoTemplateKeys = Object.keys(t);
+      if (!this.selectedUsoTemplate && this.usoTemplateKeys.length) {
+        this.selectedUsoTemplate = this.usoTemplateKeys[0];
+      }
     });
     this.authSub = this.auth.user$.subscribe((user) => {
       this.currentUser = user;
@@ -497,6 +495,38 @@ export class App implements OnInit, OnDestroy {
     this.selectedTemplate = key;
   }
 
+  get firstZturboTemplateKey(): string {
+    return this.templateKeys[0] ?? '';
+  }
+
+  get firstUsoTemplateKey(): string {
+    return this.usoTemplateKeys[0] ?? '';
+  }
+
+  /** Keys after the first (first card is the Ukiyo e / style-family picker). */
+  get zturboTemplateKeysRest(): string[] {
+    return this.templateKeys.length > 1 ? this.templateKeys.slice(1) : [];
+  }
+
+  get usoTemplateKeysRest(): string[] {
+    return this.usoTemplateKeys.length > 1 ? this.usoTemplateKeys.slice(1) : [];
+  }
+
+  selectStyleCategory(mode: 'zturbo' | 'uso') {
+    this.generateMode = mode;
+    if (mode === 'zturbo') {
+      const k = this.firstZturboTemplateKey;
+      if (k) this.selectedTemplate = k;
+    } else {
+      const k = this.firstUsoTemplateKey;
+      if (k) this.selectedUsoTemplate = k;
+    }
+  }
+
+  styleCategoryActive(mode: 'zturbo' | 'uso'): boolean {
+    return this.generateMode === mode;
+  }
+
   onGalleryStyleSelected(key: string) {
     this.selectTemplate(key);
     this.switchTab('generate');
@@ -552,7 +582,6 @@ export class App implements OnInit, OnDestroy {
     form.append('image', this.uploadedFile!);
     form.append('template_key', this.selectedTemplate);
     form.append('style_key', 'inkwash');
-    form.append('dry_run', String(this.dryRun));
     form.append('width', String(this.selectedRatio.w));
     form.append('height', String(this.selectedRatio.h));
     form.append('orientation', this.selectedRatio.label.toLowerCase() as 'portrait' | 'landscape');
@@ -888,11 +917,9 @@ export class App implements OnInit, OnDestroy {
     });
   }
 
-  goToMyGenerations() {
-    this.switchTab('generate');
-    setTimeout(() => {
-      document.querySelector('.past-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
+  goToGallery() {
+    this.switchTab('gallery');
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
   }
 
   goToGenerate() {

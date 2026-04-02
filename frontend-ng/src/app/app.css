@@ -833,51 +833,6 @@ main {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Dry run toggle ─────────────────────────────────────── */
-.toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.toggle-label input[type="checkbox"] { display: none; }
-
-.toggle-track {
-  position: relative;
-  width: 38px;
-  height: 22px;
-  background: var(--border);
-  border-radius: 11px;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-
-.toggle-label input:checked ~ .toggle-track { background: var(--accent); }
-
-.toggle-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #fff;
-  transition: left 0.2s;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
-}
-
-.toggle-label input:checked ~ .toggle-track .toggle-thumb { left: 18px; }
-
-.toggle-text {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-.toggle-hint { opacity: 0.65; }
-
 /* Error message */
 .error-msg {
   padding: 12px 14px;
@@ -1239,33 +1194,91 @@ main {
 
 /* Static page styles live in global styles.css */
 
-/* ── Mode toggle ──────────────────────────────────────────── */
-.mode-toggle {
+/* ── Style family cards: compact landscape thumbs (vs. large preset carousel) ── */
+.style-category-row {
   display: flex;
-  gap: var(--space-xs);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 3px;
+  gap: 10px;
+  margin-bottom: 2px;
 }
 
-.mode-btn {
+.style-category-card {
   flex: 1;
-  padding: 6px 12px;
-  border-radius: calc(var(--radius) - 2px);
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  font-weight: 500;
+  min-width: 0;
+  max-width: 50%;
+  margin: 0;
+  padding: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  overflow: hidden;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.15s;
+  font-family: inherit;
 }
 
-.mode-btn--active {
-  background: var(--surface);
+.style-category-card:hover:not(:disabled) {
+  border-color: var(--accent-dim);
+}
+
+.style-category-card:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.style-category-card--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 12px var(--accent-glow);
+}
+
+.style-category-img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 82px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 8px 8px 0 0;
+}
+
+.style-category-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 82px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  border-radius: 8px 8px 0 0;
+}
+
+.style-category-name {
+  padding: 6px 6px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1.25;
+}
+
+.style-category-card--active .style-category-name {
   color: var(--accent);
-  border: 1px solid var(--border-focus);
+}
+
+@media (min-width: 480px) {
+  .style-category-img,
+  .style-category-placeholder {
+    max-height: 92px;
+  }
+
+  .style-category-name {
+    font-size: 0.74rem;
+  }
 }
 
 /* ── USO prompt textarea ──────────────────────────────────── */

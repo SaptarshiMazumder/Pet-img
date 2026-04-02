@@ -1,7 +1,20 @@
-<section class="explore-styles">
+<section
+  class="explore-styles"
+  [class.explore-styles--preset]="presetLayout"
+  [class.explore-styles--no-inline-title]="hideExploreTitle"
+>
   <div class="explore-header">
-    <h3 class="explore-title">{{ sectionTitle }}</h3>
-    <button type="button" class="explore-see-all" (click)="showAllModal = true">{{ lang.t().styles.seeAll }}</button>
+    @if (!hideExploreTitle) {
+      <h3 class="explore-title">{{ sectionTitle }}</h3>
+    }
+    <button
+      type="button"
+      class="explore-see-all"
+      [class.explore-see-all--solo]="hideExploreTitle"
+      (click)="showAllModal = true"
+    >
+      {{ lang.t().styles.seeAll }}
+    </button>
   </div>
 
   <div class="carousel-track" #carouselTrack>
@@ -24,7 +37,7 @@
 
 @if (showAllModal) {
   <div class="styles-modal-backdrop" (click)="showAllModal = false"></div>
-  <div class="styles-modal">
+  <div class="styles-modal" [class.styles-modal--preset]="presetLayout">
     <div class="styles-modal-header">
       <h3 class="styles-modal-title">{{ sectionTitle }}</h3>
       <button type="button" class="styles-modal-close" (click)="showAllModal = false" aria-label="Close">
