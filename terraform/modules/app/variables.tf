@@ -65,7 +65,41 @@ variable "gemini_api_key" {
   sensitive = true
 }
 
-variable "gelato_api_key" {
-  type      = string
-  sensitive = true
+variable "autoscaler_runpod_api_key" {
+  description = "RunPod API key used by the autoscaler service (read from autoscaler/.env)"
+  type        = string
+  sensitive   = true
+}
+
+variable "stripe_secret_key" {
+  description = "Stripe secret key for credit pack checkout sessions"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "stripe_webhook_secret" {
+  description = "Stripe webhook signing secret (used to verify /credits/stripe-webhook)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "sendgrid_api_key" {
+  description = "SendGrid API key for order confirmation emails"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "frontend_public_url" {
+  description = "Public URL of the frontend (used as Stripe checkout success/cancel redirect base)"
+  type        = string
+  default     = ""
+}
+
+variable "r2_public_base_url" {
+  description = "Public base URL for R2 bucket objects (e.g. https://pub-xxx.r2.dev)"
+  type        = string
+  default     = ""
 }

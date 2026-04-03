@@ -34,8 +34,14 @@ module "app" {
   r2_access_key_id     = var.r2_access_key_id
   r2_secret_access_key = var.r2_secret_access_key
   runpod_api_key       = var.runpod_api_key
-  gemini_api_key       = var.gemini_api_key
-  gelato_api_key       = var.gelato_api_key
+  gemini_api_key            = var.gemini_api_key
+  autoscaler_runpod_api_key = var.autoscaler_runpod_api_key
+
+  stripe_secret_key     = var.stripe_secret_key
+  stripe_webhook_secret = var.stripe_webhook_secret
+  sendgrid_api_key      = var.sendgrid_api_key
+  frontend_public_url   = var.frontend_public_url
+  r2_public_base_url    = var.r2_public_base_url
 }
 
 output "frontend_url"      { value = module.app.frontend_url }

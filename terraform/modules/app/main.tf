@@ -86,7 +86,7 @@ resource "google_cloud_run_v2_service" "autoscaler" {
       }
       env {
         name  = "RUNPOD_API_KEY"
-        value = var.runpod_api_key
+        value = var.autoscaler_runpod_api_key
       }
       env {
         name  = "FIREBASE_SERVICE_ACCOUNT_KEY"
@@ -160,12 +160,28 @@ resource "google_cloud_run_v2_service" "backend" {
         value = var.gemini_api_key
       }
       env {
-        name  = "GELATO_API_KEY"
-        value = var.gelato_api_key
-      }
-      env {
         name  = "DEV_PRICE_1YEN"
         value = var.dev_price_1yen
+      }
+      env {
+        name  = "STRIPE_SECRET_KEY"
+        value = var.stripe_secret_key
+      }
+      env {
+        name  = "STRIPE_WEBHOOK_SECRET"
+        value = var.stripe_webhook_secret
+      }
+      env {
+        name  = "SEND_GRID_API_KEY"
+        value = var.sendgrid_api_key
+      }
+      env {
+        name  = "FRONTEND_PUBLIC_URL"
+        value = var.frontend_public_url
+      }
+      env {
+        name  = "R2_PUBLIC_BASE_URL"
+        value = var.r2_public_base_url
       }
     }
   }
