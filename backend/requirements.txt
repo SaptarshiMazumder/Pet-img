@@ -9,4 +9,3 @@ PyJWT[crypto]
 runpod
 gunicorn
 Pillow
-stripe>=11.0,<12

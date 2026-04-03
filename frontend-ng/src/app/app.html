@@ -543,6 +543,7 @@
           (refresh)="loadGallery()"
           (regenerateRequested)="regenerateFromGallery($event)"
           (deleteRequested)="deleteFromGallery($event)"
+          (downloadRequested)="downloadFromGallery($event)"
         />
       } @else {
         <div class="gallery-guest">

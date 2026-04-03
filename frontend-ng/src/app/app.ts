@@ -251,28 +251,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   startCreditCheckout() {
-    this.rechargeSubmitting = true;
-    this.rechargeCheckoutError = null;
-    this.api.createCreditCheckoutSession().subscribe({
-      next: (r) => {
-        if (r?.url) {
-          window.location.href = r.url;
-        } else {
-          this.rechargeSubmitting = false;
-          this.rechargeCheckoutError = this.lang.t().credits.checkoutFailed;
-        }
-      },
-      error: (err: any) => {
-        this.rechargeSubmitting = false;
-        const code = err?.error?.error;
-        if (code === 'payment_not_configured') {
-          this.rechargeCheckoutError = this.lang.t().credits.paymentNotConfigured;
-        } else {
-          this.rechargeCheckoutError =
-            err?.error?.detail || err?.error?.error || this.lang.t().credits.checkoutFailed;
-        }
-      },
-    });
+    // Payments are currently disabled.
   }
 
   // ── Auth / User ────────────────────────────────────────────

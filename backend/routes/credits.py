@@ -1,3 +1,4 @@
+import json
 import os
 
 from flask import Blueprint, g, jsonify, request
@@ -6,15 +7,9 @@ from backend.auth_middleware import require_auth
 from backend.db import user_credits
 from backend.firebase import get_db
 from backend.config.credit_recharge_prices_by_region import (
-    CREDITS_PER_PACK,
     get_credit_recharge_price_for_country,
 )
-from backend.stripe_helpers import checkout_unit_amount
-
-try:
-    import stripe
-except ImportError:
-    stripe = None
+from backend.payments import get_provider
 
 credits_bp = Blueprint("credits", __name__, url_prefix="/credits")
 
@@ -35,9 +30,7 @@ def get_credits():
 def _frontend_origin() -> str:
     o = request.headers.get("Origin") or request.headers.get("Referer", "")
     if o.startswith("http"):
-        # strip path
         from urllib.parse import urlparse
-
         p = urlparse(o)
         return f"{p.scheme}://{p.netloc}"
     return os.environ.get("FRONTEND_PUBLIC_URL", "http://localhost:4200").rstrip("/")
@@ -58,95 +51,70 @@ def _country_from_request() -> str:
 @require_auth
 def create_checkout_session():
     """
-    Stripe Checkout for one credit pack (CREDITS_PER_PACK credits).
-    Returns { "url": "<stripe hosted checkout url>" }.
-    Requires STRIPE_SECRET_KEY. Webhook STRIPE_WEBHOOK_SECRET credits the balance.
+    Initiate a credit pack checkout via the configured payment provider.
+
+    Set PAYMENT_PROVIDER=komoju or PAYMENT_PROVIDER=razorpay (plus the provider's
+    own env vars) to enable payments. Returns provider-specific JSON:
+      - Komoju:   { "provider": "komoju",   "url": "<hosted checkout url>", ... }
+      - Razorpay: { "provider": "razorpay", "order_id": "...", "key_id": "...", ... }
     """
-    if not stripe or not os.environ.get("STRIPE_SECRET_KEY"):
+    provider = get_provider()
+    if provider is None:
         return jsonify(
-            {"error": "payment_not_configured", "detail": "Set STRIPE_SECRET_KEY on the server."}
+            {"error": "payment_not_configured", "detail": "Set PAYMENT_PROVIDER on the server."}
         ), 503
 
-    stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
     country = _country_from_request()
     price = get_credit_recharge_price_for_country(country)
     origin = _frontend_origin()
-    unit = checkout_unit_amount(price["amount"], price["currency"])
 
     try:
-        session = stripe.checkout.Session.create(
-            mode="payment",
-            payment_method_types=["card"],
-            line_items=[
-                {
-                    "price_data": {
-                        "currency": price["currency"].lower(),
-                        "product_data": {
-                            "name": f"Pet Generator — {CREDITS_PER_PACK} credits",
-                            "description": "Credit pack for portrait generations",
-                        },
-                        "unit_amount": unit,
-                    },
-                    "quantity": 1,
-                }
-            ],
-            success_url=origin + "/?recharge=success&session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=origin + "/?recharge=cancel",
-            client_reference_id=g.uid,
-            metadata={
-                "uid": g.uid,
-                "credits": str(CREDITS_PER_PACK),
-                "currency": price["currency"],
-            },
-        )
+        result = provider.create_checkout(uid=g.uid, price=price, origin=origin)
+    except EnvironmentError as e:
+        return jsonify({"error": "payment_not_configured", "detail": str(e)}), 503
     except Exception as e:
-        return jsonify({"error": "stripe_error", "detail": str(e)}), 502
+        return jsonify({"error": "checkout_error", "detail": str(e)}), 502
 
-    return jsonify({"url": session.url})
+    return jsonify(result)
 
 
-@credits_bp.post("/stripe-webhook")
-def stripe_webhook():
-    """Stripe sends raw body; verify signature and add credits once per session."""
-    if not stripe or not os.environ.get("STRIPE_SECRET_KEY"):
+@credits_bp.post("/webhook")
+def payment_webhook():
+    """
+    Unified webhook endpoint — delegates to the active payment provider.
+
+    Configure your provider's dashboard to POST to:
+        POST /credits/webhook
+    """
+    provider = get_provider()
+    if provider is None:
         return jsonify({"error": "not configured"}), 503
 
-    wh_secret = os.environ.get("STRIPE_WEBHOOK_SECRET")
-    if not wh_secret:
-        return jsonify({"error": "STRIPE_WEBHOOK_SECRET not set"}), 503
-
-    stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-    payload = request.get_data()
-    sig = request.headers.get("Stripe-Signature")
-
     try:
-        event = stripe.Webhook.construct_event(payload, sig, wh_secret)
-    except ValueError:
+        result = provider.handle_webhook(request)
+    except (ValueError, json.JSONDecodeError):
         return jsonify({"error": "invalid payload"}), 400
-    except stripe.error.SignatureVerificationError:
+    except PermissionError:
         return jsonify({"error": "invalid signature"}), 400
+    except Exception as e:
+        return jsonify({"error": "webhook_error", "detail": str(e)}), 500
 
-    if event.get("type") != "checkout.session.completed":
+    if result is None:
+        # Non-credit event — acknowledge and ignore
         return jsonify({"received": True}), 200
 
-    obj = event["data"]["object"]
-    session_id = obj.get("id")
-    meta = obj.get("metadata") or {}
-    uid = meta.get("uid")
-    credits_add = int(meta.get("credits", CREDITS_PER_PACK))
+    uid, credits_add = result
+    session_id = request.headers.get("X-Komoju-Delivery") or request.get_json(silent=True, force=True).get("id", "")
 
-    if not uid or not session_id:
-        return jsonify({"error": "missing metadata"}), 400
-
-    if obj.get("payment_status") != "paid":
-        return jsonify({"received": True}), 200
-
-    ref = get_db().collection("stripe_checkout_sessions").document(session_id)
-    if ref.get().exists:
-        return jsonify({"received": True, "duplicate": True}), 200
-
-    user_credits.add_credits(uid, credits_add)
-    ref.set({"uid": uid, "credits_added": credits_add, "credited": True})
+    # Idempotency: skip if this event was already processed
+    if session_id:
+        ref = get_db().collection("payment_webhook_events").document(session_id)
+        if ref.get().exists:
+            return jsonify({"received": True, "duplicate": True}), 200
+        user_credits.add_credits(uid, credits_add)
+        ref.set({"uid": uid, "credits_added": credits_add, "credited": True})
+    else:
+        user_credits.add_credits(uid, credits_add)
 
     return jsonify({"received": True}), 200
 

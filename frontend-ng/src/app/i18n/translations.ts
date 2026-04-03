@@ -152,6 +152,8 @@ export interface T {
     continueToPayment: string;
     paymentNotConfigured: string;
     checkoutFailed: string;
+    downloadModalTitle: string;
+    downloadModalSub: string;
   };
   lightbox: {
     download: string;
@@ -331,8 +333,10 @@ export const TRANSLATIONS: Record<Lang, T> = {
       creditBalanceLabel: 'Credits',
       continueToPayment: 'Continue to payment',
       paymentNotConfigured:
-        'Online payments are not configured on this server. Set STRIPE_SECRET_KEY and deploy the backend.',
+        'Online payments are not configured on this server. Set PAYMENT_PROVIDER and deploy the backend.',
       checkoutFailed: 'Could not start checkout. Try again.',
+      downloadModalTitle: 'Download your portrait',
+      downloadModalSub: 'High-resolution file',
     },
     lightbox: {
       download: 'Download',
@@ -511,8 +515,10 @@ export const TRANSLATIONS: Record<Lang, T> = {
       creditBalanceLabel: 'クレジット',
       continueToPayment: 'お支払いへ進む',
       paymentNotConfigured:
-        'このサーバーではオンライン決済が設定されていません。STRIPE_SECRET_KEY を設定してバックエンドをデプロイしてください。',
+        'このサーバーではオンライン決済が設定されていません。PAYMENT_PROVIDER を設定してバックエンドをデプロイしてください。',
       checkoutFailed: 'チェックアウトを開始できませんでした。もう一度お試しください。',
+      downloadModalTitle: 'ポートレートをダウンロード',
+      downloadModalSub: '高解像度ファイル',
     },
     lightbox: {
       download: 'ダウンロード',

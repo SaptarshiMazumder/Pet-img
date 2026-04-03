@@ -109,7 +109,7 @@ export class ApiService {
     return this.http.get<any>(`${this.base}/credits/recharge-price?country=${this.region.countryCode}`);
   }
 
-  /** Stripe Checkout URL for one credit pack (requires server STRIPE_SECRET_KEY). */
+  /** Initiate a credit pack checkout. Response shape depends on PAYMENT_PROVIDER (komoju → url, razorpay → order_id/key_id). */
   createCreditCheckoutSession(): Observable<{ url: string }> {
     return this.http.post<{ url: string }>(`${this.base}/credits/checkout-session`, {
       country: this.region.countryCode,
