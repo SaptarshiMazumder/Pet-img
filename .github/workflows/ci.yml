@@ -29,6 +29,9 @@ jobs:
           pip install ruff
           ruff check --select E9,F63,F7,F82 backend
 
+      - name: Backend tests
+        run: python -m pytest backend/tests -v
+
   frontend:
     name: Frontend (build)
     runs-on: ubuntu-latest
