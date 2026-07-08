@@ -6,8 +6,7 @@ FRAME_CATALOG: dict[str, dict[str, any]] = {
             {"color": "ブラック",  "preview_img_landscape": "frames/8235_black_landscape.png",  "preview_img_portrait": "frames/8235_black_portrait.png"},
         ],
         "sizes": {
-            # "158×228(SM)":  {"framed_base_cost": 3465,  "price": 4300},   # confirmed
-            "158×228(SM)":  {"framed_base_cost": 3465,  "price": 100},   # confirmed
+            "158×228(SM)":  {"framed_base_cost": 3465,  "price": 4300},   # confirmed
             "220×273(F3)":  {"framed_base_cost": 4119,  "price": 5100},   # confirmed
             "242×333(F4)":  {"framed_base_cost": 4581,  "price": 5700},   # confirmed
             "318×409(F6)":  {"framed_base_cost": 5236,  "price": 6500},   # confirmed
