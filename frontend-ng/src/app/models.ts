@@ -7,6 +7,14 @@ export interface GalleryEntry {
   seed: number | null;
   created_at: string | null;
   orientation?: 'portrait' | 'landscape';
+  unlocked?: boolean;
+}
+
+export interface CreditPack {
+  pack_id: string;
+  credits: number;
+  price_usd: number;
+  label: string;
 }
 
 export interface OrderForm {
@@ -36,6 +44,7 @@ export interface JobEntry {
   duration_seconds?: number;
   submitted_at: Date;
   orientation?: 'portrait' | 'landscape';
+  unlocked?: boolean;
 }
 
 export interface ExpandedItem {
@@ -46,6 +55,7 @@ export interface ExpandedItem {
   style_key: string;
   isSample?: boolean;
   orientation?: 'portrait' | 'landscape';
+  unlocked?: boolean;
 }
 
 export interface SampleEntry {
@@ -81,8 +91,7 @@ export interface Order {
   items: OrderItem[];
   shipping: ShippingAddress;
   notes: string;
-  payment_status: 'unpaid' | 'paid';
-  status: string;
+  status: 'draft' | 'submitted';
   created_at: string | null;
-  paid_at: string | null;
+  submitted_at: string | null;
 }

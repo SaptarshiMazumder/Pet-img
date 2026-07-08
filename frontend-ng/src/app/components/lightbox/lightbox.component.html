@@ -21,12 +21,35 @@
         @if (item.positive_prompt) {
           <p class="lb-prompt">{{ item.positive_prompt }}</p>
         }
-        <button class="lb-order-btn" (click)="orderClicked.emit()">
-          {{ lang.t().lightbox.orderPrint }}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-          </svg>
-        </button>
+        <!-- Digital HD unlock / download (credits) -->
+        @if (item.unlocked) {
+          <button class="lb-order-btn" (click)="downloadClicked.emit()">
+            {{ ja() ? 'HDをダウンロード' : 'Download HD' }}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+          </button>
+        } @else {
+          <button class="lb-order-btn" [disabled]="unlocking" (click)="unlockClicked.emit()">
+            @if (unlocking) {
+              <span class="lb-btn-spinner"></span>
+            } @else {
+              {{ ja() ? 'HDをアンロック（1クレジット）' : 'Unlock HD — 1 credit' }}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+              </svg>
+            }
+          </button>
+        }
+
+        @if (printsEnabled) {
+          <button class="lb-order-btn" (click)="orderClicked.emit()">
+            {{ lang.t().lightbox.orderPrint }}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        }
       </div>
     }
   </div>

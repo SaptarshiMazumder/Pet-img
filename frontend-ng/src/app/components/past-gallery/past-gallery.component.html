@@ -1,7 +1,7 @@
 <div class="past-header">
   <h3 class="past-title">{{ lang.t().past.title }}</h3>
   <div class="past-header-actions">
-    @if (selectedCount > 0) {
+    @if (printsEnabled && selectedCount > 0) {
       <button class="order-selected-btn" (click)="openOrder()">
         {{ lang.orderPortraits(selectedCount) }}
       </button>
@@ -34,19 +34,21 @@
           @if (item.presigned_url) {
             <img class="past-img" [src]="item.presigned_url" [alt]="templateName(item.template_key)" loading="lazy" />
 
-            <!-- Checkbox toggle -->
-            <button
-              class="select-check"
-              [class.select-check--on]="isSelected(item.job_id)"
-              (click)="toggleSelect(item, $event)"
-              [attr.aria-label]="isSelected(item.job_id) ? lang.t().past.deselect : lang.t().past.selectForOrder"
-            >
-              @if (isSelected(item.job_id)) {
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-              }
-            </button>
+            <!-- Checkbox toggle (print order selection) -->
+            @if (printsEnabled) {
+              <button
+                class="select-check"
+                [class.select-check--on]="isSelected(item.job_id)"
+                (click)="toggleSelect(item, $event)"
+                [attr.aria-label]="isSelected(item.job_id) ? lang.t().past.deselect : lang.t().past.selectForOrder"
+              >
+                @if (isSelected(item.job_id)) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                }
+              </button>
+            }
 
             <div class="past-hover">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">

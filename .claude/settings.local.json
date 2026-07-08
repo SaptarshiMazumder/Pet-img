@@ -4,7 +4,12 @@
       "Bash(xargs grep:*)",
       "Bash(grep -n \"activeTab === ''terms''\" app.html)",
       "Bash(grep -r \"email\\\\|smtp\\\\|sendgrid\\\\|nodemailer\\\\|mail\" /c/Users/sapma/OneDrive/Desktop/Projects/Pet-generator/backend --include=*.py -i)",
-      "Bash(grep -r \"webhook\\\\|notification\\\\|order.*event\" /c/Users/sapma/OneDrive/Desktop/Projects/Pet-generator/backend --include=*.py -i)"
+      "Bash(grep -r \"webhook\\\\|notification\\\\|order.*event\" /c/Users/sapma/OneDrive/Desktop/Projects/Pet-generator/backend --include=*.py -i)",
+      "Bash(grep -r \"razorpay\\\\|payment\" /c/Users/googler/OneDrive/Desktop/Projects/petto/Pet-img/backend --include=*.py)",
+      "Bash(xxd \"c:/Users/googler/OneDrive/Desktop/Projects/petto/Pet-img/frontend-ng/src/app/i18n/translations.ts\")",
+      "Bash(python3 -c \":*)",
+      "Bash(python -c \":*)",
+      "Bash(npx ng:*)"
     ]
   }
 }

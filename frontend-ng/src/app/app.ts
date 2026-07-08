@@ -6,6 +6,7 @@ import { User } from 'firebase/auth';
 import { ApiService } from './services/api.service';
 import { AuthService } from './services/auth.service';
 import { LanguageService } from './services/language.service';
+import { LocationService } from './services/location.service';
 import { CharacterComponent } from './components/character/character.component';
 import { UploadAreaComponent } from './components/upload-area/upload-area.component';
 import { TemplateSelectorComponent } from './components/template-selector/template-selector.component';
@@ -17,7 +18,9 @@ import { OrderModalComponent } from './components/order-modal/order-modal.compon
 import { OrderFlowComponent } from './components/order-flow/order-flow.component';
 import { OrdersPageComponent } from './components/orders-page/orders-page.component';
 import { AuthModalComponent } from './components/auth-modal/auth-modal.component';
-import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order } from './models';
+import { CreditsModalComponent } from './components/credits-modal/credits-modal.component';
+import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order, CreditPack } from './models';
+import { PRINTS_ENABLED } from './config';
 
 @Component({
   selector: 'app-root',
@@ -36,11 +39,15 @@ import { GalleryEntry, OrderForm, JobEntry, ExpandedItem, SampleEntry, Order } f
     OrderFlowComponent,
     OrdersPageComponent,
     AuthModalComponent,
+    CreditsModalComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App implements OnInit, OnDestroy {
+  // ── Feature flags ──────────────────────────────────────────
+  readonly printsEnabled = PRINTS_ENABLED;
+
   // ── Templates ──────────────────────────────────────────────
   templates: Record<string, any> = {};
   templateKeys: string[] = [];
@@ -68,6 +75,14 @@ export class App implements OnInit, OnDestroy {
   // ── Auth / User ────────────────────────────────────────────
   currentUser: User | null = null;
   private authSub!: Subscription;
+
+  // ── Credits / digital purchases ────────────────────────────
+  credits = 0;
+  creditPacks: CreditPack[] = [];
+  paymentsEnabled = false;
+  showCreditsModal = false;
+  unlockingExpanded = false;
+  private returningFromCheckout = false;
 
   // ── Gallery (past generations) ──────────────────────────────
   gallery: GalleryEntry[] = [];
@@ -159,18 +174,11 @@ export class App implements OnInit, OnDestroy {
     private api: ApiService,
     private auth: AuthService,
     readonly lang: LanguageService,
+    readonly location: LocationService,
   ) {}
 
   ngOnInit() {
-    // Handle Komoju payment popup return — close popup and notify parent window
-    if (window.opener && new URLSearchParams(window.location.search).get('payment_return') === '1') {
-      try {
-        window.opener.postMessage({ type: 'komoju_return' }, window.location.origin);
-      } catch {}
-      window.close();
-      return;
-    }
-
+    this.location.detect();
     this.api.warm();
     this.api.getTemplates().subscribe((t) => {
       for (const key of Object.keys(t)) {
@@ -186,13 +194,52 @@ export class App implements OnInit, OnDestroy {
       if (user) {
         this.loadGallery();
         this.loadSamples();
+        this.loadCredits();
+        if (this.returningFromCheckout) {
+          // Credits are granted by webhook; poll a couple of times to catch up.
+          this.returningFromCheckout = false;
+          setTimeout(() => this.loadCredits(), 2500);
+          setTimeout(() => this.loadCredits(), 6000);
+        }
       } else {
         this.gallery = [];
         this.samples = [];
+        this.credits = 0;
       }
     });
     this.loadSamples();
 
+    // Returning from a Dodo checkout redirect (?checkout=success)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('checkout') === 'success') {
+        this.returningFromCheckout = true;
+        params.delete('checkout');
+        const qs = params.toString();
+        window.history.replaceState({}, '', window.location.pathname + (qs ? '?' + qs : ''));
+      }
+    } catch {}
+  }
+
+  // ── Credits ────────────────────────────────────────────────
+  loadCredits() {
+    this.api.getCredits().subscribe({
+      next: (resp) => {
+        this.credits = resp.credits ?? 0;
+        this.creditPacks = resp.packs ?? [];
+        this.paymentsEnabled = !!resp.payments_enabled;
+      },
+      error: () => {},
+    });
+  }
+
+  openBuyCredits() {
+    if (!this.currentUser) {
+      this.signIn();
+      return;
+    }
+    this.loadCredits();
+    this.showCreditsModal = true;
   }
 
   ngOnDestroy() {
@@ -337,6 +384,7 @@ export class App implements OnInit, OnDestroy {
               error: job.error ?? undefined,
               duration_seconds: job.duration_seconds ?? undefined,
               orientation: job.orientation ?? this.jobs[idx].orientation,
+              unlocked: job.unlocked ?? this.jobs[idx].unlocked,
             },
             ...this.jobs.slice(idx + 1),
           ];
@@ -364,6 +412,7 @@ export class App implements OnInit, OnDestroy {
   // ── Lightbox ───────────────────────────────────────────────
   openExpandFromJob(job: JobEntry) {
     if (!job.presigned_url) return;
+    this.unlockingExpanded = false;
     this.expandedItem = {
       job_id: job.job_id,
       presigned_url: job.presigned_url,
@@ -371,18 +420,89 @@ export class App implements OnInit, OnDestroy {
       template_key: job.template_key,
       style_key: job.style_key,
       orientation: job.orientation,
+      unlocked: job.unlocked ?? false,
     };
   }
 
   openExpandFromGallery(item: GalleryEntry) {
     if (!item.presigned_url) return;
+    this.unlockingExpanded = false;
     this.expandedItem = {
       job_id: item.job_id,
       presigned_url: item.presigned_url,
       template_key: item.template_key,
       style_key: item.style_key,
       orientation: item.orientation,
+      unlocked: item.unlocked ?? false,
     };
+  }
+
+  // ── HD unlock / download (credits) ─────────────────────────
+  unlockFromExpand() {
+    const item = this.expandedItem;
+    if (!item || item.isSample) return;
+    if (!this.currentUser) {
+      this.signIn();
+      return;
+    }
+    if (this.credits < 1) {
+      this.openBuyCredits();
+      return;
+    }
+    this.unlockingExpanded = true;
+    this.api.unlockGeneration(item.job_id).subscribe({
+      next: (resp) => {
+        this.unlockingExpanded = false;
+        this.credits = resp.credits_remaining ?? this.credits;
+        this.markUnlocked(item.job_id);
+        if (resp.download_url) this.triggerDownload(resp.download_url, item.job_id);
+      },
+      error: (err) => {
+        this.unlockingExpanded = false;
+        if (err?.status === 402 || err?.error?.code === 'insufficient_credits') {
+          this.openBuyCredits();
+        } else if (err?.status === 401) {
+          this.signIn();
+        }
+      },
+    });
+  }
+
+  downloadFromExpand() {
+    const item = this.expandedItem;
+    if (!item || item.isSample) return;
+    this.api.getDownloadUrl(item.job_id).subscribe({
+      next: (resp) => {
+        if (resp.download_url) this.triggerDownload(resp.download_url, item.job_id);
+      },
+      error: (err) => {
+        if (err?.status === 402) this.unlockFromExpand();
+        else if (err?.status === 401) this.signIn();
+      },
+    });
+  }
+
+  private markUnlocked(jobId: string) {
+    if (this.expandedItem?.job_id === jobId) {
+      this.expandedItem = { ...this.expandedItem, unlocked: true };
+    }
+    this.gallery = this.gallery.map((g) =>
+      g.job_id === jobId ? { ...g, unlocked: true } : g,
+    );
+    this.jobs = this.jobs.map((j) =>
+      j.job_id === jobId ? { ...j, unlocked: true } : j,
+    );
+  }
+
+  private triggerDownload(url: string, jobId: string) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pet-to-${jobId}.png`;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   openExpandFromSample(s: SampleEntry) {

@@ -31,12 +31,12 @@
           </div>
           <div class="card-meta">
             <span class="order-date">{{ formatDate(order.created_at) }}</span>
-            <span class="payment-badge" [class.payment-badge--paid]="order.payment_status === 'paid'">
-              {{ order.payment_status === 'paid' ? lang.t().orders.paid : lang.t().orders.unpaid }}
+            <span class="payment-badge" [class.payment-badge--paid]="order.status === 'submitted'">
+              {{ order.status === 'submitted' ? lang.t().orders.paid : lang.t().orders.unpaid }}
             </span>
           </div>
-          @if (order.payment_status === 'paid' && order.paid_at) {
-            <div class="card-paid-date">{{ lang.t().orders.paidOn }}: {{ formatDate(order.paid_at) }}</div>
+          @if (order.status === 'submitted' && order.submitted_at) {
+            <div class="card-paid-date">{{ lang.t().orders.paidOn }}: {{ formatDate(order.submitted_at) }}</div>
           }
         </div>
 
@@ -57,25 +57,30 @@
           </span>
         </div>
 
-        @if (order.payment_status === 'paid') {
+        @if (order.status === 'submitted') {
           <div class="card-delivery-msg">
             {{ lang.t().orders.deliveryMsg }}
-            <span class="card-email-notice">{{ lang.t().orders.emailSentTo }} <strong>{{ auth.user$.value?.email }}</strong></span>
+            @if (order.shipping.email) {
+              <span class="card-email-notice">{{ lang.t().orders.emailSentTo }} <strong>{{ order.shipping.email }}</strong></span>
+            }
           </div>
         }
 
-        @if (payError && payingId === null) {
-          <div class="pay-error">{{ payError }}</div>
+        @if (submitError && submittingId === null) {
+          <div class="pay-error">{{ submitError }}</div>
+        }
+        @if (order.status !== 'submitted' && hasUnsupportedShippingCountry(order.shipping.country)) {
+          <div class="pay-error">{{ lang.t().region.noShippingBanner }}</div>
         }
         <div class="card-actions">
-          <button class="btn-edit" (click)="editOrder.emit(order)" [disabled]="payingId === order.id">
+          <button class="btn-edit" (click)="editOrder.emit(order)" [disabled]="submittingId === order.id">
             {{ lang.t().orders.edit }}
           </button>
-          @if (order.payment_status === 'paid') {
+          @if (order.status === 'submitted') {
             <span class="paid-badge">{{ lang.t().orders.paid }}</span>
           } @else {
-            <button class="btn-pay" (click)="pay(order)" [disabled]="payingId === order.id">
-              @if (payingId === order.id) {
+            <button class="btn-pay" (click)="submit(order)" [disabled]="submittingId === order.id || !orderingEnabled || hasUnsupportedShippingCountry(order.shipping.country)">
+              @if (submittingId === order.id) {
                 <span class="btn-spinner-sm"></span> {{ lang.t().orders.processing }}
               } @else {
                 {{ lang.t().orders.payNow }}

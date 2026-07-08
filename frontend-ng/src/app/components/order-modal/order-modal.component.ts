@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JobEntry, OrderForm } from '../../models';
+import { LanguageService } from '../../services/language.service';
+import { LocationService } from '../../services/location.service';
 
 @Component({
   selector: 'app-order-modal',
@@ -10,6 +12,8 @@ import { JobEntry, OrderForm } from '../../models';
   styleUrl: './order-modal.component.css',
 })
 export class OrderModalComponent implements OnChanges {
+  protected readonly lang = inject(LanguageService);
+  protected readonly location = inject(LocationService);
   @Input() job: JobEntry | null = null;
   @Input() products: { uid: string; label: string }[] = [];
   @Input() productsLoading = false;
@@ -41,12 +45,23 @@ export class OrderModalComponent implements OnChanges {
       addressLine2: '',
       city: '',
       postCode: '',
-      country: 'JP',
+      country: this.location.config().region === 'IN' ? 'IN' : this.location.config().region === 'JP' ? 'JP' : '',
       email: '',
       phone: '',
       product_uid: '',
       quantity: 1,
       order_type: 'draft',
     };
+  }
+
+  hasUnsupportedShippingCountry(country: string): boolean {
+    return this.location.hasUnsupportedShippingCountry(country);
+  }
+
+  onSubmit() {
+    if (this.form.order_type === 'order' && this.hasUnsupportedShippingCountry(this.form.country)) {
+      return;
+    }
+    this.submitted.emit(this.form);
   }
 }

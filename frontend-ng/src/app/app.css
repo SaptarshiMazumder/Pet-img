@@ -60,6 +60,27 @@ header {
 
 .header-signin-btn:hover { opacity: 0.85; }
 
+.credits-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 100px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.credits-chip:hover { background: rgba(0, 0, 0, 0.1); }
+.credits-chip-count { line-height: 1; }
+
 /* Desktop nav */
 .header-nav {
   display: none;
@@ -298,6 +319,7 @@ header {
   color: var(--accent);
 }
 
+/* ── Region notice banner ────────────────────────────────── */
 /* ── Main ────────────────────────────────────────────────── */
 main {
   max-width: 1440px;

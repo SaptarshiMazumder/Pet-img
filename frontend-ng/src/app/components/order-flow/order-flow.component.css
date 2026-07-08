@@ -1,3 +1,20 @@
+/* ── Region banner ──────────────────────────── */
+.of-region-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #fef3cd;
+  color: #664d03;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  border-bottom: 1px solid #ffecb5;
+}
+.of-region-banner svg {
+  flex-shrink: 0;
+  color: #cc8800;
+}
+
 /* ── Page header ────────────────────────────── */
 .of-header {
   display: flex;

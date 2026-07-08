@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GalleryEntry } from '../../models';
+import { LocationService } from '../../services/location.service';
 
 interface PrintOrderForm {
   firstName: string; lastName: string; email: string; phone: string;
@@ -17,6 +18,7 @@ import { ApiService } from '../../services/api.service';
   styleUrl: './print-order-modal.component.css',
 })
 export class PrintOrderModalComponent implements OnChanges {
+  private readonly location = inject(LocationService);
   @Input() items: GalleryEntry[] = [];
   @Output() closed = new EventEmitter<void>();
   @Output() orderPlaced = new EventEmitter<string>(); // emits the new order_id
@@ -49,7 +51,7 @@ export class PrintOrderModalComponent implements OnChanges {
       addressLine2: '',
       city: '',
       postCode: '',
-      country: 'JP',
+      country: this.location.config().region === 'IN' ? 'IN' : this.location.config().region === 'JP' ? 'JP' : '',
       size: 'A4',
       quantity: 1,
       notes: '',

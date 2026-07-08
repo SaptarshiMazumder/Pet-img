@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { Order } from '../../models';
 import { ApiService } from '../../services/api.service';
-import { AuthService } from '../../services/auth.service';
 import { LanguageService } from '../../services/language.service';
+import { LocationService } from '../../services/location.service';
 
 @Component({
   selector: 'app-orders-page',
@@ -13,39 +13,38 @@ import { LanguageService } from '../../services/language.service';
 })
 export class OrdersPageComponent {
   protected readonly lang = inject(LanguageService);
-  protected readonly auth = inject(AuthService);
+  protected readonly location = inject(LocationService);
+  readonly orderingEnabled = false;
   @Input() orders: Order[] = [];
   @Input() loading = false;
   @Output() refresh = new EventEmitter<void>();
   @Output() editOrder = new EventEmitter<Order>();
 
-  payingId: string | null = null;
-  payError = '';
+  submittingId: string | null = null;
+  submitError = '';
 
   constructor(private api: ApiService) {}
 
-  pay(order: Order) {
-    this.payingId = order.id;
-    this.payError = '';
-    const returnUrl = `${window.location.origin}/?payment_return=1`;
-    this.api.createPayment(order.id, returnUrl).subscribe({
-      next: (data) => {
-        window.open(data.session_url, 'komoju-payment', 'width=620,height=720,scrollbars=yes');
-        const handler = (event: MessageEvent) => {
-          if (event.origin !== window.location.origin) return;
-          if (event.data?.type === 'komoju_return') {
-            window.removeEventListener('message', handler);
-            this.api.verifyPayment(order.id, this.lang.lang()).subscribe({
-              next: () => { this.payingId = null; this.refresh.emit(); },
-              error: () => { this.payingId = null; this.payError = 'Payment verification failed.'; },
-            });
-          }
-        };
-        window.addEventListener('message', handler);
+  submit(order: Order) {
+    if (this.hasUnsupportedShippingCountry(order.shipping.country)) {
+      this.submitError = this.lang.t().region.noShippingBanner;
+      return;
+    }
+
+    if (!this.orderingEnabled) {
+      return;
+    }
+
+    this.submittingId = order.id;
+    this.submitError = '';
+    this.api.submitOrder(order.id, this.lang.lang()).subscribe({
+      next: () => {
+        this.submittingId = null;
+        this.refresh.emit();
       },
       error: (err: any) => {
-        this.payingId = null;
-        this.payError = err?.error?.error || 'Failed to initiate payment.';
+        this.submittingId = null;
+        this.submitError = err?.error?.error || 'Failed to submit order.';
       },
     });
   }
@@ -58,5 +57,8 @@ export class OrdersPageComponent {
   itemSummary(item: any): string {
     const parts = [item.template_key, item.category, item.size, item.color, `×${item.quantity}`];
     return parts.filter(Boolean).join(' · ');
+  }
+  hasUnsupportedShippingCountry(country: string): boolean {
+    return this.location.hasUnsupportedShippingCountry(country);
   }
 }

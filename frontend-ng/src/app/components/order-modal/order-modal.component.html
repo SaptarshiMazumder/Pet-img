@@ -17,7 +17,7 @@
         </div>
       }
 
-      <form class="order-form" (ngSubmit)="submitted.emit(form)">
+      <form class="order-form" (ngSubmit)="onSubmit()">
         <div class="form-row">
           <div class="form-group">
             <label>First Name</label>
@@ -62,6 +62,11 @@
         </div>
 
         <div class="form-group">
+          <label>Country</label>
+          <input [(ngModel)]="form.country" name="country" />
+        </div>
+
+        <div class="form-group">
           <label>Product</label>
           @if (productsLoading) {
             <div class="field-hint">Loading products…</div>
@@ -83,6 +88,10 @@
           <input type="number" [(ngModel)]="form.quantity" name="quantity" min="1" max="10" required />
         </div>
 
+        @if (form.order_type === 'order' && hasUnsupportedShippingCountry(form.country)) {
+          <div class="msg-error">{{ lang.t().region.noShippingBanner }}</div>
+        }
+
         <div class="order-type-row">
           <label class="toggle-label">
             <input type="checkbox" name="order_type_toggle"
@@ -101,9 +110,9 @@
         <div class="modal-actions">
           <button type="button" class="btn-secondary" (click)="closed.emit()">Cancel</button>
           <button type="submit" class="btn-primary"
-            [disabled]="submitting || productsLoading || !form.product_uid">
+            [disabled]="submitting || productsLoading || !form.product_uid || (form.order_type === 'order' && hasUnsupportedShippingCountry(form.country))">
             @if (!submitting) {
-              {{ form.order_type === 'order' ? 'Place Order (JPY)' : 'Save as Draft' }}
+              {{ form.order_type === 'order' ? 'Place Order (' + location.config().currency + ')' : 'Save as Draft' }}
             } @else {
               {{ form.order_type === 'order' ? 'Placing order…' : 'Saving draft…' }}
             }

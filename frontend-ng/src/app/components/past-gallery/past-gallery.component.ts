@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { GalleryEntry } from '../../models';
 import { LanguageService } from '../../services/language.service';
+import { PRINTS_ENABLED } from '../../config';
 
 @Component({
   selector: 'app-past-gallery',
@@ -11,6 +12,7 @@ import { LanguageService } from '../../services/language.service';
 })
 export class PastGalleryComponent {
   protected readonly lang = inject(LanguageService);
+  protected readonly printsEnabled = PRINTS_ENABLED;
   @Input() gallery: GalleryEntry[] = [];
   @Input() loading = false;
   @Input() templates: Record<string, any> = {};

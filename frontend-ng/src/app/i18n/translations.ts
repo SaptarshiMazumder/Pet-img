@@ -130,6 +130,9 @@ export interface T {
     scta: string;
     brand: string;
   };
+  region: {
+    noShippingBanner: string;
+  };
   confirm: {
     regenerate: string;
   };
@@ -281,6 +284,9 @@ export const TRANSLATIONS: Record<Lang, T> = {
       scta: '特定商取引法に基づく表記',
       brand: 'A product of Nakama AI',
     },
+    region: {
+      noShippingBanner: "We currently don't ship to your region yet — coming soon!",
+    },
     confirm: {
       regenerate: 'Regenerate this portrait? The current result will be replaced.',
     },
@@ -430,6 +436,9 @@ export const TRANSLATIONS: Record<Lang, T> = {
       terms: '利用規約',
       scta: '特定商取引法に基づく表記',
       brand: 'Nakama AI のプロダクト',
+    },
+    region: {
+      noShippingBanner: '現在お住まいの地域への配送は準備中です。もうしばらくお待ちください。',
     },
     confirm: {
       regenerate: 'このポートレートを再生成しますか？現在の結果は置き換えられます。',

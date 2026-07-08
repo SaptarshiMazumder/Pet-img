@@ -1,344 +1,126 @@
-import base64
-import hashlib
-import hmac
+"""
+Payment & credit routes (Dodo Payments — digital credit packs only).
+
+  GET  /credits                 -> current balance + purchasable packs
+  POST /credits/checkout        -> create a Dodo hosted checkout session for a pack
+  POST /webhooks/dodo           -> Dodo webhook: grant credits on payment.succeeded
+
+Dodo is the Merchant of Record and handles global tax/VAT. Physical prints never
+touch this rail (prohibited MoR category) — see config.py PRINTS_ENABLED.
+"""
 import os
 
-import requests as http_client
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, request, jsonify, g
 
 from backend.auth_middleware import require_auth
-from backend.config.prices import get_framed_base_cost
-from backend.firebase import get_db
+from backend.config import credits as credits_cfg
+from backend.db import credits as credits_db
+from backend.services import dodo_client
 
 payments_bp = Blueprint("payments", __name__)
 
-KOMOJU_API_BASE = "https://komoju.com/api/v1"
+_SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://pet-to.com")
 
 
-def _komoju_headers():
-    secret = os.environ["KOMOJU_SECRET_KEY"]
-    token = base64.b64encode(f"{secret}:".encode()).decode()
-    return {
-        "Authorization": f"Basic {token}",
-        "Content-Type": "application/json",
-    }
+def _attr(obj, name, default=None):
+    """Read an attribute from a pydantic model OR a key from a dict."""
+    if obj is None:
+        return default
+    if isinstance(obj, dict):
+        return obj.get(name, default)
+    return getattr(obj, name, default)
 
 
-def _send_order_confirmation(order_data: dict, order_id: str, user_email: str, lang: str = 'en') -> None:
-    """Send an order confirmation email via SendGrid. Silently skips if API key is not set."""
-    api_key = os.environ.get("SEND_GRID_API_KEY")
-    if not api_key:
-        print("[email] SEND_GRID_API_KEY not set — skipping confirmation email")
-        return
+@payments_bp.get("/credits")
+@require_auth
+def get_credits():
+    return jsonify({
+        "credits": credits_db.get_credits(g.uid),
+        "packs": credits_cfg.public_catalog(),
+        "payments_enabled": dodo_client.is_configured(),
+    })
 
-    if not user_email:
-        print(f"[email] No user email for order {order_id} — skipping")
-        return
 
-    to_email = user_email
-    shipping = order_data.get("shipping", {})
-    print(f"[email] Sending order confirmation for {order_id} to {to_email}")
+@payments_bp.post("/credits/checkout")
+@require_auth
+def create_checkout():
+    if not dodo_client.is_configured():
+        return jsonify({"error": "Payments are not available yet.", "code": "payments_disabled"}), 503
 
-    first_name = shipping.get("firstName", "")
-    items = order_data.get("items", [])
-    is_ja = lang == 'ja'
+    body = request.get_json(silent=True) or {}
+    pack_id = body.get("pack_id")
+    pack = credits_cfg.get_pack(pack_id)
+    if not pack:
+        return jsonify({"error": "Unknown credit pack"}), 400
 
-    items_html = "".join(
-        f"<tr><td style='padding:4px 8px'>{item.get('template_key','')}</td>"
-        f"<td style='padding:4px 8px'>{item.get('category','')} · {item.get('size','')}"
-        f"{' · ' + item.get('color','') if item.get('color') else ''}</td>"
-        f"<td style='padding:4px 8px;text-align:center'>×{item.get('quantity',1)}</td></tr>"
-        for item in items
-    )
+    product_id = credits_cfg.get_product_id(pack_id)
+    if not product_id:
+        return jsonify({"error": "This pack is not configured for sale yet.", "code": "product_unconfigured"}), 503
 
-    address_parts = [
-        shipping.get("addressLine1", ""),
-        shipping.get("addressLine2", ""),
-        shipping.get("city", ""),
-        shipping.get("postCode", ""),
-        shipping.get("country", ""),
-    ]
-    address_str = ", ".join(p for p in address_parts if p)
+    return_url = body.get("return_url") or f"{_SITE_BASE_URL}/?checkout=success"
 
-    if is_ja:
-        heading = f"ご注文ありがとうございます、{first_name}様！"
-        order_label = "注文ID"
-        items_label = "ご注文内容"
-        col_portrait = "ポートレート"
-        col_details = "詳細"
-        col_qty = "数量"
-        shipping_label = "配送先"
-        delivery_msg = "ご注文を承りました。<strong>お支払い確認後、10〜14営業日以内</strong>にお届けいたします。江戸風ポートレートの印刷・額装は提携パートナーが行います。"
-        contact_msg = "ご不明な点は <a href='mailto:contact@nakamaai.co'>contact@nakamaai.co</a> までお問い合わせください。"
-        subject = f"ご注文確認 — 注文 {order_id}"
-    else:
-        heading = f"Thank you for your order, {first_name}!"
-        order_label = "Order ID"
-        items_label = "Items ordered"
-        col_portrait = "Portrait"
-        col_details = "Details"
-        col_qty = "Qty"
-        shipping_label = "Shipping to"
-        delivery_msg = "Your order has been placed and will be delivered within <strong>10–14 days after payment confirmation</strong>. Our fulfillment partner will handle printing and framing of your Edo-era portrait."
-        contact_msg = "Questions? Contact us at <a href='mailto:contact@nakamaai.co'>contact@nakamaai.co</a>"
-        subject = f"Your pet portrait order has been confirmed — Order {order_id}"
+    try:
+        session = dodo_client.create_checkout_session(
+            product_id=product_id,
+            email=g.user_email or "",
+            name=g.user_email or "Customer",
+            return_url=return_url,
+            metadata={
+                "uid": g.uid,
+                "pack_id": pack_id,
+                "credits": str(pack["credits"]),
+            },
+        )
+    except Exception as exc:
+        print(f"[dodo] checkout creation failed: {exc}")
+        return jsonify({"error": "Could not start checkout. Please try again."}), 502
 
-    html = f"""
-<html><body style="font-family:sans-serif;color:#1a1a1a;max-width:580px;margin:auto;padding:24px">
-  <h2 style="font-size:1.25rem;margin-bottom:4px">{heading}</h2>
-  <p style="color:#666;margin-top:0">{order_label}: <code>{order_id}</code></p>
+    if not session.get("checkout_url"):
+        return jsonify({"error": "Checkout session did not return a URL."}), 502
+    return jsonify(session)
 
-  <h3 style="font-size:0.95rem;margin-bottom:8px">{items_label}</h3>
-  <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
-    <thead>
-      <tr style="background:#f5f0e8">
-        <th style="padding:4px 8px;text-align:left">{col_portrait}</th>
-        <th style="padding:4px 8px;text-align:left">{col_details}</th>
-        <th style="padding:4px 8px;text-align:center">{col_qty}</th>
-      </tr>
-    </thead>
-    <tbody>{items_html}</tbody>
-  </table>
 
-  <h3 style="font-size:0.95rem;margin-top:20px;margin-bottom:4px">{shipping_label}</h3>
-  <p style="font-size:0.9rem;color:#444;margin:0">{address_str}</p>
+@payments_bp.post("/webhooks/dodo")
+def dodo_webhook():
+    """Verify the Dodo webhook signature and grant credits on successful payment."""
+    if not dodo_client.is_configured():
+        return "", 503
 
-  <p style="margin-top:20px;font-size:0.9rem;color:#444;line-height:1.6">{delivery_msg}</p>
-
-  <p style="font-size:0.85rem;color:#888;margin-top:20px">{contact_msg}</p>
-</body></html>
-"""
-
-    payload = {
-        "personalizations": [{"to": [{"email": to_email}]}],
-        "from": {"email": "noreply@pet-to.com", "name": "Nakama AI"},
-        "subject": subject,
-        "content": [{"type": "text/html", "value": html}],
+    payload = request.get_data()  # raw bytes — required for signature verification
+    headers = {
+        "webhook-id": request.headers.get("webhook-id", ""),
+        "webhook-signature": request.headers.get("webhook-signature", ""),
+        "webhook-timestamp": request.headers.get("webhook-timestamp", ""),
     }
 
     try:
-        resp = http_client.post(
-            "https://api.sendgrid.com/v3/mail/send",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-            json=payload,
-            timeout=10,
-        )
-        if resp.status_code >= 400:
-            print(f"[email] SendGrid error {resp.status_code}: {resp.text}")
+        event = dodo_client.unwrap_webhook(payload, headers)
     except Exception as exc:
-        print(f"[email] Failed to send order confirmation to {to_email}: {exc}")
+        print(f"[dodo] webhook verification failed: {exc}")
+        return "Invalid signature", 400
 
+    event_type = _attr(event, "type")
+    data = _attr(event, "data")
 
-@payments_bp.post("/orders/<order_id>/payment")
-@require_auth
-def create_payment(order_id: str):
-    """Create a Komoju session for this order and return checkout params."""
-    db = get_db()
-    doc_ref = db.collection("orders").document(order_id)
-    doc = doc_ref.get()
+    # Only one-time payments matter for credit packs.
+    if event_type == "payment.succeeded":
+        metadata = _attr(data, "metadata", {}) or {}
+        uid = _attr(metadata, "uid")
+        payment_id = _attr(data, "payment_id") or _attr(data, "id")
+        try:
+            credits = int(_attr(metadata, "credits", 0) or 0)
+        except (TypeError, ValueError):
+            credits = 0
 
-    if not doc.exists:
-        return jsonify({"error": "Order not found"}), 404
+        if uid and payment_id and credits > 0:
+            try:
+                new_balance = credits_db.add_credits(uid, credits, str(payment_id))
+                print(f"[dodo] +{credits} credits for {uid} (payment {payment_id}) -> {new_balance}")
+            except Exception as exc:
+                # Return 500 so Dodo retries delivery (add_credits is idempotent).
+                print(f"[dodo] failed to grant credits for payment {payment_id}: {exc}")
+                return "Error granting credits", 500
+        else:
+            print(f"[dodo] payment.succeeded missing uid/credits metadata (payment {payment_id})")
 
-    data = doc.to_dict()
-    if data.get("uid") != g.uid:
-        return jsonify({"error": "Forbidden"}), 403
-    if data.get("payment_status") == "paid":
-        return jsonify({"error": "Already paid"}), 400
-
-    items = data.get("items", [])
-    if os.environ.get("DEV_PRICE_1YEN"):
-        total_jpy = 100 * len(items)
-    else:
-        total_jpy = sum(
-            get_framed_base_cost(item.get("category", ""), item.get("size", ""))
-            * item.get("quantity", 1)
-            for item in items
-        )
-
-    body = request.get_json(silent=True) or {}
-    return_url = body.get("return_url", "")
-
-    resp = http_client.post(
-        f"{KOMOJU_API_BASE}/sessions",
-        headers=_komoju_headers(),
-        json={
-            "amount": total_jpy,
-            "currency": "JPY",
-            "default_locale": "ja",
-            "return_url": return_url,
-            "metadata": {"order_id": order_id},
-        },
-    )
-    resp.raise_for_status()
-    session = resp.json()
-
-    doc_ref.update({"komoju_session_id": session["id"]})
-
-    return jsonify({
-        "session_id": session["id"],
-        "session_url": session["session_url"],
-        "amount": total_jpy,
-        "total_jpy": total_jpy,
-        "currency": "JPY",
-    })
-
-
-@payments_bp.post("/orders/<order_id>/payment/verify")
-@require_auth
-def verify_payment(order_id: str):
-    """Verify Komoju session status and mark order as paid."""
-    db = get_db()
-    doc_ref = db.collection("orders").document(order_id)
-    doc = doc_ref.get()
-
-    if not doc.exists:
-        return jsonify({"error": "Order not found"}), 404
-
-    data = doc.to_dict()
-    if data.get("uid") != g.uid:
-        return jsonify({"error": "Forbidden"}), 403
-
-    session_id = data.get("komoju_session_id")
-    if not session_id:
-        return jsonify({"error": "No payment session found"}), 400
-
-    resp = http_client.get(
-        f"{KOMOJU_API_BASE}/sessions/{session_id}",
-        headers=_komoju_headers(),
-    )
-    if resp.status_code != 200:
-        return jsonify({"error": "Failed to retrieve payment session"}), 400
-
-    session = resp.json()
-    if session.get("status") != "completed":
-        return jsonify({"error": "Payment not completed"}), 400
-
-    payment = session.get("payment") or {}
-    komoju_payment_id = payment.get("id", "")
-
-    from google.cloud import firestore
-    doc_ref.update({
-        "payment_status": "paid",
-        "komoju_payment_id": komoju_payment_id,
-        "updated_at": firestore.SERVER_TIMESTAMP,
-    })
-
-    body = request.get_json(silent=True) or {}
-    lang = body.get("lang", "en")
-    _send_order_confirmation(data, order_id, g.user_email, lang)
-
-    return jsonify({"success": True})
-
-
-@payments_bp.post("/webhooks/komoju")
-def komoju_webhook():
-    """Receive KOMOJU webhook events (e.g. konbini payment captured)."""
-    secret = os.environ.get("KOMOJU_WEBHOOK_SECRET", "")
-    if secret:
-        sig = request.headers.get("X-Komoju-Signature", "")
-        expected = hmac.new(secret.encode(), request.data, hashlib.sha256).hexdigest()
-        if not hmac.compare_digest(expected, sig):
-            return jsonify({"error": "Invalid signature"}), 401
-
-    event = request.get_json(silent=True) or {}
-    if event.get("type") != "payment.captured":
-        return jsonify({"ok": True})  # ignore other events
-
-    payment = event.get("data", {})
-    session_id = (payment.get("session") or {}).get("id") or payment.get("external_order_num", "")
-    order_id = (payment.get("metadata") or {}).get("order_id", "")
-
-    if not order_id:
-        # Fall back: look up by komoju_session_id
-        if session_id:
-            db = get_db()
-            docs = db.collection("orders").where("komoju_session_id", "==", session_id).limit(1).stream()
-            doc = next(docs, None)
-            if doc:
-                order_id = doc.id
-        if not order_id:
-            print(f"[webhook] payment.captured: could not resolve order_id (session={session_id})")
-            return jsonify({"ok": True})
-
-    db = get_db()
-    doc_ref = db.collection("orders").document(order_id)
-    doc = doc_ref.get()
-    if not doc.exists:
-        print(f"[webhook] order {order_id} not found")
-        return jsonify({"ok": True})
-
-    data = doc.to_dict()
-    if data.get("payment_status") == "paid":
-        return jsonify({"ok": True})  # already processed
-
-    from google.cloud import firestore
-    doc_ref.update({
-        "payment_status": "paid",
-        "komoju_payment_id": payment.get("id", ""),
-        "updated_at": firestore.SERVER_TIMESTAMP,
-    })
-
-    # Send confirmation email — use shipping country to guess language
-    shipping = data.get("shipping", {})
-    lang = "ja" if shipping.get("country", "JP") == "JP" else "en"
-    user_email = data.get("user_email", "")
-    if user_email:
-        _send_order_confirmation(data, order_id, user_email, lang)
-    else:
-        print(f"[webhook] no user_email stored on order {order_id}, skipping email")
-
-    print(f"[webhook] order {order_id} marked paid via konbini webhook")
-    return jsonify({"ok": True})
-
-
-# ── Razorpay (disabled — kept for reference) ──────────────────────────────────
-#
-# import hashlib
-# import hmac
-#
-# def _razorpay_client():
-#     import razorpay
-#     return razorpay.Client(
-#         auth=(os.environ["RAZORPAY_KEY_ID"], os.environ["RAZORPAY_KEY_SECRET"])
-#     )
-#
-# @payments_bp.post("/orders/<order_id>/payment")
-# @require_auth
-# def create_payment(order_id: str):
-#     """Create a Razorpay order for this order and return the checkout params."""
-#     ...
-#     client = _razorpay_client()
-#     rz_order = client.order.create({
-#         "amount": total_jpy,  # JPY has no subunits — pass face value directly
-#         "currency": "JPY",
-#         "receipt": order_id,
-#     })
-#     return jsonify({
-#         "razorpay_order_id": rz_order["id"],
-#         "amount": total_jpy,
-#         "total_jpy": total_jpy,
-#         "currency": "JPY",
-#         "key_id": os.environ["RAZORPAY_KEY_ID"],
-#     })
-#
-# @payments_bp.post("/orders/<order_id>/payment/verify")
-# @require_auth
-# def verify_payment(order_id: str):
-#     """Verify Razorpay signature and mark order as paid."""
-#     ...
-#     rz_order_id = body.get("razorpay_order_id", "")
-#     rz_payment_id = body.get("razorpay_payment_id", "")
-#     rz_signature = body.get("razorpay_signature", "")
-#     key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "")
-#     msg = f"{rz_order_id}|{rz_payment_id}"
-#     expected = hmac.new(key_secret.encode(), msg.encode(), hashlib.sha256).hexdigest()
-#     if not hmac.compare_digest(expected, rz_signature):
-#         return jsonify({"error": "Invalid payment signature"}), 400
-#     doc_ref.update({
-#         "payment_status": "paid",
-#         "razorpay_payment_id": rz_payment_id,
-#         "razorpay_order_id": rz_order_id,
-#         "updated_at": firestore.SERVER_TIMESTAMP,
-#     })
-#     return jsonify({"success": True})
+    return "", 200

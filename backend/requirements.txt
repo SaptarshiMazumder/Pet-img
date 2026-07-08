@@ -8,4 +8,5 @@ firebase-admin
 runpod
 gunicorn
 razorpay
+dodopayments
 Pillow

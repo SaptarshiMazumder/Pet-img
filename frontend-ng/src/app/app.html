@@ -33,7 +33,9 @@
             <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'samples'" (click)="switchTab('samples'); headerMenuOpen = false">{{ lang.t().nav.home }}</button>
             <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'generate'" (click)="switchTab('generate'); headerMenuOpen = false">{{ lang.t().nav.createPortrait }}</button>
             @if (currentUser) {
-              <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'orders'" (click)="switchTab('orders'); headerMenuOpen = false">{{ lang.t().nav.orders }}</button>
+              @if (printsEnabled) {
+                <button class="menu-item menu-item--mobile-only" [class.menu-item--active]="activeTab === 'orders'" (click)="switchTab('orders'); headerMenuOpen = false">{{ lang.t().nav.orders }}</button>
+              }
               <button class="menu-item menu-item--mobile-only" (click)="goToMyGenerations(); headerMenuOpen = false">{{ lang.t().nav.myGenerations }}</button>
             }
             <div class="menu-divider menu-item--mobile-only"></div>
@@ -57,12 +59,22 @@
       <button class="nav-link" [class.nav-link--active]="activeTab === 'samples'" (click)="switchTab('samples')">{{ lang.t().nav.home }}</button>
       <button class="nav-link" [class.nav-link--active]="activeTab === 'generate'" (click)="switchTab('generate')">{{ lang.t().nav.createPortrait }}</button>
       @if (currentUser) {
-        <button class="nav-link" [class.nav-link--active]="activeTab === 'orders'" (click)="switchTab('orders')">{{ lang.t().nav.orders }}</button>
+        @if (printsEnabled) {
+          <button class="nav-link" [class.nav-link--active]="activeTab === 'orders'" (click)="switchTab('orders')">{{ lang.t().nav.orders }}</button>
+        }
         <button class="nav-link" (click)="goToMyGenerations()">{{ lang.t().nav.myGenerations }}</button>
       }
     </nav>
 
     <div class="header-right">
+      @if (currentUser) {
+        <button class="credits-chip" (click)="openBuyCredits()" [title]="lang.lang() === 'ja' ? 'クレジットを購入' : 'Buy credits'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+          </svg>
+          <span class="credits-chip-count">{{ credits }}</span>
+        </button>
+      }
       @if (!currentUser) {
         <button class="header-signin-btn" (click)="signIn()">{{ lang.t().nav.signIn }}</button>
       }
@@ -199,13 +211,15 @@
               }
             </button>
 
-            <button
-              class="order-print-btn"
-              [disabled]="!canOrderPrint"
-              (click)="openOrderFromLatest()"
-            >
-              {{ lang.t().create.orderPrint }}
-            </button>
+            @if (printsEnabled) {
+              <button
+                class="order-print-btn"
+                [disabled]="!canOrderPrint"
+                (click)="openOrderFromLatest()"
+              >
+                {{ lang.t().create.orderPrint }}
+              </button>
+            }
 
             @if (errorMsg) {
               <div class="error-msg">{{ errorMsg }}</div>
@@ -310,7 +324,7 @@
   }
 
   <!-- ORDERS TAB ───────────────────────────────────────────── -->
-  @if (activeTab === 'orders') {
+  @if (printsEnabled && activeTab === 'orders') {
     <div class="page-orders">
       <app-orders-page
         [orders]="orders"
@@ -347,7 +361,7 @@
 
 
   <!-- ORDER FLOW PAGE ──────────────────────────────────────── -->
-  @if (activeTab === 'order') {
+  @if (printsEnabled && activeTab === 'order') {
     <div class="page-order">
       <app-order-flow
         [items]="orderFlowItems"
@@ -388,14 +402,16 @@
       <span class="bar-btn-label">{{ lang.t().bottomBar.create }}</span>
     </button>
     <!-- Orders -->
-    <button class="bar-btn" [class.bar-btn--active]="activeTab === 'orders'" (click)="switchTab('orders'); $event.stopPropagation()">
-      <span class="bar-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" />
-        </svg>
-      </span>
-      <span class="bar-btn-label">{{ lang.t().bottomBar.orders }}</span>
-    </button>
+    @if (printsEnabled) {
+      <button class="bar-btn" [class.bar-btn--active]="activeTab === 'orders'" (click)="switchTab('orders'); $event.stopPropagation()">
+        <span class="bar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" />
+          </svg>
+        </span>
+        <span class="bar-btn-label">{{ lang.t().bottomBar.orders }}</span>
+      </button>
+    }
     <!-- Gallery -->
     <button class="bar-btn" [class.bar-btn--active]="activeTab === 'gallery'" (click)="switchTab('gallery'); $event.stopPropagation()">
       <span class="bar-icon">
@@ -418,18 +434,33 @@
 <app-lightbox
   [item]="expandedItem"
   [templates]="templates"
+  [unlocking]="unlockingExpanded"
   (closed)="closeExpand()"
   (orderClicked)="orderFromExpand()"
+  (unlockClicked)="unlockFromExpand()"
+  (downloadClicked)="downloadFromExpand()"
 />
 
+<!-- ── Buy-credits modal ─────────────────────────────────── -->
+@if (showCreditsModal) {
+  <app-credits-modal
+    [credits]="credits"
+    [packs]="creditPacks"
+    [paymentsEnabled]="paymentsEnabled"
+    (closed)="showCreditsModal = false"
+  />
+}
+
 <!-- ── Order modal ───────────────────────────────────────── -->
-<app-order-modal
-  [job]="orderModalJob"
-  [products]="products"
-  [productsLoading]="productsLoading"
-  [submitting]="orderSubmitting"
-  [error]="orderError"
-  [success]="orderSuccess"
-  (closed)="closeOrderModal()"
-  (submitted)="onOrderSubmitted($event)"
-/>
+@if (printsEnabled) {
+  <app-order-modal
+    [job]="orderModalJob"
+    [products]="products"
+    [productsLoading]="productsLoading"
+    [submitting]="orderSubmitting"
+    [error]="orderError"
+    [success]="orderSuccess"
+    (closed)="closeOrderModal()"
+    (submitted)="onOrderSubmitted($event)"
+  />
+}

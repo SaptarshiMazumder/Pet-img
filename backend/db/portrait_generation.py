@@ -14,22 +14,30 @@ def _db():
 def save(
     uid: str,
     job_id: str,
-    r2_key: str,
     template_key: str,
     style_key: str,
     positive_prompt: str,
+    hd_r2_key: str,
+    preview_r2_key: str,
     seed=None,
     duration_seconds: float | None = None,
     source_r2_key: str | None = None,
-    compressed_r2_key: str | None = None,
     orientation: str = "portrait",
+    unlocked: bool = False,
 ) -> None:
-    """Persist a completed portrait generation result. No-op on Firestore errors (logged)."""
+    """Persist a completed portrait generation result. No-op on Firestore errors (logged).
+
+    hd_r2_key      -> secret, never-public key of the full-resolution HD image.
+    preview_r2_key -> public key of the watermarked, downscaled preview image.
+    unlocked       -> whether the HD download has been paid for (credit spent).
+    """
     try:
         from firebase_admin import firestore as fb_firestore
         doc = {
             "uid": uid,
-            "r2_key": r2_key,
+            "hd_r2_key": hd_r2_key,
+            "preview_r2_key": preview_r2_key,
+            "unlocked": bool(unlocked),
             "template_key": template_key,
             "style_key": style_key,
             "positive_prompt": positive_prompt,
@@ -41,8 +49,6 @@ def save(
             doc["duration_seconds"] = round(duration_seconds, 1)
         if source_r2_key:
             doc["source_r2_key"] = source_r2_key
-        if compressed_r2_key:
-            doc["compressed_r2_key"] = compressed_r2_key
         _db().collection("generations").document(job_id).set(doc)
     except Exception as exc:
         print(f"[Firestore] Failed to save portrait generation {job_id}: {exc}")

@@ -1,3 +1,30 @@
+# ---------------------------------------------------------------------------
+# Region & currency configuration
+# ---------------------------------------------------------------------------
+REGION_CONFIG: dict[str, dict[str, object]] = {
+    "IN": {"currency": "INR", "symbol": "₹", "shipping_supported": True},
+    "JP": {"currency": "JPY", "symbol": "¥", "shipping_supported": True},
+}
+DEFAULT_REGION = {"currency": "USD", "symbol": "$", "shipping_supported": False}
+
+# Fixed exchange rates from JPY (last updated 2026-03-26)
+_JPY_RATES: dict[str, float] = {
+    "JPY": 1.0,
+    "INR": 0.56,   # 1 JPY ≈ 0.56 INR
+    "USD": 0.0067,  # 1 JPY ≈ 0.0067 USD
+}
+
+
+def convert_price(jpy_price: int, currency: str) -> int:
+    """Convert a JPY price to the target currency, rounded to a clean integer."""
+    rate = _JPY_RATES.get(currency, _JPY_RATES["USD"])
+    return round(jpy_price * rate)
+
+
+def get_region_config(country_code: str) -> dict[str, object]:
+    return REGION_CONFIG.get(country_code, DEFAULT_REGION)
+
+
 FRAME_CATALOG: dict[str, dict[str, any]] = {
     "油絵額縁 8235(Oil painting frame 8235)": {
         "overlay_inset": 3,   # % of image dimensions the frame extends beyond each edge

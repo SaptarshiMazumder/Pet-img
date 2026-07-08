@@ -3,15 +3,17 @@ Generation service — orchestrates the full portrait generation pipeline:
   build prompt → submit to RunPod → poll for result → review (Gemini) → fix if needed (Gemini) → persist + return
 """
 import os
+import secrets
 import threading
 import time
 from pathlib import Path
 
 from backend.services.prompt_builder import build_animal_edo_prompt
-from backend.services.compress import compress_image
+from backend.services.watermark import make_preview
 from backend.runpod import submit_job, poll_job
 from backend.job_store import job_store
 from backend.storage import public_url, download_object, upload_object
+from backend.storage.r2 import delete_object
 from backend.autoscaler_client import autoscaler
 from backend.db import active_jobs as active_jobs_db
 from backend.db import portrait_generation as portrait_generation_db
@@ -30,30 +32,74 @@ def process_runpod_result(
     source_r2_key: str | None = None,
     orientation: str = "portrait",
 ) -> None:
-    """Convert a RunPod result into a presigned URL, persist to Firestore, update job store."""
-    images = runpod_result.get("images", [])
-    r2_key = images[0]["key"] if images and images[0].get("key") else None
-    presigned_url = public_url(r2_key) if r2_key else None
+    """Turn a RunPod result into a WATERMARKED public preview + a PRIVATE HD file.
 
-    if uid and r2_key:
+    The full-resolution HD is never served publicly: it is copied to a secret,
+    unguessable key and the RunPod-produced public object is deleted. Only the
+    watermarked preview URL is returned to the client. Spending a credit later
+    unlocks the HD (see routes/user.py + db/credits.py).
+    """
+    images = runpod_result.get("images", [])
+    hd_public_key = images[0]["key"] if images and images[0].get("key") else None
+
+    preview_url = None
+    preview_key = None
+    hd_secret_key = None
+
+    if hd_public_key:
+        try:
+            hd_bytes = download_object(hd_public_key)
+        except Exception as exc:
+            print(f"[preview] failed to download HD {hd_public_key}: {exc}")
+            hd_bytes = None
+
+        if hd_bytes is not None:
+            # 1. Build the watermarked, downscaled public preview.
+            try:
+                preview_bytes = make_preview(hd_bytes)
+                preview_key = f"previews/{job_id}.jpg"
+                upload_object(preview_key, preview_bytes, content_type="image/jpeg")
+                preview_url = public_url(preview_key)
+            except Exception as exc:
+                print(f"[preview] failed to build/upload preview for {job_id}: {exc}")
+
+            # 2. Copy the clean HD to a secret key (only revealed after unlock).
+            #    Only retained for signed-in users, who alone can unlock/download it.
+            if uid:
+                try:
+                    ext = hd_public_key.rsplit(".", 1)[1].lower() if "." in hd_public_key else "png"
+                    content_type = "image/jpeg" if ext in ("jpg", "jpeg") else f"image/{ext}"
+                    hd_secret_key = f"hd/{job_id}-{secrets.token_urlsafe(16)}.{ext}"
+                    upload_object(hd_secret_key, hd_bytes, content_type=content_type)
+                except Exception as exc:
+                    print(f"[preview] failed to store private HD for {job_id}: {exc}")
+                    hd_secret_key = None
+
+            # 3. Delete the publicly-reachable HD object(s) RunPod produced.
+            _delete_public_hd(hd_public_key)
+
+    if uid and hd_secret_key and preview_key:
         portrait_generation_db.save(
             uid=uid,
             job_id=job_id,
-            r2_key=r2_key,
             template_key=template_key,
             style_key=style_key,
             positive_prompt=positive_prompt,
+            hd_r2_key=hd_secret_key,
+            preview_r2_key=preview_key,
             seed=runpod_result.get("seed"),
             duration_seconds=duration_seconds,
             source_r2_key=source_r2_key,
             orientation=orientation,
+            unlocked=False,
         )
 
-    # Mark job complete with full-size URL immediately so the UI shows it right away
+    # Mark job complete with the watermarked preview URL so the UI shows it right away.
     job_store.update(
         job_id,
         status="completed",
-        presigned_url=presigned_url,
+        presigned_url=preview_url,
+        unlocked=False,
         positive_prompt=positive_prompt,
         negative_prompt=negative_prompt,
         animal_data=animal_data,
@@ -65,30 +111,21 @@ def process_runpod_result(
         orientation=orientation,
     )
 
-    # Compress asynchronously — Firestore gets updated with compressed_r2_key when done
-    if uid and r2_key:
-        threading.Thread(
-            target=_compress_and_persist,
-            args=(job_id, r2_key),
-            daemon=True,
-        ).start()
 
+def _delete_public_hd(key: str) -> None:
+    """Remove the public HD object(s) so only the watermarked preview stays public.
 
-def _compress_and_persist(job_id: str, r2_key: str) -> None:
-    """Download, compress, upload to R2, then patch the Firestore doc."""
-    try:
-        raw = download_object(r2_key)
-        compressed = compress_image(raw)
-        base = r2_key.rsplit(".", 1)[0] if "." in r2_key else r2_key
-        compressed_r2_key = f"compressed/{base.split('/')[-1]}.jpg"
-        upload_object(compressed_r2_key, compressed, content_type="image/jpeg")
-        print(f"[compress] saved {compressed_r2_key} ({len(compressed) // 1024}KB)")
-        from backend.firebase import get_db
-        get_db().collection("generations").document(job_id).update(
-            {"compressed_r2_key": compressed_r2_key}
-        )
-    except Exception as exc:
-        print(f"[compress] failed for {r2_key}: {exc}")
+    If Gemini produced a ``*_fixed`` variant, the pre-fix original is still public
+    at the base key, so delete that too.
+    """
+    keys = [key]
+    if "_fixed." in key:
+        keys.append(key.replace("_fixed.", ".", 1))
+    for k in keys:
+        try:
+            delete_object(k)
+        except Exception as exc:
+            print(f"[preview] failed to delete public HD object {k}: {exc}")
 
 
 def _review_and_fix_if_needed(job_id: str, runpod_result: dict) -> dict:

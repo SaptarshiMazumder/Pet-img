@@ -77,15 +77,32 @@ export class ApiService {
     return this.http.delete<any>(`${this.base}/samples/${sampleId}`);
   }
 
-  getFrameCatalog(): Observable<{ categories: { name: string; overlay_inset: number; variants: { color: string; preview_img_landscape: string; preview_img_portrait: string }[]; sizes: { [key: string]: { price: number } } }[] }> {
-    return this.http.get<any>(`${this.base}/orders/catalog`);
+  detectGeo(): Observable<{ country: string }> {
+    return this.http.get<{ country: string }>(`${this.base}/geo`);
   }
 
-  createPayment(orderId: string, returnUrl: string): Observable<{ session_id: string; session_url: string; amount: number; total_jpy: number; currency: string }> {
-    return this.http.post<any>(`${this.base}/orders/${orderId}/payment`, { return_url: returnUrl });
+  getFrameCatalog(currency: string = 'JPY'): Observable<{ categories: { name: string; overlay_inset: number; variants: { color: string; preview_img_landscape: string; preview_img_portrait: string }[]; sizes: { [key: string]: { price: number } } }[]; currency: string }> {
+    return this.http.get<any>(`${this.base}/orders/catalog?currency=${currency}`);
   }
 
-  verifyPayment(orderId: string, lang: string = 'en'): Observable<{ success: boolean }> {
-    return this.http.post<any>(`${this.base}/orders/${orderId}/payment/verify`, { lang });
+  submitOrder(orderId: string, lang: string = 'en'): Observable<{ success: boolean }> {
+    return this.http.post<any>(`${this.base}/orders/${orderId}/submit`, { lang });
+  }
+
+  // ── Credits & digital purchases ──────────────────────────────
+  getCredits(): Observable<{ credits: number; packs: { pack_id: string; credits: number; price_usd: number; label: string }[]; payments_enabled: boolean }> {
+    return this.http.get<any>(`${this.base}/credits`);
+  }
+
+  createCreditCheckout(packId: string, returnUrl?: string): Observable<{ checkout_url: string; session_id: string }> {
+    return this.http.post<any>(`${this.base}/credits/checkout`, { pack_id: packId, return_url: returnUrl });
+  }
+
+  unlockGeneration(jobId: string): Observable<{ unlocked: boolean; credits_remaining: number; download_url: string | null }> {
+    return this.http.post<any>(`${this.base}/user/generations/${jobId}/unlock`, {});
+  }
+
+  getDownloadUrl(jobId: string): Observable<{ download_url: string }> {
+    return this.http.get<any>(`${this.base}/user/generations/${jobId}/download`);
   }
 }

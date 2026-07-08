@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { GalleryEntry, Order, ShippingAddress } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { LanguageService } from '../../services/language.service';
+import { LocationService } from '../../services/location.service';
 
 export interface FrameVariant {
   color: string;
@@ -38,6 +39,8 @@ const SHIPPING_KEY = 'pg_shipping';
 })
 export class OrderFlowComponent implements OnChanges, OnInit {
   protected readonly lang = inject(LanguageService);
+  protected readonly location = inject(LocationService);
+  readonly orderingEnabled = false;
   @Input() items: GalleryEntry[] = [];
   @Input() editOrder: Order | null = null;
   @Output() closed = new EventEmitter<void>();
@@ -58,7 +61,7 @@ export class OrderFlowComponent implements OnChanges, OnInit {
   constructor(public api: ApiService) {}
 
   ngOnInit() {
-    this.api.getFrameCatalog().subscribe({
+    this.api.getFrameCatalog(this.location.config().currency).subscribe({
       next: (data) => {
         this.categories = data.categories;
         if (this.itemConfigs.length && this.categories.length) {
@@ -191,8 +194,14 @@ export class OrderFlowComponent implements OnChanges, OnInit {
     return (cat?.sizes[cfg.size]?.price ?? 0) * cfg.quantity;
   }
 
+  hasUnsupportedShippingCountry(country: string): boolean {
+    return this.location.hasUnsupportedShippingCountry(country);
+  }
+
   private defaultShipping(): ShippingAddress {
-    return { firstName: '', lastName: '', email: '', phone: '', addressLine1: '', addressLine2: '', city: '', postCode: '', country: 'JP' };
+    const region = this.location.config().region;
+    const country = region === 'IN' ? 'IN' : region === 'JP' ? 'JP' : '';
+    return { firstName: '', lastName: '', email: '', phone: '', addressLine1: '', addressLine2: '', city: '', postCode: '', country };
   }
 
   private loadShipping(): ShippingAddress {
@@ -234,6 +243,15 @@ export class OrderFlowComponent implements OnChanges, OnInit {
   }
 
   submit() {
+    if (this.hasUnsupportedShippingCountry(this.shipping.country)) {
+      this.error = this.lang.t().region.noShippingBanner;
+      return;
+    }
+
+    if (!this.orderingEnabled) {
+      return;
+    }
+
     const s = this.shipping;
     if (!s.firstName || !s.lastName || !s.email || !s.addressLine1 || !s.city || !s.postCode) {
       this.error = 'Please fill in all required fields.';
@@ -260,36 +278,31 @@ export class OrderFlowComponent implements OnChanges, OnInit {
     };
     if (this.existingOrderId) {
       this.api.updateOrder(this.existingOrderId, payload).subscribe({
-        next: () => { this.openPayment(this.existingOrderId!); },
+        next: () => { this.submitOrder(this.existingOrderId!); },
         error: (err: any) => { this.submitting = false; this.error = err?.error?.error || 'Failed to update order.'; },
       });
     } else {
       this.api.createOrder(payload).subscribe({
-        next: (resp: any) => { this.existingOrderId = resp.order_id; this.openPayment(resp.order_id); },
+        next: (resp: any) => {
+          this.existingOrderId = resp.order_id;
+          this.submitOrder(resp.order_id);
+        },
         error: (err: any) => { this.submitting = false; this.error = err?.error?.error || 'Failed to create order.'; },
       });
     }
   }
 
-  private openPayment(orderId: string) {
-    const returnUrl = `${window.location.origin}/?payment_return=1`;
-    this.api.createPayment(orderId, returnUrl).subscribe({
-      next: (data) => {
+  private submitOrder(orderId: string) {
+    this.api.submitOrder(orderId, this.lang.lang()).subscribe({
+      next: () => {
         this.submitting = false;
-        window.open(data.session_url, 'komoju-payment', 'width=620,height=720,scrollbars=yes');
-        const handler = (event: MessageEvent) => {
-          if (event.origin !== window.location.origin) return;
-          if (event.data?.type === 'komoju_return') {
-            window.removeEventListener('message', handler);
-            this.api.verifyPayment(orderId, this.lang.lang()).subscribe({
-              next: () => { this.step = 'success'; this.orderPlaced.emit(); },
-              error: () => { this.error = 'Payment verification failed. Contact support.'; },
-            });
-          }
-        };
-        window.addEventListener('message', handler);
+        this.step = 'success';
+        this.orderPlaced.emit();
       },
-      error: (err: any) => { this.submitting = false; this.error = err?.error?.error || 'Failed to initiate payment.'; },
+      error: (err: any) => {
+        this.submitting = false;
+        this.error = err?.error?.error || 'Failed to submit order.';
+      },
     });
   }
 }

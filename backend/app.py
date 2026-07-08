@@ -1,4 +1,5 @@
 import mimetypes
+import os
 import sys
 from pathlib import Path
 
@@ -21,6 +22,11 @@ from backend.routes.samples import samples_bp
 from backend.routes.orders import orders_bp
 from backend.routes.payments import payments_bp
 
+# Physical prints are a prohibited category for the Dodo (MoR) rail, so the print
+# API is disabled by default while under Dodo review. Set PRINTS_ENABLED=true to
+# re-expose it once a separate non-Dodo rail (Cashfree / PayPal) is live.
+PRINTS_ENABLED = os.getenv("PRINTS_ENABLED", "false").lower() == "true"
+
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -33,11 +39,12 @@ def create_app() -> Flask:
 
     app.register_blueprint(catalog_bp)
     app.register_blueprint(generation_bp)
-    app.register_blueprint(print_orders_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(samples_bp)
     app.register_blueprint(orders_bp)
     app.register_blueprint(payments_bp)
+    if PRINTS_ENABLED:
+        app.register_blueprint(print_orders_bp)
     return app
 
 

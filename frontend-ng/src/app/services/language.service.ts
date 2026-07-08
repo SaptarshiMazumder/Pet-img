@@ -8,8 +8,12 @@ export class LanguageService {
 
   toggle(): void {
     const next: Lang = this.lang() === 'en' ? 'ja' : 'en';
-    this.lang.set(next);
-    localStorage.setItem('pg_lang', next);
+    this.setLang(next);
+  }
+
+  setLang(lang: Lang): void {
+    this.lang.set(lang);
+    localStorage.setItem('pg_lang', lang);
   }
 
   templateName(tpl: any): string {

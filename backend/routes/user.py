@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, g
 
 from backend.auth_middleware import require_auth
 from backend.db import portrait_generation as generations_db
+from backend.db import credits as credits_db
 from backend.firebase import get_db
 from backend.job_store import job_store
 from backend.services.generation import run_job_background
@@ -17,29 +18,58 @@ from backend.storage.r2 import delete_object, download_object
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 
 
+def _display_url(data: dict) -> str | None:
+    """Public (watermarked) image URL for a generation, with legacy fallback.
+
+    New generations expose only the watermarked ``preview_r2_key``. Legacy
+    generations (pre-paywall) fall back to their old compressed/full public key.
+    """
+    if data.get("preview_r2_key"):
+        return public_url(data["preview_r2_key"])
+    if data.get("compressed_r2_key"):
+        return public_url(data["compressed_r2_key"])
+    if data.get("r2_key"):
+        return public_url(data["r2_key"])
+    return None
+
+
+def _is_unlocked(data: dict) -> bool:
+    """Legacy generations (no hd_r2_key) predate the paywall and are treated as unlocked."""
+    if "hd_r2_key" not in data:
+        return True
+    return bool(data.get("unlocked"))
+
+
+def _gen_r2_keys(data: dict) -> list[str]:
+    """All R2 object keys owned by a generation doc (new schema + legacy)."""
+    keys = []
+    for field in ("hd_r2_key", "preview_r2_key", "source_r2_key", "compressed_r2_key"):
+        if data.get(field):
+            keys.append(data[field])
+    if data.get("r2_key"):
+        keys += [data["r2_key"], _fixed_key(data["r2_key"])]
+    return keys
+
+
 @user_bp.get("/generations")
 @require_auth
 def get_generations():
-    """Return the authenticated user's generation history with fresh presigned URLs."""
+    """Return the authenticated user's generation history (watermarked previews only)."""
     docs = generations_db.get_by_uid(g.uid)
 
     results = []
     for doc in docs:
         data = doc.to_dict()
-        r2_key = data.get("r2_key")
-        compressed_r2_key = data.get("compressed_r2_key")
         ts = data.get("created_at")
         source_r2_key = data.get("source_r2_key")
-        full_url = public_url(r2_key) if r2_key else None
-        display_url = public_url(compressed_r2_key) if compressed_r2_key else full_url
         results.append({
             "job_id": doc.id,
             "template_key": data.get("template_key"),
             "style_key": data.get("style_key"),
             "positive_prompt": data.get("positive_prompt"),
             "seed": data.get("seed"),
-            "r2_key": r2_key,
-            "presigned_url": display_url,
+            "presigned_url": _display_url(data),
+            "unlocked": _is_unlocked(data),
             "source_url": public_url(source_r2_key) if source_r2_key else None,
             "orientation": data.get("orientation", "portrait"),
             "created_at": ts.isoformat() if ts else None,
@@ -47,6 +77,48 @@ def get_generations():
 
     results.sort(key=lambda x: x["created_at"] or "", reverse=True)
     return jsonify({"generations": results})
+
+
+@user_bp.post("/generations/<job_id>/unlock")
+@require_auth
+def unlock_generation(job_id: str):
+    """Spend 1 credit to unlock the HD download of a portrait. Idempotent."""
+    try:
+        result = credits_db.spend_credit_to_unlock(g.uid, job_id)
+    except credits_db.NotFound:
+        return jsonify({"error": "Not found"}), 404
+    except credits_db.Forbidden:
+        return jsonify({"error": "Forbidden"}), 403
+    except credits_db.InsufficientCredits:
+        return jsonify({"error": "Insufficient credits", "code": "insufficient_credits"}), 402
+
+    doc = get_db().collection("generations").document(job_id).get()
+    hd_key = doc.to_dict().get("hd_r2_key") if doc.exists else None
+    return jsonify({
+        "unlocked": True,
+        "credits_remaining": result["credits_remaining"],
+        "download_url": public_url(hd_key) if hd_key else None,
+    })
+
+
+@user_bp.get("/generations/<job_id>/download")
+@require_auth
+def download_generation(job_id: str):
+    """Return the HD download URL — only if the caller owns and has unlocked it."""
+    doc = get_db().collection("generations").document(job_id).get()
+    if not doc.exists:
+        return jsonify({"error": "Not found"}), 404
+    data = doc.to_dict()
+    if data.get("uid") != g.uid:
+        return jsonify({"error": "Forbidden"}), 403
+    if not _is_unlocked(data):
+        return jsonify({"error": "Locked", "code": "locked"}), 402
+
+    # Legacy generations may not have a private HD key; fall back to their old key.
+    hd_key = data.get("hd_r2_key") or data.get("r2_key")
+    if not hd_key:
+        return jsonify({"error": "No HD file available"}), 404
+    return jsonify({"download_url": public_url(hd_key)})
 
 
 @user_bp.delete("/generations/<job_id>")
@@ -60,14 +132,7 @@ def delete_generation(job_id: str):
         return jsonify({"error": "Forbidden"}), 403
 
     data = doc.to_dict()
-    keys_to_delete = []
-    if data.get("r2_key"):
-        keys_to_delete += [data["r2_key"], _fixed_key(data["r2_key"])]
-    if data.get("source_r2_key"):
-        keys_to_delete.append(data["source_r2_key"])
-    if data.get("compressed_r2_key"):
-        keys_to_delete.append(data["compressed_r2_key"])
-    for key in keys_to_delete:
+    for key in _gen_r2_keys(data):
         try:
             delete_object(key)
         except Exception:
@@ -136,12 +201,10 @@ def regenerate_generation(job_id: str):
     ).start()
 
     # Delete old generation from R2 + Firestore after new job is queued
-    keys_to_delete = []
-    if data.get("r2_key"):
-        keys_to_delete += [data["r2_key"], _fixed_key(data["r2_key"])]
-    if data.get("compressed_r2_key"):
-        keys_to_delete.append(data["compressed_r2_key"])
-    for key in keys_to_delete:
+    # (keep the source image — the new job reuses it above).
+    for key in _gen_r2_keys(data):
+        if key == source_r2_key:
+            continue
         try:
             delete_object(key)
         except Exception:
