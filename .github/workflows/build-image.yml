@@ -1,0 +1,16 @@
+name: Build image
+
+on:
+  push:
+    branches: [main] # only after a merge lands on main — a "release" moment
+
+jobs:
+  build-backend:
+    name: Build backend image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Build the backend Docker image
+        run: docker build -f backend/Dockerfile -t pet-backend:${{ github.sha }} .
