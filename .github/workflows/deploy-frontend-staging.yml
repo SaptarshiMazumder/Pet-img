@@ -1,0 +1,45 @@
+name: Deploy frontend to staging
+
+on:
+  workflow_dispatch:
+
+env:
+  IMAGE: asia-northeast1-docker.pkg.dev/gen-lang-client-0545494042/pet-img-backend-containers/pet-frontend-staging
+  BACKEND_URL: https://pet-backend-staging-930713698987.asia-northeast1.run.app
+
+jobs:
+  deploy-frontend:
+    name: Deploy frontend to Cloud Run (staging)
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: gen-lang-client-0545494042
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev --quiet
+
+      - name: Build and push the frontend image
+        run: |
+          docker build -f frontend-ng/Dockerfile -t ${{ env.IMAGE }}:${{ github.sha }} frontend-ng   
+          docker push ${{ env.IMAGE }}:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy pet-frontend-staging \
+            --image ${{ env.IMAGE }}:${{ github.sha }} \
+            --region asia-northeast1 \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 80 \
+            --set-env-vars API_BASE=${{ env.BACKEND_URL }}
