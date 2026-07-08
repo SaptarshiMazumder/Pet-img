@@ -1,13 +1,13 @@
 name: Deploy to staging
 
 on:
-  workflow_dispatch: # you trigger this manually — no auto-deploys
+  workflow_dispatch:
 
 jobs:
   deploy-backend:
     name: Deploy backend to Cloud Run (staging)
     runs-on: ubuntu-latest
-    environment: staging # pauses for YOUR approval (the 5a gate)
+    environment: staging
     steps:
       - name: Check out the code
         uses: actions/checkout@v4
@@ -22,18 +22,18 @@ jobs:
         with:
           project_id: pet-gen-dev
 
-      - name: Configure Docker to push to GCR
-        run: gcloud auth configure-docker gcr.io --quiet
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev --quiet
 
-      - name: Build and push the backend image to GCR
+      - name: Build and push the backend image
         run: |
-          docker build -f backend/Dockerfile -t gcr.io/pet-gen-dev/pet-backend-staging:${{ github.sha }} .
-          docker push gcr.io/pet-gen-dev/pet-backend-staging:${{ github.sha }}
+          docker build -f backend/Dockerfile -t asia-northeast1-docker.pkg.dev/pet-gen-dev/containers/pet-backend-staging:${{ github.sha }} .
+          docker push asia-northeast1-docker.pkg.dev/pet-gen-dev/containers/pet-backend-staging:${{ github.sha }}
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy pet-backend-staging \
-            --image gcr.io/pet-gen-dev/pet-backend-staging:${{ github.sha }} \
+            --image asia-northeast1-docker.pkg.dev/pet-gen-dev/containers/pet-backend-staging:${{ github.sha }} \
             --region asia-northeast1 \
             --platform managed \
             --allow-unauthenticated
