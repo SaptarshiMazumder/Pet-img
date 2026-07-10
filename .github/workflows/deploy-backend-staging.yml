@@ -1,4 +1,4 @@
-name: Deploy to staging
+name: Deploy backend to staging
 
 on:
   workflow_dispatch:
