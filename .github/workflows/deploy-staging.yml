@@ -40,3 +40,9 @@ jobs:
             --region asia-northeast1 \
             --platform managed \
             --allow-unauthenticated
+
+      - name: Smoke test the deploy
+        run: |
+          URL=$(gcloud run services describe pet-backend-staging --region asia-northeast1 --format='value(status.url)')
+          echo "Health-checking $URL/health"
+          curl -fsS "$URL/health" | grep -q '"ok"' && echo "PASS: backend is healthy" || (echo "FAIL: smoke test did not pass" && exit 1)
