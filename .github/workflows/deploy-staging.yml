@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE: asia-northeast1-docker.pkg.dev/gen-lang-client-0545494042/pet-img-backend-containers/pet-backend-staging
+  IMAGE: asia-northeast1-docker.pkg.dev/gen-lang-client-0545494042/pet-app-images/backend
 
 jobs:
   deploy-backend:
@@ -35,8 +35,6 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy pet-backend-staging \
+          gcloud run deploy pet-app-backend \
             --image ${{ env.IMAGE }}:${{ github.sha }} \
-            --region asia-northeast1 \
-            --platform managed \
-            --allow-unauthenticated
+            --region asia-northeast1
