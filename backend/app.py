@@ -32,7 +32,7 @@ def create_app() -> Flask:
         "https://pet-to.com",
         "https://www.pet-to.com",
         "https://pet-gen-dev-frontend-w3naol7cta-an.a.run.app",
-        "https://pet-frontend-staging-930713698987.asia-northeast1.run.app",
+        "https://pet-app-frontend-930713698987.asia-northeast1.run.app",
         "http://localhost:4200",
         "http://localhost:5000",
     ])

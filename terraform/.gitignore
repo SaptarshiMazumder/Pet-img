@@ -1,0 +1,10 @@
+# Terraform working dir & state (never commit)
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Variable files may hold secrets — commit only the .example
+*.tfvars
+!*.tfvars.example
+
+crash.log
