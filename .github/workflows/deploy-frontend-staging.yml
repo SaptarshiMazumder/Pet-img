@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE: asia-northeast1-docker.pkg.dev/gen-lang-client-0545494042/pet-img-backend-containers/pet-frontend-staging
-  BACKEND_URL: https://pet-backend-staging-930713698987.asia-northeast1.run.app
+  IMAGE: asia-northeast1-docker.pkg.dev/gen-lang-client-0545494042/pet-app-images/frontend
 
 jobs:
   deploy-frontend:
@@ -36,10 +35,6 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy pet-frontend-staging \
+          gcloud run deploy pet-app-frontend \
             --image ${{ env.IMAGE }}:${{ github.sha }} \
-            --region asia-northeast1 \
-            --platform managed \
-            --allow-unauthenticated \
-            --port 80 \
-            --set-env-vars API_BASE=${{ env.BACKEND_URL }}
+            --region asia-northeast1
